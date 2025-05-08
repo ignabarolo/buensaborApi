@@ -31,4 +31,17 @@ public class domicilioServices {
      public void eliminar (long id){
          domicilioRepository.deleteById(id);
      }
+
+    public Domicilio actualizarDomicilio(Long id, Domicilio nuevoDomicilio) {
+        Domicilio domicilioExistente = domicilioRepository.findById(id).orElse(null);
+        if (domicilioExistente != null) {
+            domicilioExistente.setCalle(nuevoDomicilio.getCalle());
+            domicilioExistente.setNumero(nuevoDomicilio.getNumero());
+            domicilioExistente.setCodigoPostal(nuevoDomicilio.getCodigoPostal());
+            domicilioExistente.setLocalidad(nuevoDomicilio.getLocalidad());
+            return domicilioRepository.save(domicilioExistente);
+        }
+        return null; 
+    }
+
 }

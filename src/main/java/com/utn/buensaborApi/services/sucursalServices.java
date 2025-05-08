@@ -27,7 +27,33 @@ public class sucursalServices {
      public Sucursal obtenerPorId (Long id) {
          return sucursalRepository.findById(id).orElse(null);
      }
+
      public void eliminar (long id){
          sucursalRepository.deleteById(id);
      }
+
+
+    public Sucursal actualizar(Long id, Sucursal sucursalActualizada) {
+        Sucursal sucursalExistente = obtenerPorId(id);
+        if (sucursalExistente != null) {
+
+            sucursalExistente.setNombre(sucursalActualizada.getNombre());
+            sucursalExistente.setHoraApertura(sucursalActualizada.getHoraApertura());
+            sucursalExistente.setHoraCierre(sucursalActualizada.getHoraCierre());
+            sucursalExistente.setEmpresa(sucursalActualizada.getEmpresa());
+            sucursalExistente.setDomicilio(sucursalActualizada.getDomicilio());
+            sucursalExistente.setEmpleados(sucursalActualizada.getEmpleados());
+            sucursalExistente.setFacturas(sucursalActualizada.getFacturas());
+            sucursalExistente.setPedidosVenta(sucursalActualizada.getPedidosVenta());
+            sucursalExistente.setPromociones(sucursalActualizada.getPromociones());
+            sucursalExistente.setArticulos(sucursalActualizada.getArticulos());
+            sucursalExistente.setSucursalInsumos(sucursalActualizada.getSucursalInsumos());
+            sucursalExistente.setCategoriasArticulo(sucursalActualizada.getCategoriasArticulo());
+
+
+            return sucursalRepository.save(sucursalExistente);
+        } else {
+            return null;
+        }
+    }
 }

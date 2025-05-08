@@ -1,16 +1,19 @@
 
 package com.utn.buensaborApi.models;
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import java.util.List;
 /**
  *
  * @author Enzo
  */
+
 @Entity
 public class Empresa {
  @Id
  @GeneratedValue(strategy= GenerationType.IDENTITY)
- private int id_empresa;
+ private long id_empresa;
  
  private String nombre;
  private String razonSocial;
@@ -19,13 +22,12 @@ public class Empresa {
  @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sucursal> sucursales;
 
- 
- 
-    public int getId_empresa() {
+
+    public long getId_empresa() {
         return id_empresa;
     }
 
-    public void setId_empresa(int id_empresa) {
+    public void setId_empresa(long id_empresa) {
         this.id_empresa = id_empresa;
     }
 
@@ -60,7 +62,4 @@ public class Empresa {
     public void setSucursales(List<Sucursal> sucursales) {
         this.sucursales = sucursales;
     }
- 
- 
- 
 }

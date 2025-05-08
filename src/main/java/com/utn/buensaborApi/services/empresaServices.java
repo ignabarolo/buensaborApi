@@ -29,5 +29,20 @@ public class empresaServices {
      }
      public void eliminar (long id){
          empresaRepository.deleteById(id);
-     } 
+     }
+
+    public Empresa actualizarEmpresa(Long id, Empresa empresaActualizada) {
+        Empresa empresaExistente = empresaRepository.findById(id).orElse(null);
+
+        if (empresaExistente != null) {
+            empresaExistente.setNombre(empresaActualizada.getNombre());
+            empresaExistente.setRazonSocial(empresaActualizada.getRazonSocial());
+            empresaExistente.setCuil(empresaActualizada.getCuil());
+
+            return empresaRepository.save(empresaExistente);
+        } else {
+            return null;
+        }
+    }
+
 }
