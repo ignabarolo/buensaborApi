@@ -11,8 +11,10 @@ public class ArticuloManufacturadoDetalle extends BaseEntity {
     private Double cantidad;
 
     @ManyToOne
-    private SucursalInsumo articuloInsumo;
+    @JoinColumn(name = "articuloInsumo_id")
+    private ArticuloInsumo articuloInsumo;
 
     @ManyToOne
+    @JoinColumn(name = "articuloManufacturado_id")
     private ArticuloManufacturado articuloManufacturado;
 }
