@@ -13,6 +13,7 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
+
     protected LocalDateTime fechaAlta;
     protected LocalDateTime fechaModificacion;
     protected LocalDateTime fechaBaja;

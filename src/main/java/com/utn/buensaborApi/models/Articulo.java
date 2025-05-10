@@ -27,7 +27,11 @@ public abstract class Articulo extends BaseEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "articulo_id")
-    protected List<Imagen> imagen;
+    protected List<Imagen> imagenes;
+
+    @ManyToOne
+    @JoinColumn(name ="categoria_id")
+    protected CategoriaArticulo categoria;
 
     //Método para Calcular precio de Venta
     protected abstract Double obtenerCostoBase();

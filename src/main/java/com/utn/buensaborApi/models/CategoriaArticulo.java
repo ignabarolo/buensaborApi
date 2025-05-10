@@ -1,10 +1,7 @@
 package com.utn.buensaborApi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +17,16 @@ public class CategoriaArticulo extends BaseEntity {
     @JsonIgnore
     private CategoriaArticulo categoriaPadre;
 
-    @OneToMany
-    @JoinColumn(name = "categoriaArticulo_id")
+    @OneToMany(mappedBy = "categoria")
     private List<Articulo> articulo;
+
+    @ManyToOne
+    @JoinColumn(name = "sucursal_id")
+    @JsonIgnore
+    private SucursalEmpresa sucursal;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "imagen_id")
+    private Imagen imagen;
+
 }

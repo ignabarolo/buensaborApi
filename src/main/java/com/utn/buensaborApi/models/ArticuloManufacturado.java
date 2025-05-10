@@ -14,7 +14,7 @@ public class ArticuloManufacturado extends Articulo {
     private String descripcion;
     private Double precioCosto;
 
-    @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticuloManufacturadoDetalle> detalles;
 
     //Método heredado para determinar el costo sobre el que se calculará el precio de Venta

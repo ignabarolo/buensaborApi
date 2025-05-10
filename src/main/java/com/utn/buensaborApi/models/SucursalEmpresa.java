@@ -18,10 +18,7 @@ public class SucursalEmpresa extends BaseEntity {
     private String horaApertura;
     private String horaCierre;
 
-    @OneToMany(mappedBy = "sucursalEmpresa")
-    private List<Articulo> articulos;
-
-    @OneToMany(mappedBy = "sucursalEmpresa")
+    @OneToMany(mappedBy = "sucursal")
     private List<SucursalInsumo> insumos;
 
     @OneToMany
