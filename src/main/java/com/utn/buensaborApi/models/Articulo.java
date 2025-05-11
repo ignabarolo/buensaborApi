@@ -33,7 +33,7 @@ public abstract class Articulo extends BaseEntity {
     @JoinColumn(name ="categoria_id")
     protected CategoriaArticulo categoria;
 
-    //Método para Calcular precio de Venta
+    //Metodo para Calcular precio de Venta
     protected abstract Double obtenerCostoBase();
 
     public void precioCalculado() {

@@ -2,17 +2,17 @@ package com.utn.buensaborApi.Controller;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
 import com.utn.buensaborApi.services.ArticuloInsumoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/articuloInsumo")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class ArticuloInsumoController {
 
-    @Autowired
-    private ArticuloInsumoService articuloInsumoService;
+    private final ArticuloInsumoService articuloInsumoService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloInsumoPorId(@PathVariable Long id) {

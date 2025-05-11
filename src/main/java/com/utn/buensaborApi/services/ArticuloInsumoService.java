@@ -1,10 +1,9 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
-import com.utn.buensaborApi.models.SucursalInsumo;
 import com.utn.buensaborApi.repository.ArticuloInsumoRepository;
 import com.utn.buensaborApi.repository.SucursalInsumoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +11,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ArticuloInsumoService {
 
-    @Autowired
-    private ArticuloInsumoRepository articuloInsumoRepository;
-
-    @Autowired
-    private SucursalInsumoRepository sucursalInsumoRepository;
+    private final ArticuloInsumoRepository articuloInsumoRepository;
+    private final SucursalInsumoRepository sucursalInsumoRepository;
 
     //Buscar Insumo por id con detalle
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {

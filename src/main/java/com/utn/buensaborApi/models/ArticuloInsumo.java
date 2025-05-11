@@ -19,7 +19,7 @@ public class ArticuloInsumo extends Articulo{
     private List<SucursalInsumo> stockPorSucursal;
 
 
-    //Método heredado para determinar el costo sobre el que se calculará el precio de Venta
+    //Metodo heredado para determinar el costo sobre el que se calculará el precio de Venta
     @Override
     protected Double obtenerCostoBase() {
         return precioCompra;

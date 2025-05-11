@@ -3,23 +3,28 @@ package com.utn.buensaborApi.Controller;
 import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.services.ArticuloManufacturadoService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/articuloManufacturado")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class ArticuloManufacturadoController {
 
-    @Autowired
-    private ArticuloManufacturadoService articuloManufacturadoService;
+    private final ArticuloManufacturadoService articuloManufacturadoService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloManufacturadoPorId(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(articuloManufacturadoService.buscarPorId(id));
+            return ResponseEntity.ok(articuloManufacturadoService.buscarPorIdSinDetalle(id));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
@@ -40,29 +45,33 @@ public class ArticuloManufacturadoController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<?> crearArticuloManufacturado(@RequestBody ArticuloManufacturado articuloManufacturado) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> crearArticuloManufacturado(
+            @ModelAttribute ArticuloManufacturado articuloManufacturado,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(articuloManufacturadoService.crear(articuloManufacturado));
+                    .body(articuloManufacturadoService.crear(articuloManufacturado, imagenes));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> modificarArticuloManufacturado(@PathVariable Long id,
-                                                            @RequestBody ArticuloManufacturado articuloManufacturado) {
+
+    @PutMapping("")
+    public ResponseEntity<?> actualizar(
+            @RequestPart("articuloManufacturado") ArticuloManufacturado articuloManufacturado,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
-            articuloManufacturado.setId(id);
-            return ResponseEntity.ok(articuloManufacturadoService.actualizar(articuloManufacturado));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            ArticuloManufacturado resultado = articuloManufacturadoService.actualizar(articuloManufacturado, imagenes);
+            return ResponseEntity.ok(resultado);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
+
 
 
     @DeleteMapping("/{id}")

@@ -2,7 +2,7 @@ package com.utn.buensaborApi.Controller;
 
 import com.utn.buensaborApi.models.Imagen;
 import com.utn.buensaborApi.services.ImagenService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,15 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/imagenes")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class ImagenController {
 
-    @Autowired
-    private ImagenService imagenService;
+    private final ImagenService imagenService;
 
     @GetMapping
     public ResponseEntity<List<Imagen>> getAll() {

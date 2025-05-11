@@ -14,10 +14,4 @@ public interface ArticuloManufacturadoRepository extends JpaRepository<ArticuloM
             "WHERE a.id = :id AND a.fechaBaja IS NULL")
     Optional<ArticuloManufacturado> findByIdNoDetails(@Param("id") Long id);
 
-    @Query("SELECT DISTINCT a FROM ArticuloManufacturado a " +
-            "LEFT JOIN FETCH a.detalles d " +
-            "LEFT JOIN FETCH d.articuloInsumo " +
-            "WHERE a.id = :id AND a.fechaBaja IS NULL")
-    Optional<ArticuloManufacturado> findByIdWithDetails(@Param("id") Long id);
-
 }

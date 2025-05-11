@@ -2,7 +2,7 @@ package com.utn.buensaborApi.Controller;
 
 import com.utn.buensaborApi.models.SucursalInsumo;
 import com.utn.buensaborApi.services.SucursalInsumoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/sucursalInsumos")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class SucursalInsumoController {
 
-    @Autowired
-    private SucursalInsumoService sucursalInsumoService;
+    private final SucursalInsumoService sucursalInsumoService;
 
     @GetMapping("/sucursal/{idSucursal}")
     public ResponseEntity<?> findBySucursal(@PathVariable Long idSucursal) {

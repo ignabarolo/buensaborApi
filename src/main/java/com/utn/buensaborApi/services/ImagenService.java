@@ -3,7 +3,7 @@ package com.utn.buensaborApi.services;
 import com.utn.buensaborApi.models.Imagen;
 import com.utn.buensaborApi.repository.ImagenRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +17,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
+
 
 @Service
+@RequiredArgsConstructor
 public class ImagenService {
-    @Autowired
-    private ImagenRepository imagenRepository;
+    private final ImagenRepository imagenRepository;
 
     @Value("${app.upload.dir:${user.home}/buensabor/imagenes}")
     private String uploadDir;
@@ -60,13 +59,13 @@ public class ImagenService {
         }
         String originalFileName = file.getOriginalFilename();
         // Validar la extensión del archivo
-        if (originalFileName == null || !isValidImageExtension(originalFileName)) {
+        if (originalFileName == null || isInValidImageExtension(originalFileName)) {
             throw new IllegalArgumentException("Formato de archivo no válido");
         }
 
         // Generar nombre único para el archivo
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String newFileName = UUID.randomUUID().toString() + fileExtension;
+        String newFileName = UUID.randomUUID() + fileExtension;
 
         // Crear la ruta completa
         Path filePath = Paths.get(uploadDir, newFileName);
@@ -99,12 +98,12 @@ public class ImagenService {
 
         // Crear nuevo registro de imagen
         String originalFileName = file.getOriginalFilename();
-        if (originalFileName == null || !isValidImageExtension(originalFileName)) {
+        if (originalFileName == null || isInValidImageExtension(originalFileName)) {
             throw new IllegalArgumentException("Formato de archivo no válido");
         }
 
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String newFileName = UUID.randomUUID().toString() + fileExtension;
+        String newFileName = UUID.randomUUID() + fileExtension;
 
         Path newFilePath = Paths.get(uploadDir, newFileName);
         Files.createDirectories(newFilePath.getParent());
@@ -120,7 +119,7 @@ public class ImagenService {
     @Transactional
     public void delete(Long id) {
         Optional<Imagen> imagenOptional = imagenRepository.findByIdAndFechaBajaIsNull(id);
-        if (!imagenOptional.isPresent()) {
+        if (imagenOptional.isEmpty()) {
             throw new RuntimeException("Imagen no encontrada o ya fue dada de baja");
         }
 
@@ -142,12 +141,12 @@ public class ImagenService {
         return Files.readAllBytes(filePath);
     }
 
-    // Método auxiliar para validar extensiones de imagen
-    private boolean isValidImageExtension(String fileName) {
+    // Metodo auxiliar para validar extensiones de imagen
+    private boolean isInValidImageExtension(String fileName) {
         String[] validExtensions = {".jpg", ".jpeg", ".png", ".gif"};
         String extension = fileName.toLowerCase();
         return Arrays.stream(validExtensions)
-                .anyMatch(extension::endsWith);
+                .noneMatch(extension::endsWith);
     }
 
 }

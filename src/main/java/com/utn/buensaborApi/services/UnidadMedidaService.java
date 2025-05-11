@@ -2,7 +2,7 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.UnidadMedida;
 import com.utn.buensaborApi.repository.UnidadMedidaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UnidadMedidaService {
 
-    @Autowired
-    private UnidadMedidaRepository unidadMedidaRepository;
+    private final UnidadMedidaRepository unidadMedidaRepository;
 
     //Listar las unidades de medida activas
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class UnidadMedidaService {
     public UnidadMedida update(UnidadMedida unidadMedida) {
         Optional<UnidadMedida> unidadMedidaExistente = unidadMedidaRepository.findByIdAndFechaBajaIsNull(unidadMedida.getId());
         
-        if (!unidadMedidaExistente.isPresent()) {
+        if (unidadMedidaExistente.isEmpty()) {
             throw new RuntimeException("Unidad de medida no encontrada o dada de baja");
         }
 
@@ -54,7 +54,7 @@ public class UnidadMedidaService {
     public void delete(Long id) {
         Optional<UnidadMedida> unidadMedidaOptional = unidadMedidaRepository.findByIdAndFechaBajaIsNull(id);
         
-        if (!unidadMedidaOptional.isPresent()) {
+        if (unidadMedidaOptional.isEmpty()) {
             throw new RuntimeException("Unidad de medida no encontrada o ya fue dada de baja");
         }
 

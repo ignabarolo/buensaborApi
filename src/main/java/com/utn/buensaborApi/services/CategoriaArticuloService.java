@@ -1,21 +1,24 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.CategoriaArticulo;
+import com.utn.buensaborApi.models.Imagen;
 import com.utn.buensaborApi.repository.CategoriaArticuloRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class CategoriaArticuloService {
 
-    @Autowired
-    private CategoriaArticuloRepository categoriaRepository;
+    private final CategoriaArticuloRepository categoriaRepository;
+    private final ImagenService imagenService;
 
     // Buscar categoría por ID con todo el detalle
     public CategoriaArticulo buscarCategoriaPorIdConDetalle(Long id) {
@@ -45,24 +48,50 @@ public class CategoriaArticuloService {
     }
 
     // Guardar nueva categoría
-    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria) {
+    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
+        if (imagen != null && !imagen.isEmpty()) {
+            Imagen nuevaImagen = imagenService.uploadImage(imagen);
+            categoria.setImagen(nuevaImagen);
+        }
+
         categoria.setFechaAlta(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 
     // Actualizar categoría
-    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria) {
+    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
         if (!categoriaRepository.existsById(categoria.getId())) {
             throw new RuntimeException("Categoría no encontrada con ID: " + categoria.getId());
         }
+
+        // Si hay una nueva imagen, actualizar
+        if (imagen != null && !imagen.isEmpty()) {
+            // Si ya existe una imagen, actualizarla
+            if (categoria.getImagen() != null) {
+                Imagen imagenActualizada = imagenService.updateImage(categoria.getImagen().getId(), imagen);
+                categoria.setImagen(imagenActualizada);
+            } else {
+                // Si no existe imagen previa, crear una nueva
+                Imagen nuevaImagen = imagenService.uploadImage(imagen);
+                categoria.setImagen(nuevaImagen);
+            }
+        }
+
         categoria.setFechaModificacion(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
+
 
     // Eliminado lógico
     public void eliminarLogico(Long id) {
         CategoriaArticulo categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
+
+        // Eliminar lógicamente la imagen si existe
+        if (categoria.getImagen() != null) {
+            imagenService.delete(categoria.getImagen().getId());
+        }
+
         categoria.setFechaBaja(LocalDateTime.now());
         categoriaRepository.save(categoria);
     }

@@ -17,13 +17,13 @@ public class ArticuloManufacturado extends Articulo {
     @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticuloManufacturadoDetalle> detalles;
 
-    //Método heredado para determinar el costo sobre el que se calculará el precio de Venta
+    //Metodo heredado para determinar el costo sobre el que se calculará el precio de Venta
     @Override
     protected Double obtenerCostoBase() {
         return precioCosto;
     }
 
-    //Método para calcular el costo total del ArticuloManifacturado
+    //Metodo para calcular el costo total del ArticuloManifacturado
     public void costoCalculado() {
         if (detalles == null || detalles.isEmpty()) {
             this.precioCosto = 0.0;
@@ -40,7 +40,7 @@ public class ArticuloManufacturado extends Articulo {
         this.precioCosto = total;
     }
 
-    //Método para calcular stock disponible del articuloManufatcturado
+    //Metodo para calcular stock disponible del articuloManufatcturado
     public int stockCalculado() {
         if (this.sucursal == null || this.detalles == null || detalles.isEmpty()) {
             return 0;

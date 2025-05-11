@@ -2,6 +2,7 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.SucursalInsumo;
 import com.utn.buensaborApi.repository.SucursalInsumoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +12,10 @@ import java.util.Optional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SucursalInsumoService {
 
-    @Autowired
-    private SucursalInsumoRepository sucursalInsumoRepository;
+    private final SucursalInsumoRepository sucursalInsumoRepository;
 
     // Listar por sucursal (activos)
     @Transactional(readOnly = true)
