@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/imagenes")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ImagenController {
 
     @Autowired

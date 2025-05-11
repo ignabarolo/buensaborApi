@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/unidadmedida")
+@CrossOrigin(origins = "http://localhost:5173")
 public class UnidadMedidaController {
 
     @Autowired
@@ -51,7 +52,7 @@ public class UnidadMedidaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {
-            unidadMedidaService(id);
+            unidadMedidaService.delete(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
