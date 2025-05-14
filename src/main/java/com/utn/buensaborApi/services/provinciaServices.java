@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Provincia;
@@ -33,4 +30,13 @@ public class provinciaServices {
      public void eliminar (long id){
          provinciaRepository.deleteById(id);
      }
+     public Provincia actualizar(Long id, Provincia provinciaActualizada) {
+    Provincia provinciaExistente = provinciaRepository.findById(id).orElse(null);
+    if (provinciaExistente != null) {
+        provinciaExistente.setNombre(provinciaActualizada.getNombre());
+        provinciaExistente.setPais(provinciaActualizada.getPais());
+        return provinciaRepository.save(provinciaExistente);
+    }
+    return null;
+}
 }

@@ -50,5 +50,15 @@ public class localidadController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PutMapping("/{id}")
+public ResponseEntity<Localidad> actualizarLocalidad(@PathVariable Long id, @RequestBody Localidad localidad) {
+    Localidad actualizada = localidadServices.actualizar(id, localidad);
+    if (actualizada != null) {
+        return ResponseEntity.ok(actualizada);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
+
 }
 

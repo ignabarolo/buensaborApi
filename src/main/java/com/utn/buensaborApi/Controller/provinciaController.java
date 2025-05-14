@@ -40,6 +40,15 @@ public class provinciaController {
         return ResponseEntity.ok(nuevaProvincia);
     }
 
+    @PutMapping("/{id}")
+   public ResponseEntity<Provincia> actualizarProvincia(@PathVariable Long id, @RequestBody Provincia provinciaActualizada) {
+    Provincia actualizada = provinciaServices.actualizar(id, provinciaActualizada);
+    if (actualizada != null) {
+        return ResponseEntity.ok(actualizada);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 
 
     @DeleteMapping("/{id}")

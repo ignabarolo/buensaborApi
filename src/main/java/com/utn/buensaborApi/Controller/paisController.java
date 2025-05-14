@@ -1,6 +1,5 @@
 package com.utn.buensaborApi.Controller;
 
-
 import com.utn.buensaborApi.models.Pais;
 import com.utn.buensaborApi.services.paisServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +40,18 @@ public class paisController {
         return ResponseEntity.ok(nuevoPais);
     }
 
+    // ✅ Nuevo endpoint para actualizar un país existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Pais> actualizarPais(@PathVariable Long id, @RequestBody Pais paisDetalles) {
+        Pais existente = paisServices.obtenerPorId(id);
+        if (existente != null) {
+            existente.setNombre(paisDetalles.getNombre());
+            Pais actualizado = paisServices.guardar(existente);
+            return ResponseEntity.ok(actualizado);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarPais(@PathVariable Long id) {
@@ -53,4 +64,5 @@ public class paisController {
         }
     }
 }
+
 

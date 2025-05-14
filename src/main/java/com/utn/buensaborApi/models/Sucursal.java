@@ -1,5 +1,6 @@
 
 package com.utn.buensaborApi.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 /**
@@ -22,13 +23,14 @@ public class Sucursal {
     private Empresa empresa;
     
     @OneToMany(mappedBy = "sucursal")
+    @JsonIgnore
     private List<Empleado> empleados;
     
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id_domicilio", referencedColumnName = "id_domicilio")
     private Domicilio domicilio;
     
-    @OneToMany(mappedBy = "sucursal")
+   /* @OneToMany(mappedBy = "sucursal")
     private List<Factura> facturas;
     
     @OneToMany(mappedBy = "sucursal")
@@ -44,7 +46,7 @@ public class Sucursal {
     private List<sucursalInsumos> sucursalInsumos;
     
     @OneToMany(mappedBy = "sucursal")
-    private List<categoriaArticulo> categoriasArticulo;
+    private List<categoriaArticulo> categoriasArticulo;*/
 
     public Long getId_sucursal() {
         return id_sucursal;
@@ -101,7 +103,7 @@ public class Sucursal {
     public void setDomicilio(Domicilio domicilio) {
         this.domicilio = domicilio;
     }
-
+/*
     public List<Factura> getFacturas() {
         return facturas;
     }
@@ -148,5 +150,5 @@ public class Sucursal {
 
     public void setCategoriasArticulo(List<categoriaArticulo> categoriasArticulo) {
         this.categoriasArticulo = categoriasArticulo;
-    }
+    }*/
 }

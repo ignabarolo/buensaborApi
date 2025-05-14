@@ -30,5 +30,16 @@ public class localidadServices {
      }
      public void eliminar (long id){
          localidadRepository.deleteById(id);
-     }   
+     }
+     
+     public Localidad actualizar(Long id, Localidad localidadActualizada) {
+    Localidad existente = localidadRepository.findById(id).orElse(null);
+    if (existente != null) {
+        existente.setNombre(localidadActualizada.getNombre());
+        existente.setProvincia(localidadActualizada.getProvincia());
+        return localidadRepository.save(existente);
+    }
+    return null;
+}
+
 }

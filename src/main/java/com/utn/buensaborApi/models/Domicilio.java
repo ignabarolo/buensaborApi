@@ -17,6 +17,9 @@ private String calle;
 private int numero;
 private int codigoPostal;
 
+@OneToOne(mappedBy = "domicilio")
+private Sucursal sucursal;
+
 
 @ManyToOne
 @JoinColumn(name = "id_localidad")

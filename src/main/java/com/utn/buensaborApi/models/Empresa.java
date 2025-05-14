@@ -1,5 +1,6 @@
 
 package com.utn.buensaborApi.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class Empresa {
  private int cuil;
  
  @OneToMany(mappedBy = "empresa", cascade = CascadeType.ALL, orphanRemoval = true)
+ @JsonIgnore
     private List<Sucursal> sucursales;
 
 

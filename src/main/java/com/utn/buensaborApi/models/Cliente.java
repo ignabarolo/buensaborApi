@@ -31,11 +31,11 @@ public class Cliente {
  @JoinColumn(name = "id_domicilio", referencedColumnName = "id_domicilio")
  private Domicilio domicilio;
  
- @OneToMany(mappedBy = "cliente")
- private List<pedidoVenta> PedidosVenta;
+ //@OneToMany(mappedBy = "cliente")
+ //private List<pedidoVenta> PedidosVenta;
  
-  @OneToMany(mappedBy = "cliente")
- private List<Factura> facturas;
+//  @OneToMany(mappedBy = "cliente")
+ //private List<Factura> facturas;
 
 
  public int getId_cliente() {
@@ -102,7 +102,7 @@ public class Cliente {
   this.domicilio = domicilio;
  }
 
- public List<pedidoVenta> getPedidosVenta() {
+ /*public List<pedidoVenta> getPedidosVenta() {
   return PedidosVenta;
  }
 
@@ -116,5 +116,5 @@ public class Cliente {
 
  public void setFacturas(List<Factura> facturas) {
   this.facturas = facturas;
- }
+ }*/
 }

@@ -36,8 +36,8 @@ public class Empleado {
  @JoinColumn(name = "id_domicilio", referencedColumnName = "id_domicilio")
  private Domicilio domicilio;
  
-@OneToMany(mappedBy = "empleado")
- private List<pedidoVenta> pedidosVenta;
+//@OneToMany(mappedBy = "empleado")
+ //private List<pedidoVenta> pedidosVenta;
 
  public long getId_empleado() {
   return id_empleado;
@@ -111,11 +111,11 @@ public class Empleado {
   this.domicilio = domicilio;
  }
 
- public List<pedidoVenta> getPedidosVenta() {
+/* public List<pedidoVenta> getPedidosVenta() {
   return pedidosVenta;
  }
 
  public void setPedidosVenta(List<pedidoVenta> pedidosVenta) {
   this.pedidosVenta = pedidosVenta;
- }
+ }*/
 }

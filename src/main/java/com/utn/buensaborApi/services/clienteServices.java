@@ -43,8 +43,8 @@ public class clienteServices {
             clienteExistente.setFechaDeNacimiento(clienteActualizado.getFechaDeNacimiento());
             clienteExistente.setUsuario(clienteActualizado.getUsuario());
             clienteExistente.setDomicilio(clienteActualizado.getDomicilio());
-            clienteExistente.setPedidosVenta(clienteActualizado.getPedidosVenta());
-            clienteExistente.setFacturas(clienteActualizado.getFacturas());
+            //clienteExistente.setPedidosVenta(clienteActualizado.getPedidosVenta());
+            //clienteExistente.setFacturas(clienteActualizado.getFacturas());
             return clienteRepository.save(clienteExistente);
         }
         return null;

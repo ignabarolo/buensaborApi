@@ -43,12 +43,12 @@ public class sucursalServices {
             sucursalExistente.setEmpresa(sucursalActualizada.getEmpresa());
             sucursalExistente.setDomicilio(sucursalActualizada.getDomicilio());
             sucursalExistente.setEmpleados(sucursalActualizada.getEmpleados());
-            sucursalExistente.setFacturas(sucursalActualizada.getFacturas());
-            sucursalExistente.setPedidosVenta(sucursalActualizada.getPedidosVenta());
-            sucursalExistente.setPromociones(sucursalActualizada.getPromociones());
-            sucursalExistente.setArticulos(sucursalActualizada.getArticulos());
-            sucursalExistente.setSucursalInsumos(sucursalActualizada.getSucursalInsumos());
-            sucursalExistente.setCategoriasArticulo(sucursalActualizada.getCategoriasArticulo());
+           // sucursalExistente.setFacturas(sucursalActualizada.getFacturas());
+           //sucursalExistente.setPedidosVenta(sucursalActualizada.getPedidosVenta());
+            //sucursalExistente.setPromociones(sucursalActualizada.getPromociones());
+            //sucursalExistente.setArticulos(sucursalActualizada.getArticulos());
+            //sucursalExistente.setSucursalInsumos(sucursalActualizada.getSucursalInsumos());
+            //sucursalExistente.setCategoriasArticulo(sucursalActualizada.getCategoriasArticulo());
 
 
             return sucursalRepository.save(sucursalExistente);
