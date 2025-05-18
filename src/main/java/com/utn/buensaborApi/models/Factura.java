@@ -3,12 +3,15 @@ package com.utn.buensaborApi.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utn.buensaborApi.enums.FormaPago;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -26,7 +29,7 @@ public class Factura extends BaseEntity {
     private PedidoVenta pedidoVenta;
 
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DetalleFactura> detalleFacturas;
+    private Set<FacturaDetalle> facturaDetalles;
 
     @OneToOne(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private DatoMercadoPago datoMercadoPago;

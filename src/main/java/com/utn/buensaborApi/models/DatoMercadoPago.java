@@ -1,11 +1,16 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
@@ -18,8 +23,8 @@ public class DatoMercadoPago extends BaseEntity {
     private String status;
     private String status_detail;
 
-//    @OneToOne(mappedBy = "datoMercadoPago", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OneToOne
     @JoinColumn(name = "id_factura")
+    @JsonIgnore
     private Factura factura;
 }

@@ -1,4 +1,4 @@
-package com.utn.buensaborApi.services;
+package com.utn.buensaborApi.services.Interfaces;
 
 import com.utn.buensaborApi.models.BaseEntity;
 

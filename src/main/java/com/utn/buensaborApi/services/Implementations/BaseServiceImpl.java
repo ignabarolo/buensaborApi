@@ -1,10 +1,12 @@
-package com.utn.buensaborApi.services;
+package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.BaseEntity;
-import com.utn.buensaborApi.repository.BaseRepository;
+import com.utn.buensaborApi.repositories.BaseRepository;
+import com.utn.buensaborApi.services.Interfaces.BaseService;
 import jakarta.transaction.Transactional;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +18,6 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
     }
 
     @Override
-    @Transactional
     public List<E> findAll() throws Exception{
         try {
             List<E> entities = baseRepository.findAll();
@@ -27,7 +28,6 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
     }
 
     @Override
-    @Transactional
     public E findById(ID id) throws Exception{
         try {
             Optional<E> entityOptional = baseRepository.findById(id);
@@ -41,7 +41,11 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
     @Transactional
     public E save(E entity) throws Exception{
         try {
+            entity.setFechaAlta(LocalDateTime.now());
+            entity.setFechaModificacion(LocalDateTime.now());
+            entity.setFechaBaja(LocalDateTime.of(2099, 01, 01, 00,00,00));
             entity = baseRepository.save(entity);
+
             return entity;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -54,6 +58,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
         try {
             Optional<E> entityOptional = baseRepository.findById(id);
             E entityUpdate = entityOptional.get();
+            entity.setFechaModificacion(LocalDateTime.now());
             entityUpdate = baseRepository.save(entity);
             return entityUpdate;
         } catch (Exception e) {
@@ -66,7 +71,13 @@ public abstract class BaseServiceImpl<E extends BaseEntity, ID extends Serializa
     public boolean delete(ID id) throws Exception{
         try {
             if (baseRepository.existsById(id)){
-                baseRepository.deleteById(id);
+                Optional<E> entityOptional = baseRepository.findById(id);
+                E entityDelete = entityOptional.get();
+
+                entityDelete.setFechaBaja(LocalDateTime.now());
+                entityDelete.setFechaModificacion(LocalDateTime.now());
+
+                baseRepository.save(entityDelete);
                 return true;
             } else {
                 throw new Exception();
