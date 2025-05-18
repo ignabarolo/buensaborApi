@@ -9,10 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-/**
- *
- * @author Enzo
- */
 @RestController
 @RequestMapping("/api/usuarios")
 public class usuarioController {

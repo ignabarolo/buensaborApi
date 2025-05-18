@@ -2,7 +2,7 @@ package com.utn.buensaborApi.Controller;
 
 
 
-import com.utn.buensaborApi.models.Sucursal;
+import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.services.sucursalServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ public class sucursalController {
     private sucursalServices sucursalServices;
 
     @GetMapping
-    public ResponseEntity<List<Sucursal>> listarTodasLasSucursales() {
+    public ResponseEntity<List<SucursalEmpresa>> listarTodasLasSucursales() {
         return ResponseEntity.ok(sucursalServices.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Sucursal> obtenerSucursalPorId(@PathVariable Long id) {
-        Sucursal sucursal = sucursalServices.obtenerPorId(id);
+    public ResponseEntity<SucursalEmpresa> obtenerSucursalPorId(@PathVariable Long id) {
+        SucursalEmpresa sucursal = sucursalServices.obtenerPorId(id);
         if (sucursal != null) {
             return ResponseEntity.ok(sucursal);
         } else {
@@ -35,15 +35,15 @@ public class sucursalController {
     }
 
     @PostMapping
-    public ResponseEntity<Sucursal> crearSucursal(@RequestBody Sucursal sucursal) {
-        Sucursal nuevaSucursal = sucursalServices.guardar(sucursal);
+    public ResponseEntity<SucursalEmpresa> crearSucursal(@RequestBody SucursalEmpresa sucursal) {
+        SucursalEmpresa nuevaSucursal = sucursalServices.guardar(sucursal);
         return ResponseEntity.ok(nuevaSucursal);
     }
 
     // Endpoint para actualizar una sucursal
     @PutMapping("/{id}")
-    public ResponseEntity<Sucursal> actualizarSucursal(@PathVariable Long id, @RequestBody Sucursal sucursalActualizada) {
-        Sucursal sucursal = sucursalServices.actualizar(id, sucursalActualizada);
+    public ResponseEntity<SucursalEmpresa> actualizarSucursal(@PathVariable Long id, @RequestBody SucursalEmpresa sucursalActualizada) {
+        SucursalEmpresa sucursal = sucursalServices.actualizar(id, sucursalActualizada);
         if (sucursal != null) {
             return ResponseEntity.ok(sucursal);
         } else {
@@ -53,7 +53,7 @@ public class sucursalController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarSucursal(@PathVariable Long id) {
-        Sucursal sucursal = sucursalServices.obtenerPorId(id);
+        SucursalEmpresa sucursal = sucursalServices.obtenerPorId(id);
         if (sucursal != null) {
             sucursalServices.eliminar(id);
             return ResponseEntity.noContent().build();

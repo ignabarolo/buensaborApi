@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- *
- * @author Enzo
- */
 @RestController
 @RequestMapping("/api/paises")
 public class paisController {

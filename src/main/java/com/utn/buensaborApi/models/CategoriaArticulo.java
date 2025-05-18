@@ -21,7 +21,7 @@ public class CategoriaArticulo extends BaseEntity {
     private List<Articulo> articulo;
 
     @ManyToOne
-    @JoinColumn(name = "sucursal_id")
+    @JoinColumn(name = "sucursal_id", referencedColumnName = "id")
     @JsonIgnore
     private SucursalEmpresa sucursal;
 

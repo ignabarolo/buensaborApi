@@ -21,7 +21,7 @@ public abstract class Articulo extends BaseEntity {
     protected UnidadMedida unidadMedida;
 
     @ManyToOne
-    @JoinColumn(name = "sucursal_id")
+    @JoinColumn(name = "sucursal_id", referencedColumnName = "id")
     @JsonIgnore
     protected SucursalEmpresa sucursal;
 

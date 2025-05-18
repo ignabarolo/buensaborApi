@@ -14,11 +14,11 @@ public class SucursalInsumo extends BaseEntity {
     private Double stockMaximo;
 
     @ManyToOne
-    @JoinColumn(name = "articulo_insumo_id")
+    @JoinColumn(name = "articulo_insumo_id", referencedColumnName = "id")
     private ArticuloInsumo articuloInsumo;
 
     @ManyToOne
-    @JoinColumn(name="sucursalEmpresa_id")
+    @JoinColumn(name="sucursal_id", referencedColumnName = "id")
     @JsonIgnore
     private  SucursalEmpresa sucursal;
 }

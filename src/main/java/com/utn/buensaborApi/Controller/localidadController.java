@@ -5,13 +5,8 @@ import com.utn.buensaborApi.services.localidadServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-/**
- *
- * @author Enzo
- */
 @RestController
 @RequestMapping("/api/localidades")
 public class localidadController {

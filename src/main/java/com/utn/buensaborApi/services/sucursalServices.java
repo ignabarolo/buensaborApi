@@ -1,7 +1,7 @@
 
 package com.utn.buensaborApi.services;
 
-import com.utn.buensaborApi.models.Sucursal;
+import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.repository.sucursalRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +16,15 @@ public class sucursalServices {
              @Autowired
      private sucursalRepository sucursalRepository;
      
-     public List<Sucursal> listarTodos(){
+     public List<SucursalEmpresa> listarTodos(){
          return sucursalRepository.findAll();
      }
      
-     public Sucursal guardar (Sucursal sucursal){
+     public SucursalEmpresa guardar (SucursalEmpresa sucursal){
          return sucursalRepository.save(sucursal);
      }
      
-     public Sucursal obtenerPorId (Long id) {
+     public SucursalEmpresa obtenerPorId (Long id) {
          return sucursalRepository.findById(id).orElse(null);
      }
 
@@ -33,8 +33,8 @@ public class sucursalServices {
      }
 
 
-    public Sucursal actualizar(Long id, Sucursal sucursalActualizada) {
-        Sucursal sucursalExistente = obtenerPorId(id);
+    public SucursalEmpresa actualizar(Long id, SucursalEmpresa sucursalActualizada) {
+        SucursalEmpresa sucursalExistente = obtenerPorId(id);
         if (sucursalExistente != null) {
 
             sucursalExistente.setNombre(sucursalActualizada.getNombre());
