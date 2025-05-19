@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 public class ImagenService {
     private final ImagenRepository imagenRepository;
 
-    @Value("${app.upload.dir:${user.home}/buensabor/imagenes}")
+    @Value("${app.upload.dir:./imagenes}")
     private String uploadDir;
 
     //Crear el directorio si no existe

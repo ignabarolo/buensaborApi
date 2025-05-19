@@ -50,8 +50,11 @@ public class CategoriaArticuloService {
     // Guardar nueva categoría
     public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
         if (imagen != null && !imagen.isEmpty()) {
+            System.out.println("Imagen recibida: " + imagen.getOriginalFilename());
             Imagen nuevaImagen = imagenService.uploadImage(imagen);
             categoria.setImagen(nuevaImagen);
+        }else{
+            System.out.println("No se recibió imagen o está vacía.");
         }
 
         categoria.setFechaAlta(LocalDateTime.now());

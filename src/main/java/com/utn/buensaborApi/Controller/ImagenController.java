@@ -47,7 +47,7 @@ public class ImagenController {
         try {
             byte[] imageData = imagenService.getImageData(fileName);
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // Ajusta según el tipo de imagen
+            headers.setContentType(MediaType.IMAGE_JPEG);
             return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
         } catch (IOException e) {
             return ResponseEntity.notFound().build();

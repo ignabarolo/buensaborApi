@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.services.ArticuloManufacturadoService;
 import jakarta.persistence.EntityNotFoundException;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,15 +48,27 @@ public class ArticuloManufacturadoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> crearArticuloManufacturado(
-            @ModelAttribute ArticuloManufacturado articuloManufacturado,
+            @RequestPart(value = "articuloManufacturado", required = false) String articuloManufacturadoJson,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(articuloManufacturadoService.crear(articuloManufacturado, imagenes));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            if (articuloManufacturadoJson == null || articuloManufacturadoJson.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("El JSON del artículo no puede estar vacío.");
+            }
+
+            // Convertir el JSON del artículo a un objeto ArticuloManufacturado
+            ObjectMapper objectMapper = new ObjectMapper();
+            ArticuloManufacturado articuloManufacturado = objectMapper.readValue(articuloManufacturadoJson, ArticuloManufacturado.class);
+
+            // Guardar el nuevo artículo manufacturado
+            Object nuevoArticulo = articuloManufacturadoService.crear(articuloManufacturado, imagenes);
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoArticulo);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al procesar el JSON o las imágenes: " + e.getMessage());
         }
     }
+
 
 
 
