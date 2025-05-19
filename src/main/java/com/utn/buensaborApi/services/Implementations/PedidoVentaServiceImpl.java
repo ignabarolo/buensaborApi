@@ -2,7 +2,6 @@ package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.PedidoVenta;
-import com.utn.buensaborApi.models.Promocion;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
