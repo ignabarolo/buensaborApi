@@ -11,7 +11,7 @@ import  lombok.*;
 @Setter
 public abstract class Localidad extends BaseEntity {
 
-  private String nombre;
+ private String nombre;
   
 @OneToMany(mappedBy = "localidad")
 @JsonIgnore

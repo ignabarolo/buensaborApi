@@ -40,12 +40,6 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-	// Seguridad
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-
-	// OAuth2 Resource Server
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-
 	// Dev tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

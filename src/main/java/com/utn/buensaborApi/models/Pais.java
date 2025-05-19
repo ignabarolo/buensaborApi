@@ -9,7 +9,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class Pais extends BaseEntity  {
+public class Pais extends BaseEntity  {
    
  private String nombre;
 
