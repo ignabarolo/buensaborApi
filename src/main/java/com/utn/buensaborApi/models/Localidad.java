@@ -9,7 +9,7 @@ import  lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class Localidad extends BaseEntity {
+public class Localidad extends BaseEntity {
 
  private String nombre;
   

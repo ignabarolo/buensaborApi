@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-/**
- *
- * @author User
- */
+
 @RestController
 @RequestMapping("/api/sucursales")
+@CrossOrigin(origins = "http://localhost:5173")
 public class sucursalController {
 
     @Autowired

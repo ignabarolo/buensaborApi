@@ -13,7 +13,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class Provincia extends BaseEntity {
+public class Provincia extends BaseEntity {
     
 private String nombre;
 

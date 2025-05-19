@@ -6,7 +6,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class Domicilio extends BaseEntity{
+public class Domicilio extends BaseEntity{
     
     
 private String calle;

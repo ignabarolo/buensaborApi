@@ -8,7 +8,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class SucursalEmpresa extends BaseEntity{
+public  class SucursalEmpresa extends BaseEntity{
    
    
    private String nombre;

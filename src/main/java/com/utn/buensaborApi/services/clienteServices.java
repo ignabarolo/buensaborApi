@@ -3,6 +3,7 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.repository.clienteRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class clienteServices {
      }
      
      public Cliente guardar (Cliente cliente){
+         cliente.setFechaAlta(LocalDateTime.now());
          return clienteRepository.save(cliente);
      }
      
@@ -41,6 +43,7 @@ public class clienteServices {
             clienteExistente.setDomicilio(clienteActualizado.getDomicilio());
             //clienteExistente.setPedidosVenta(clienteActualizado.getPedidosVenta());
             //clienteExistente.setFacturas(clienteActualizado.getFacturas());
+            clienteExistente.setFechaModificacion(LocalDateTime.now());
             return clienteRepository.save(clienteExistente);
         }
         return null;

@@ -13,7 +13,7 @@ import lombok.*;
 @Getter
 @Setter
 
-public abstract class Empleado extends BaseEntity {
+public  class Empleado extends BaseEntity {
  
  private String nombre;
  private String apellido;

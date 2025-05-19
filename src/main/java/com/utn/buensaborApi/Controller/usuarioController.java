@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "http://localhost:5173")
 public class usuarioController {
  @Autowired
     private usuarioServices usuarioServices;

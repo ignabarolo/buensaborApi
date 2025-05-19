@@ -13,6 +13,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/categoria")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class CategoriaArticuloController {
 

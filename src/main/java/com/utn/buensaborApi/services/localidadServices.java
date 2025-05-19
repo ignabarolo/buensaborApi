@@ -3,14 +3,11 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Localidad;
 import com.utn.buensaborApi.repository.localidadRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- *
- * @author Enzo
- */
 @Service
 public class localidadServices {
     
@@ -22,21 +19,27 @@ public class localidadServices {
      }
      
      public Localidad guardar (Localidad localidad){
+         localidad.setFechaAlta(LocalDateTime.now());
          return localidadRepository.save(localidad);
      }
      
      public Localidad obtenerPorId (Long id) {
          return localidadRepository.findById(id).orElse(null);
      }
-     public void eliminar (long id){
-         localidadRepository.deleteById(id);
-     }
-     
+  public void eliminar(long id){
+    Localidad localidad = localidadRepository.findById(id).orElse(null);
+    if (localidad != null) {
+        localidad.setFechaBaja(LocalDateTime.now());
+        localidadRepository.save(localidad);
+    }
+}
+
      public Localidad actualizar(Long id, Localidad localidadActualizada) {
     Localidad existente = localidadRepository.findById(id).orElse(null);
     if (existente != null) {
         existente.setNombre(localidadActualizada.getNombre());
         existente.setProvincia(localidadActualizada.getProvincia());
+        existente.setFechaModificacion(LocalDateTime.now());
         return localidadRepository.save(existente);
     }
     return null;

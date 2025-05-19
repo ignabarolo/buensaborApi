@@ -10,7 +10,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-public abstract class Cliente extends BaseEntity {
+public class Cliente extends BaseEntity {
 
  
  private String nombre;

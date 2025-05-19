@@ -8,12 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- *
- * @author User
- */
+
 @RestController
 @RequestMapping("/api/provincias")
+@CrossOrigin(origins = "http://localhost:5173")
 public class provinciaController {
 
     @Autowired
