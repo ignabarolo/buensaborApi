@@ -39,3 +39,7 @@ out/
 ### Empaquetado del proyecto ###
 *.jar
 *.war
+
+
+# Ignorar carpeta de imágenes generadas
+imagenes/
