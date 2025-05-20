@@ -19,4 +19,8 @@ public class PromocionDetalle extends BaseEntity {
     @JoinColumn(name = "id_promocion")
     @JsonIgnore
     private Promocion promocion;
+
+    @ManyToOne
+    @JoinColumn(name = "id_articulo")
+    private Articulo articulo;
 }

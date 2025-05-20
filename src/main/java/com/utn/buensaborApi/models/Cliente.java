@@ -27,12 +27,10 @@ public class Cliente extends BaseEntity {
  @JoinColumn(name = "id_domicilio", referencedColumnName = "id")
  private Domicilio domicilio;
  
- //@OneToMany(mappedBy = "cliente")
- //protected List<pedidoVenta> PedidosVenta;
+ @OneToMany(mappedBy = "cliente")
+ protected List<PedidoVenta> PedidosVenta;
  
-//  @OneToMany(mappedBy = "cliente")
- //protected List<Factura> facturas;
-
-
+  @OneToMany(mappedBy = "cliente")
+ protected List<Factura> facturas;
 
 }

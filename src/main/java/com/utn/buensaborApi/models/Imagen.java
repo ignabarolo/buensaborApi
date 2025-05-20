@@ -18,14 +18,14 @@ public class Imagen extends BaseEntity {
     private ArticuloManufacturado articuloManufacturado;
 
 
-//    @ManyToOne
-//    @JoinColumn(name = "articulo_insumo_id")
-//    @JsonIgnore
-//    private ArticuloInsumo articuloInsumo;
+    @ManyToOne
+    @JoinColumn(name = "articulo_insumo_id")
+    @JsonIgnore
+    private ArticuloInsumo articuloInsumo;
 
-    //@ManyToOne
-    //@JoinColumn(name = "promocion_id")
-    //@JsonIgnore
-    //private Promocion promocion;
+    @ManyToOne
+    @JoinColumn(name = "promocion_id")
+    @JsonIgnore
+    private Promocion promocion;
 
 }

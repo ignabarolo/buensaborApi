@@ -27,14 +27,14 @@ public  class SucursalEmpresa extends BaseEntity{
     @JoinColumn(name = "id_domicilio", referencedColumnName = "id")
     private Domicilio domicilio;
     
-   // @OneToMany(mappedBy = "sucursal")
-   // private List<Factura> facturas;
+    @OneToMany(mappedBy = "sucursal")
+    private List<Factura> facturas;
     
-    //@OneToMany(mappedBy = "sucursal")
-    //private List<pedidoVenta> pedidosVenta;
+    @OneToMany(mappedBy = "sucursal")
+    private List<PedidoVenta> pedidosVenta;
     
-   // @OneToMany(mappedBy = "sucursal")
-    //private List<Promocion> promociones;
+    @OneToMany(mappedBy = "sucursal")
+    private List<Promocion> promociones;
     
     @OneToMany(mappedBy = "sucursal")
     private List<Articulo> articulos;

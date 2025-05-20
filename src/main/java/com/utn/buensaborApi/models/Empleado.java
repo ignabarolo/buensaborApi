@@ -35,8 +35,8 @@ public  class Empleado extends BaseEntity {
  @JoinColumn(name = "id_domicilio", referencedColumnName = "id")
  private Domicilio domicilio;
  
-//@OneToMany(mappedBy = "empleado")
- //private List<pedidoVenta> pedidosVenta;
+@OneToMany(mappedBy = "empleado")
+ private List<PedidoVenta> pedidosVenta;
 
 
 }

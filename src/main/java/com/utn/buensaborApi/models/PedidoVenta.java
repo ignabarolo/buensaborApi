@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.FormaPago;
 import com.utn.buensaborApi.enums.TipoEnvio;
@@ -35,20 +36,24 @@ public class PedidoVenta extends BaseEntity {
     @OneToMany(mappedBy = "pedidoVenta", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Factura> facturas;
 
-//    @ManyToOne
-//    @JoinColumn(name = "id_sucursal")
-//    @JsonIgnore
-//    private Sucursal sucursal;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "id_domicilio")
-//    @JsonIgnore
-//    private Domicilio domicilio;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "id_cliente")
-//    @JsonIgnore
-//    private Cliente cliente;
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal")
+    @JsonIgnore
+    private SucursalEmpresa sucursal;
+
+    @ManyToOne
+    @JoinColumn(name = "id_domicilio")
+    private Domicilio domicilio;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cliente")
+    @JsonIgnore
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "id_empleado")
+    @JsonIgnore
+    private Empleado empleado;
 
     public LocalTime HoraFinalizacion() {
         return this.horaPedido;

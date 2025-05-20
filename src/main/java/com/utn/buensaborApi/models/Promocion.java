@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,17 +18,17 @@ public class Promocion extends BaseEntity {
     private LocalDate fechaHasta;
     private Double descuento;
 
-//    @ManyToOne
-//    @JoinColumn(name = "id_sucursal")
-//    @JsonIgnore
-//    private Sucursal sucursal;
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal")
+    @JsonIgnore
+    private SucursalEmpresa sucursal;
 
     @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PromocionDetalle> promocionesDetalle;
 
     @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoVentaDetalle> pedidosVentaDetalle;
-//
-//    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Imagen> imagenes;
+
+    @OneToMany(mappedBy = "promocion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Imagen> imagenes;
 }

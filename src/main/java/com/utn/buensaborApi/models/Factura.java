@@ -34,15 +34,15 @@ public class Factura extends BaseEntity {
     @OneToOne(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private DatoMercadoPago datoMercadoPago;
 
-//    @ManyToOne
-//    @JoinColumn(name = "id_cliente")
-//    @JsonIgnore
-//    private Cliente cliente;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "id_sucursal")
-//    @JsonIgnore
-//    private Sucursal id_sucursal;
+    @ManyToOne
+    @JoinColumn(name = "id_cliente")
+    @JsonIgnore
+    private Cliente cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "id_sucursal")
+    @JsonIgnore
+    private SucursalEmpresa sucursal;
 
     public Double DescuentosCalculados() {
         return 0D;

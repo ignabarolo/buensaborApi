@@ -17,4 +17,8 @@ public class FacturaDetalle extends BaseEntity {
     @JoinColumn(name = "id_factura")
     @JsonIgnore
     private Factura factura;
+
+    @ManyToOne
+    @JoinColumn(name = "id_articulo")
+    private Articulo articulo;
 }

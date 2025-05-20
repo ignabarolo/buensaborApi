@@ -26,6 +26,10 @@ public class PedidoVentaDetalle extends BaseEntity {
     @JsonIgnore
     private PedidoVenta pedidoVenta;
 
+    @ManyToOne
+    @JoinColumn(name = "id_articulo")
+    private Articulo articulo;
+
     public Double SubtotalCalculado() {
         return 0D;
     }
