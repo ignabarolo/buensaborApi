@@ -1,8 +1,8 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.Factura;
-import com.utn.buensaborApi.repositories.BaseRepository;
-import com.utn.buensaborApi.repositories.FacturaRepository;
+import com.utn.buensaborApi.repository.BaseRepository;
+import com.utn.buensaborApi.repository.FacturaRepository;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

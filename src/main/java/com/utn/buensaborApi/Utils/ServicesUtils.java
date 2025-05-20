@@ -2,10 +2,8 @@ package com.utn.buensaborApi.Utils;
 
 import com.utn.buensaborApi.models.Factura;
 import com.utn.buensaborApi.models.PedidoVenta;
-import com.utn.buensaborApi.models.PedidoVentaDetalle;
-import com.utn.buensaborApi.models.Promocion;
-import com.utn.buensaborApi.repositories.FacturaRepository;
-import com.utn.buensaborApi.repositories.PedidoVentaDetalleRepository;
+import com.utn.buensaborApi.repository.FacturaRepository;
+import com.utn.buensaborApi.repository.PedidoVentaDetalleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

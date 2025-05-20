@@ -1,7 +1,6 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,7 @@ public class DataInitializerServices {
     private final PedidoVentaDetalleRepository pedidoVentaDetalleRepository;
     private final FacturaRepository facturaRepository;
     private final DatoMercadoPagoRopository datoMercadoPagoRepository;
+
     @Transactional
     public void initializeData() {
         // Crear el país y las provincias

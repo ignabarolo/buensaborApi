@@ -1,8 +1,8 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.Promocion;
-import com.utn.buensaborApi.repositories.BaseRepository;
-import com.utn.buensaborApi.repositories.PromocionRepository;
+import com.utn.buensaborApi.repository.BaseRepository;
+import com.utn.buensaborApi.repository.PromocionRepository;
 import com.utn.buensaborApi.services.Interfaces.PromocionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
