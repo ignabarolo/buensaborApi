@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,7 +16,8 @@ public class ArticuloManufacturado extends Articulo {
     private Double precioCosto;
 
     @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArticuloManufacturadoDetalle> detalles;
+    private List<ArticuloManufacturadoDetalle> detalles = new ArrayList<>();
+    ;
 
     //Metodo heredado para determinar el costo sobre el que se calculará el precio de Venta
     @Override
