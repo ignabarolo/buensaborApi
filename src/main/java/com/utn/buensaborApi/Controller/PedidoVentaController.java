@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "api/v1/pedidoVenta")
 @Tag(name = "Pedido Venta", description = "Operaciones relacionadas con los pedidos de venta")
 public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, PedidoVentaServiceImpl>{

@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/provincias")
-@CrossOrigin(origins = "http://localhost:5173")
 public class provinciaController {
 
     @Autowired
