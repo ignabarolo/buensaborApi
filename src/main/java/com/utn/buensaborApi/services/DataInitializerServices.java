@@ -1,7 +1,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.repository.*;
+import com.utn.buensaborApi.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

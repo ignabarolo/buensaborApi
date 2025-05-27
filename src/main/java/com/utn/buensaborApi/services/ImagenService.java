@@ -1,7 +1,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Imagen;
-import com.utn.buensaborApi.repository.ImagenRepository;
+import com.utn.buensaborApi.repositories.ImagenRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

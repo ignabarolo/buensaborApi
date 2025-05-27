@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Pais;
-import com.utn.buensaborApi.repository.paisRepository;
+import com.utn.buensaborApi.repositories.paisRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

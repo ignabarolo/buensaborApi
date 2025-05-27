@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Domicilio;
-import com.utn.buensaborApi.repository.domicilioRepository;
+import com.utn.buensaborApi.repositories.domicilioRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

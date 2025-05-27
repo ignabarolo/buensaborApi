@@ -1,8 +1,8 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
-import com.utn.buensaborApi.repository.ArticuloInsumoRepository;
-import com.utn.buensaborApi.repository.SucursalInsumoRepository;
+import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
+import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

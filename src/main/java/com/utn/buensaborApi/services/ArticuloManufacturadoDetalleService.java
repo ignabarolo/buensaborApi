@@ -2,7 +2,7 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.ArticuloManufacturadoDetalle;
-import com.utn.buensaborApi.repository.ArticuloManufacturadoDetalleRepository;
+import com.utn.buensaborApi.repositories.ArticuloManufacturadoDetalleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

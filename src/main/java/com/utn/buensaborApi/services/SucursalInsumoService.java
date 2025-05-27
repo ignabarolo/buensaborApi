@@ -1,7 +1,9 @@
 package com.utn.buensaborApi.services;
 
+import com.utn.buensaborApi.models.Dtos.Manufacturado.SucursalInsumoDto;
 import com.utn.buensaborApi.models.SucursalInsumo;
-import com.utn.buensaborApi.repository.SucursalInsumoRepository;
+import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
+import com.utn.buensaborApi.services.Mappers.SucursalInsumoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,16 +19,24 @@ public class SucursalInsumoService {
 
     private final SucursalInsumoRepository sucursalInsumoRepository;
 
+    @Autowired
+    private final SucursalInsumoMapper sucursalInsumoMapper;
+
     // Listar por sucursal (activos)
     @Transactional(readOnly = true)
-    public List<SucursalInsumo> findBySucursal(Long idSucursal) {
-        return sucursalInsumoRepository.findBySucursalIdAndFechaBajaIsNull(idSucursal);
+    public List<SucursalInsumoDto> findBySucursal(Long idSucursal) {
+        List<SucursalInsumo> sucursalInsumos = sucursalInsumoRepository.findBySucursalIdAndFechaBajaIsNull(idSucursal);
+        List<SucursalInsumoDto> sucursalInsumosDto = sucursalInsumoMapper.toDtoList(sucursalInsumos);
+        return sucursalInsumosDto;
     }
 
     // Buscar por ID (activo)
     @Transactional(readOnly = true)
-    public Optional<SucursalInsumo> findById(Long id) {
-        return sucursalInsumoRepository.findByIdAndFechaBajaIsNull(id);
+    public SucursalInsumoDto findById(Long id) {
+        Optional<SucursalInsumo> sucursalInsumoOptional = sucursalInsumoRepository.findByIdAndFechaBajaIsNull(id);
+        SucursalInsumo sucursalInsumo = sucursalInsumoOptional.get();
+        SucursalInsumoDto sucursalInsumoDto = sucursalInsumoMapper.toDto(sucursalInsumo);
+        return sucursalInsumoDto;
     }
 
     // Buscar por ArticuloInsumo (activos)
