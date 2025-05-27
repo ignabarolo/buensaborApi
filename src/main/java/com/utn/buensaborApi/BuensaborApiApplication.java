@@ -13,7 +13,7 @@ public class BuensaborApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BuensaborApiApplication.class, args);
 	}
-	Boolean seed = false;
+	Boolean seed = true;
 	@Bean
 	public CommandLineRunner dataInitializer(DataInitializerServices initializerService) {
 		return args -> {
