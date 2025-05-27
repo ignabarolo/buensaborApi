@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Cliente;
-import com.utn.buensaborApi.repository.clienteRepository;
+import com.utn.buensaborApi.repositories.clienteRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

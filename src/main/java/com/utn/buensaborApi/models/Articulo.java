@@ -12,26 +12,26 @@ import java.util.List;
 @Getter
 @Setter
 public abstract class Articulo extends BaseEntity {
-    protected String denominacion;
-    protected Double precioVenta;
-    protected Double margenGanancia;
+    private String denominacion;
+    private Double precioVenta;
+    private Double margenGanancia;
 
     @ManyToOne
     @JoinColumn(name = "unidadMedida_id")
-    protected UnidadMedida unidadMedida;
+    private UnidadMedida unidadMedida;
 
     @ManyToOne
     @JoinColumn(name = "sucursal_id", referencedColumnName = "id")
     @JsonIgnore
-    protected SucursalEmpresa sucursal;
+    private SucursalEmpresa sucursal;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "articulo_id")
-    protected List<Imagen> imagenes;
+    private List<Imagen> imagenes;
 
     @ManyToOne
     @JoinColumn(name ="categoria_id")
-    protected CategoriaArticulo categoria;
+    private CategoriaArticulo categoria;
 
     //Metodo para Calcular precio de Venta
     protected abstract Double obtenerCostoBase();

@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Provincia;
-import com.utn.buensaborApi.repository.provinciaRepository;
+import com.utn.buensaborApi.repositories.provinciaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -44,7 +44,7 @@ public class ArticuloManufacturado extends Articulo {
 
     //Metodo para calcular stock disponible del articuloManufatcturado
     public int stockCalculado() {
-        if (this.sucursal == null || this.detalles == null || detalles.isEmpty()) {
+        if (this.getSucursal() == null || this.detalles == null || detalles.isEmpty()) {
             return 0;
         }
 
@@ -58,7 +58,7 @@ public class ArticuloManufacturado extends Articulo {
             }
 
             SucursalInsumo stockSucursalInsumo = insumo.getStockPorSucursal().stream()
-                    .filter(stock -> stock.getSucursal().equals(this.sucursal))
+                    .filter(stock -> stock.getSucursal().equals(this.getSucursal()))
                     .findFirst()
                     .orElse(null);
 

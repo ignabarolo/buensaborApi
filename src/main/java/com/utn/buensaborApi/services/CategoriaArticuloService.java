@@ -2,7 +2,7 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.CategoriaArticulo;
 import com.utn.buensaborApi.models.Imagen;
-import com.utn.buensaborApi.repository.CategoriaArticuloRepository;
+import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

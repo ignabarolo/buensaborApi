@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Empresa;
-import com.utn.buensaborApi.repository.empresaRepository;
+import com.utn.buensaborApi.repositories.empresaRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -2,11 +2,15 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.ArticuloManufacturadoDetalle;
+import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import com.utn.buensaborApi.models.Imagen;
-import com.utn.buensaborApi.repository.ArticuloManufacturadoRepository;
-import com.utn.buensaborApi.repository.ImagenRepository;
+import com.utn.buensaborApi.models.PedidoVenta;
+import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
+import com.utn.buensaborApi.repositories.ImagenRepository;
+import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +29,22 @@ public class ArticuloManufacturadoService {
     private final ArticuloManufacturadoDetalleService detalleService;
     private final ImagenService imagenService;
     private final ImagenRepository imagenRepository;
+    @Autowired
+    private final ArticuloManufacturadoMapper mapper;
 
     // Buscar articulo manufacturado por id sin detalle
     @Transactional(readOnly = true)
-    public ArticuloManufacturado buscarPorIdSinDetalle(Long id) {
-        return articuloManufacturadoRepository.findByIdNoDetails(id)
-                .orElseThrow(() -> new EntityNotFoundException
-                        ("Artículo Manufacturado no encontrado con ID: " + id));
+//    public ArticuloManufacturado buscarPorIdSinDetalle(Long id) {
+    public ArticuloManufacturadoDto buscarPorIdSinDetalle(Long id) {
+
+        Optional<ArticuloManufacturado> articuloOptional = articuloManufacturadoRepository.findByIdNoDetails(id);
+        ArticuloManufacturado articuloEntity = articuloOptional.get();
+
+        ArticuloManufacturadoDto articuloDto = mapper.toDto(articuloEntity);
+        return articuloDto;
+//        return articuloManufacturadoRepository.findByIdNoDetails(id)
+//                .orElseThrow(() -> new EntityNotFoundException
+//                        ("Artículo Manufacturado no encontrado con ID: " + id));
     }
 
 
@@ -40,7 +54,7 @@ public class ArticuloManufacturadoService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Artículo Manufacturado no encontrado con ID: " + id));
 
-        // Obtener los detalles utilizando el método del servicio
+        // Obtener los detalles utilizando el metodo del servicio
         List<ArticuloManufacturadoDetalle> detalles = detalleService.buscarDetallesPorArticuloId(id);
         articuloManufacturado.setDetalles(detalles);
 

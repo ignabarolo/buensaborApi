@@ -1,7 +1,7 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.BaseEntity;
-import com.utn.buensaborApi.repository.BaseRepository;
+import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.services.Interfaces.BaseService;
 import jakarta.transaction.Transactional;
 

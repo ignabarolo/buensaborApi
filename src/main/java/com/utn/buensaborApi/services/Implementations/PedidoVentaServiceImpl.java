@@ -2,8 +2,8 @@ package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.PedidoVenta;
-import com.utn.buensaborApi.repository.BaseRepository;
-import com.utn.buensaborApi.repository.PedidoVentaRepository;
+import com.utn.buensaborApi.repositories.BaseRepository;
+import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
