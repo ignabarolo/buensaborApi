@@ -3,6 +3,7 @@ package com.utn.buensaborApi.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class ArticuloManufacturado extends Articulo {
 
     @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArticuloManufacturadoDetalle> detalles = new ArrayList<>();
-    ;
+
 
     //Metodo heredado para determinar el costo sobre el que se calculará el precio de Venta
     @Override
@@ -28,15 +29,16 @@ public class ArticuloManufacturado extends Articulo {
     //Metodo para calcular el costo total del ArticuloManifacturado
     public void costoCalculado() {
         if (detalles == null || detalles.isEmpty()) {
+            System.out.println("No hay detalles en el ArticuloManufacturado");
             this.precioCosto = 0.0;
             return;
         }
-
         double total = 0.0;
         for (ArticuloManufacturadoDetalle detalle : detalles) {
             ArticuloInsumo insumo = detalle.getArticuloInsumo();
             if (insumo != null && insumo.getPrecioCompra() != null && detalle.getCantidad() != null) {
-                total += insumo.getPrecioCompra() * detalle.getCantidad();
+                double subtotal = insumo.getPrecioCompra() * detalle.getCantidad();
+                total += subtotal;
             }
         }
         this.precioCosto = total;

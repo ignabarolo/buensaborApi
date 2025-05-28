@@ -1,11 +1,9 @@
 package com.utn.buensaborApi.services;
 
-import com.utn.buensaborApi.models.ArticuloManufacturado;
-import com.utn.buensaborApi.models.ArticuloManufacturadoDetalle;
+import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
-import com.utn.buensaborApi.models.Imagen;
-import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
+import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
 import com.utn.buensaborApi.repositories.ImagenRepository;
 import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +27,8 @@ public class ArticuloManufacturadoService {
     private final ArticuloManufacturadoDetalleService detalleService;
     private final ImagenService imagenService;
     private final ImagenRepository imagenRepository;
+    private final ArticuloInsumoService articuloInsumoService;
+    private final CategoriaArticuloRepository categoriaArticuloRepository;
 
     @Autowired
     private final ArticuloManufacturadoMapper mapper;
@@ -76,40 +76,63 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
 
     //Crear articulo manufacturado
     @Transactional
-    public ArticuloManufacturado crear(ArticuloManufacturado articuloManufacturado, List<MultipartFile> imagenes) {
-        // Guardar el artículo manufacturado
-        articuloManufacturado.setFechaAlta(LocalDateTime.now());
-        ArticuloManufacturado savedArticulo = articuloManufacturadoRepository.save(articuloManufacturado);
+    public ArticuloManufacturado crear(ArticuloManufacturado articuloManufacturado, CategoriaArticulo categoria,List<MultipartFile> imagenes) {
+        try {
+            //Guardar el articulo manufacturado inicialmente sin detalles ni imágenes
+            articuloManufacturado.setFechaAlta(LocalDateTime.now());
+            ArticuloManufacturado savedArticulo = articuloManufacturadoRepository.save(articuloManufacturado);
 
-        // Procesar los detalles si existen
-        if (articuloManufacturado.getDetalles() != null) {
-            detalleService.guardarDetalles(savedArticulo, articuloManufacturado.getDetalles());
-        }
+            //Procesar detalles
+            if (articuloManufacturado.getDetalles() != null && !articuloManufacturado.getDetalles().isEmpty()) {
+                List<ArticuloManufacturadoDetalle> detalles = new ArrayList<>();
 
-        // Procesar y guardar las imágenes si se proporcionaron
-        if (imagenes != null && !imagenes.isEmpty()) {
-            List<Imagen> imagenesGuardadas = new ArrayList<>();
-
-            for (MultipartFile imagen : imagenes) {
-                try {
-                    // Utilizar el metodo uploadImage del ImagenService para guardar la imagen
-                    Imagen imagenGuardada = imagenService.uploadImage(imagen);
-
-                    // Establecer la relación con el artículo manufacturado
-                    imagenGuardada.setArticuloManufacturado(savedArticulo);
-                    imagenGuardada = imagenRepository.save(imagenGuardada);
-
-                    imagenesGuardadas.add(imagenGuardada);
-                } catch (IOException e) {
-                    throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+                for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getDetalles()) {
+                    ArticuloInsumo insumo = articuloInsumoService.buscarPorIdConDetalle(detalle.getArticuloInsumo().getId());
+                    detalle.setArticuloInsumo(insumo);
+                    detalle.setArticuloManufacturado(savedArticulo);
+                    detalle.setFechaAlta(LocalDateTime.now());
+                    detalles.add(detalle);
                 }
+
+                detalles = detalleService.guardarDetalles(savedArticulo, detalles);
+                savedArticulo.setDetalles(detalles);
+
             }
 
-            // Actualizar el artículo con las nuevas imágenes
-            savedArticulo.setImagenes(imagenesGuardadas);
+            // Procesar Categoria
+            savedArticulo.setCategoria(categoria);
+
+            // Guardar inmediatamente después de asignar la categoría
             savedArticulo = articuloManufacturadoRepository.save(savedArticulo);
+
+
+            // Procesar imágenes
+            if (imagenes != null && !imagenes.isEmpty()) {
+                System.out.println("Procesando " + imagenes.size() + " imágenes");
+                List<Imagen> imagenesGuardadas = new ArrayList<>();
+
+                for (MultipartFile imagen : imagenes) {
+                    try {
+                        Imagen imagenGuardada = imagenService.uploadImage(imagen);
+                        imagenGuardada.setArticuloManufacturado(savedArticulo);
+                        imagenGuardada = imagenRepository.save(imagenGuardada);
+                        imagenesGuardadas.add(imagenGuardada);
+                    } catch (IOException e) {
+                        System.err.println("Error al procesar imagen: " + e.getMessage());
+                        throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+                    }
+                }
+
+                savedArticulo.setImagenes(imagenesGuardadas);
+                savedArticulo = articuloManufacturadoRepository.save(savedArticulo);
+            }
+
+            return savedArticulo;
+
+        } catch (Exception e) {
+            System.err.println("Error en la creación del artículo manufacturado: " + e.getMessage());
+            throw new RuntimeException("Error al crear el artículo manufacturado: " + e.getMessage(), e);
         }
-        return savedArticulo;
     }
 
     //Modificar articulo manufacturado
