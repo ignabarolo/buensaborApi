@@ -16,7 +16,7 @@ public class ArticuloManufacturado extends Articulo {
     private String descripcion;
     private Double precioCosto;
 
-    @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL)
     private List<ArticuloManufacturadoDetalle> detalles = new ArrayList<>();
 
 

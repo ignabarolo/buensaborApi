@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +35,15 @@ public class ArticuloManufacturadoService {
     private final ArticuloManufacturadoMapper mapper;
 
     @Transactional(readOnly = true)
-public List<ArticuloManufacturadoDto> obtenerTodos() {
-    List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAllNoDetails();
-    return articulos.stream()
-            .map(mapper::toDto)
-            .toList();
-}
+    public List<ArticuloManufacturadoDto> obtenerTodos() {
+        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAllNoDetails();
+        return articulos.stream().peek(articulo-> articulo.setDetalles(articulo.getDetalles().stream().filter(detalle-> detalle.getFechaBaja() == null).toList()))
+                .map(mapper::toDto)
+                .toList();
+        // return articulos.stream()
+        // .map(mapper::toDto)
+        //.toList();
+    }
     
     
    
@@ -50,10 +54,16 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
     public ArticuloManufacturadoDto buscarPorIdSinDetalle(Long id) {
 
         Optional<ArticuloManufacturado> articuloOptional = articuloManufacturadoRepository.findByIdNoDetails(id);
-        ArticuloManufacturado articuloEntity = articuloOptional.get();
+        ArticuloManufacturado articuloEntity = articuloOptional.orElseThrow(() ->
+                new EntityNotFoundException("Artículo Manufacturado no encontrado con ID: " + id));
 
-        ArticuloManufacturadoDto articuloDto = mapper.toDto(articuloEntity);
-        return articuloDto;
+        // Filtrar los detalles con fechaBaja == null
+        articuloEntity.setDetalles(
+                articuloEntity.getDetalles().stream()
+                        .filter(detalle -> detalle.getFechaBaja() == null)
+                        .toList()
+        );
+        return mapper.toDto(articuloEntity);
 //        return articuloManufacturadoRepository.findByIdNoDetails(id)
 //                .orElseThrow(() -> new EntityNotFoundException
 //                        ("Artículo Manufacturado no encontrado con ID: " + id));
@@ -149,50 +159,69 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
 
     //Modificar articulo manufacturado
     @Transactional
-    public ArticuloManufacturado actualizar(ArticuloManufacturado articuloManufacturado, List<MultipartFile> nuevasImagenes) {
-        // Buscar el artículo existente
-        ArticuloManufacturado articuloExistente = articuloManufacturadoRepository.findById(articuloManufacturado.getId())
-                .orElseThrow(() -> new RuntimeException("Artículo manufacturado no encontrado"));
+    public ArticuloManufacturado actualizar(Long id, ArticuloManufacturado articuloManufacturado, CategoriaArticulo categoriaArticulo, List<MultipartFile> nuevasImagenes) {
+        try {
+            // Buscar el artículo existente
+            ArticuloManufacturado articuloExistente = articuloManufacturadoRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Artículo manufacturado no encontrado"));
 
-        // Actualizar campos básicos
-        articuloExistente.setDenominacion(articuloManufacturado.getDenominacion());
-        articuloExistente.setDescripcion(articuloManufacturado.getDescripcion());
-        articuloExistente.setPrecioCosto(articuloManufacturado.getPrecioCosto());
-        articuloExistente.setTiempoEstimadoMinutos(articuloManufacturado.getTiempoEstimadoMinutos());
-        articuloExistente.setPrecioVenta(articuloManufacturado.getPrecioVenta());
-        articuloExistente.setFechaBaja(articuloManufacturado.getFechaBaja());
-
-        // Actualizar detalles si existen
-        if (articuloManufacturado.getDetalles() != null) {
-            detalleService.actualizarDetalles(articuloExistente, articuloManufacturado.getDetalles());
-        }
-
-        // Procesar nuevas imágenes si se proporcionaron
-        if (nuevasImagenes != null && !nuevasImagenes.isEmpty()) {
-            // Dar de baja las imágenes existentes
-            if (articuloExistente.getImagenes() != null) {
-                for (Imagen imagen : articuloExistente.getImagenes()) {
-                    imagen.setFechaBaja(LocalDateTime.now());
-                    imagenRepository.save(imagen);
-                }
+            // Comparar y actualizar campos básicos
+            if (!articuloExistente.getDenominacion().equals(articuloManufacturado.getDenominacion())) {
+                articuloExistente.setDenominacion(articuloManufacturado.getDenominacion());
+            }
+            if (!articuloExistente.getDescripcion().equals(articuloManufacturado.getDescripcion())) {
+                articuloExistente.setDescripcion(articuloManufacturado.getDescripcion());
+            }
+            if (!articuloExistente.getTiempoEstimadoMinutos().equals(articuloManufacturado.getTiempoEstimadoMinutos())) {
+                articuloExistente.setTiempoEstimadoMinutos(articuloManufacturado.getTiempoEstimadoMinutos());
+            }
+            if (!articuloExistente.getMargenGanancia().equals(articuloManufacturado.getMargenGanancia())) {
+                articuloExistente.setMargenGanancia(articuloManufacturado.getMargenGanancia());
+            }
+            if (!articuloExistente.getUnidadMedida().equals(articuloManufacturado.getUnidadMedida())) {
+                articuloExistente.setUnidadMedida(articuloManufacturado.getUnidadMedida());
             }
 
-            // Guardar nuevas imágenes
-            List<Imagen> imagenesGuardadas = new ArrayList<>();
-            for (MultipartFile imagen : nuevasImagenes) {
-                try {
-                    Imagen imagenGuardada = imagenService.uploadImage(imagen);
-                    imagenGuardada.setArticuloManufacturado(articuloExistente);
-                    imagenGuardada = imagenRepository.save(imagenGuardada);
-                    imagenesGuardadas.add(imagenGuardada);
-                } catch (IOException e) {
-                    throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
-                }
-            }
-            articuloExistente.setImagenes(imagenesGuardadas);
-        }
+            // Eliminar los detalles existentes
+            detalleService.eliminarDetallesLogico(articuloExistente.getId());
 
-        return articuloManufacturadoRepository.save(articuloExistente);
+            // Agregar los nuevos detalles
+            if (articuloManufacturado.getDetalles() != null && !articuloManufacturado.getDetalles().isEmpty()) {
+                for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getDetalles()) {
+                    detalle.setArticuloManufacturado(articuloExistente);
+                    detalle.setFechaAlta(LocalDateTime.now());
+                }
+                List<ArticuloManufacturadoDetalle> detallesGuardados = detalleService.guardarDetalles(articuloExistente, articuloManufacturado.getDetalles());
+                articuloExistente.setDetalles(detallesGuardados);
+
+                // Recalcular costos y precios
+                articuloExistente.costoCalculado();
+                articuloExistente.precioCalculado();
+            }
+
+            // Procesar categoría si es distinta
+            if (!articuloExistente.getCategoria().equals(categoriaArticulo)) {}
+            articuloExistente.setCategoria(categoriaArticulo);
+
+            // Guardar primero sin modificar las imágenes
+            articuloExistente = articuloManufacturadoRepository.save(articuloExistente);
+
+            // Actualizar detalles utilizando el método actualizarDetalles
+            if (articuloManufacturado.getDetalles() != null && !articuloManufacturado.getDetalles().isEmpty()) {
+                List<ArticuloManufacturadoDetalle> detallesActualizados = detalleService.actualizarDetalles(articuloExistente, articuloManufacturado.getDetalles());
+                articuloExistente.setDetalles(detallesActualizados);
+
+                // Recalcular costos y precios
+                articuloExistente.costoCalculado();
+                articuloExistente.precioCalculado();
+            }
+
+            return articuloManufacturadoRepository.save(articuloExistente);
+
+        } catch (Exception e) {
+            System.err.println("Error en la actualización del artículo manufacturado: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar el artículo manufacturado: " + e.getMessage(), e);
+        }
     }
 
 

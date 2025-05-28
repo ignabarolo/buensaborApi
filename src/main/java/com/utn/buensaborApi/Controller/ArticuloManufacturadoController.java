@@ -68,7 +68,7 @@ public class ArticuloManufacturadoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> crearArticuloManufacturado(
-            @RequestPart(value = "articuloManufacturado", required = false) String articuloManufacturadoJson,
+            @RequestPart("articuloManufacturado") String articuloManufacturadoJson,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
             if (articuloManufacturadoJson == null || articuloManufacturadoJson.isEmpty()) {
@@ -102,13 +102,36 @@ public class ArticuloManufacturadoController {
         }
     }
 
-    @PutMapping("")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> actualizar(
-            @RequestPart("articuloManufacturado") ArticuloManufacturado articuloManufacturado,
+            @PathVariable Long id,
+            @RequestPart("articuloManufacturado") String articuloManufacturadoJson,
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
-            ArticuloManufacturado resultado = articuloManufacturadoService.actualizar(articuloManufacturado, imagenes);
-            return ResponseEntity.ok(resultado);
+            if (articuloManufacturadoJson == null || articuloManufacturadoJson.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("El JSON del artículo no puede estar vacío.");
+            }
+
+            // Convertir el JSON del artículo a un objeto ArticuloManufacturado
+            ObjectMapper objectMapper = new ObjectMapper();
+            ArticuloManufacturado articuloManufacturado = objectMapper.readValue(articuloManufacturadoJson, ArticuloManufacturado.class);
+
+            //Convertir json a un objeto categoriaArticulo
+            CategoriaArticulo categoria = new CategoriaArticulo();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(articuloManufacturadoJson);
+            if (jsonNode.has("categoria") && jsonNode.get("categoria").has("id")) {
+                Long categoriaId = jsonNode.get("categoria").get("id").asLong();
+                categoria = categoriaArticuloRepository.findById(categoriaId)
+                        .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con ID: " + categoriaId));
+                articuloManufacturado.setCategoria(categoria);
+            } else {
+                throw new IllegalArgumentException("Se requiere una categoría válida para el artículo manufacturado");
+            }
+
+            Object nuevoArticulo = articuloManufacturadoService.actualizar(id,articuloManufacturado, categoria, imagenes);
+            return ResponseEntity.status(HttpStatus.OK).body(nuevoArticulo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Collections.singletonMap("error", e.getMessage()));

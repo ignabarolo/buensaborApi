@@ -35,30 +35,53 @@ public class ArticuloManufacturadoDetalleService {
     @Transactional
     public List<ArticuloManufacturadoDetalle> actualizarDetalles(
             ArticuloManufacturado articuloManufacturado,
-            List<ArticuloManufacturadoDetalle> detalles) {
+            List<ArticuloManufacturadoDetalle> nuevosDetalles) {
 
-        // Eliminar detalles existentes
+        // Obtener los detalles existentes
         List<ArticuloManufacturadoDetalle> detallesExistentes =
                 detalleRepository.findByArticuloManufacturadoId(articuloManufacturado.getId());
 
-        detallesExistentes.forEach(detalle -> {
-            if (!detalles.contains(detalle)) {
-                detalle.setFechaBaja(LocalDateTime.now());
-                detalleRepository.save(detalle);
+        // Marcar como baja lógica los detalles que ya no están en la nueva lista
+        for (ArticuloManufacturadoDetalle detalleExistente : detallesExistentes) {
+            boolean sigueExistiendo = nuevosDetalles.stream()
+                    .anyMatch(nuevoDetalle -> nuevoDetalle.getId() != null &&
+                            nuevoDetalle.getId().equals(detalleExistente.getId()));
+
+            if (!sigueExistiendo) {
+                detalleExistente.setFechaBaja(LocalDateTime.now());
+                detalleRepository.save(detalleExistente);
             }
-        });
+        }
 
         // Actualizar o crear nuevos detalles
-        detalles.forEach(detalle -> {
-            detalle.setArticuloManufacturado(articuloManufacturado);
-            if (detalle.getId() != null) {
-                detalle.setFechaModificacion(LocalDateTime.now());
-            } else {
-                detalle.setFechaAlta(LocalDateTime.now());
-            }
-        });
+        for (ArticuloManufacturadoDetalle nuevoDetalle : nuevosDetalles) {
+            if (nuevoDetalle.getId() != null) {
+                // Buscar el detalle existente
+                ArticuloManufacturadoDetalle detalleExistente = detallesExistentes.stream()
+                        .filter(detalle -> detalle.getId().equals(nuevoDetalle.getId()))
+                        .findFirst()
+                        .orElse(null);
 
-        return detalleRepository.saveAll(detalles);
+                if (detalleExistente != null) {
+                    // Comparar y actualizar solo si hay cambios
+                    if (!detalleExistente.getCantidad().equals(nuevoDetalle.getCantidad()) ||
+                            !detalleExistente.getArticuloInsumo().getId().equals(nuevoDetalle.getArticuloInsumo().getId())) {
+                        detalleExistente.setCantidad(nuevoDetalle.getCantidad());
+                        detalleExistente.setArticuloInsumo(nuevoDetalle.getArticuloInsumo());
+                        detalleExistente.setFechaModificacion(LocalDateTime.now());
+                        detalleRepository.save(detalleExistente);
+                    }
+                }
+            } else {
+                // Crear nuevo detalle
+                nuevoDetalle.setArticuloManufacturado(articuloManufacturado);
+                nuevoDetalle.setFechaAlta(LocalDateTime.now());
+                detalleRepository.save(nuevoDetalle);
+            }
+        }
+
+        // Retornar la lista actualizada de detalles
+        return detalleRepository.findByArticuloManufacturadoId(articuloManufacturado.getId());
     }
 
     //Eliminar detalles de articulo manufacturado
