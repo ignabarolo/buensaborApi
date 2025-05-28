@@ -21,6 +21,22 @@ import java.util.List;
 public class ArticuloManufacturadoController {
 
     private final ArticuloManufacturadoService articuloManufacturadoService;
+    
+    @GetMapping
+public ResponseEntity<?> obtenerTodos() {
+    try {
+        List<?> articulos = articuloManufacturadoService.obtenerTodos();
+        return ResponseEntity.ok(articulos);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Collections.singletonMap("error", e.getMessage()));
+    }
+}
+
+    
+    
+    
+    
 
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloManufacturadoPorId(@PathVariable Long id) {

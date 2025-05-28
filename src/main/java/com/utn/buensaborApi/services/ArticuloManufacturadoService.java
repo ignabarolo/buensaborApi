@@ -32,6 +32,16 @@ public class ArticuloManufacturadoService {
     @Autowired
     private final ArticuloManufacturadoMapper mapper;
 
+    @Transactional(readOnly = true)
+public List<ArticuloManufacturadoDto> obtenerTodos() {
+    List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAllNoDetails();
+    return articulos.stream()
+            .map(mapper::toDto)
+            .toList();
+}
+    
+    
+   
     // Buscar articulo manufacturado por id sin detalle
     @Transactional(readOnly = true)
 //    public ArticuloManufacturado buscarPorIdSinDetalle(Long id) {
