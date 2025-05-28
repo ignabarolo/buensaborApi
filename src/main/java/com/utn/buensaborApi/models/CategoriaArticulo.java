@@ -18,6 +18,7 @@ public class CategoriaArticulo extends BaseEntity {
     private CategoriaArticulo categoriaPadre;
 
     @OneToMany(mappedBy = "categoria")
+    @JsonIgnore
     private List<Articulo> articulo;
 
     @ManyToOne

@@ -15,6 +15,7 @@ public class SucursalInsumo extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "articulo_insumo_id", referencedColumnName = "id")
+    @JsonIgnore
     private ArticuloInsumo articuloInsumo;
 
     @ManyToOne
