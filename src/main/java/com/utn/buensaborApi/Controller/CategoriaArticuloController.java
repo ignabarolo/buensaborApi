@@ -36,7 +36,13 @@ public class CategoriaArticuloController {
 
     @GetMapping("/menu/{sucursalId}")
     public ResponseEntity<?> listarCategoriasMenu(@PathVariable Long sucursalId) {
-        return ResponseEntity.ok(categoriaService.obtenerCategoriaMenuConDetalle(sucursalId));
+        try {
+            return ResponseEntity.ok(categoriaService.obtenerCategoriasHijasMenuConDetalle(sucursalId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @GetMapping("/productos/{sucursalId}")

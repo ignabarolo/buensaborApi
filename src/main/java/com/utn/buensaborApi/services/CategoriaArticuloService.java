@@ -37,9 +37,12 @@ public class CategoriaArticuloService {
     }
 
     // Listar categoría Menú con detalle
-    public CategoriaArticulo obtenerCategoriaMenuConDetalle(Long sucursalId) {
-        return categoriaRepository.findMenuCategoryWithDetails(sucursalId)
-                .orElseThrow(() -> new RuntimeException("Categoría Menú no encontrada"));
+    public List<CategoriaArticulo> obtenerCategoriasHijasMenuConDetalle(Long sucursalId) {
+        List<CategoriaArticulo> categorias = categoriaRepository.findMenuChildCategoriesWithDetails(sucursalId);
+        if (categorias.isEmpty()) {
+            throw new RuntimeException("No se encontraron categorías hijas de Menú");
+        }
+        return categorias;
     }
 
     // Listar categorías de productos sin detalle

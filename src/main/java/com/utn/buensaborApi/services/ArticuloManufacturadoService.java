@@ -29,6 +29,7 @@ public class ArticuloManufacturadoService {
     private final ArticuloManufacturadoDetalleService detalleService;
     private final ImagenService imagenService;
     private final ImagenRepository imagenRepository;
+
     @Autowired
     private final ArticuloManufacturadoMapper mapper;
 
@@ -44,7 +45,8 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
    
     // Buscar articulo manufacturado por id sin detalle
     @Transactional(readOnly = true)
-//    public ArticuloManufacturado buscarPorIdSinDetalle(Long id) {
+
+    //public ArticuloManufacturado buscarPorIdSinDetalle(Long id) {
     public ArticuloManufacturadoDto buscarPorIdSinDetalle(Long id) {
 
         Optional<ArticuloManufacturado> articuloOptional = articuloManufacturadoRepository.findByIdNoDetails(id);
@@ -123,6 +125,7 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
         articuloExistente.setPrecioCosto(articuloManufacturado.getPrecioCosto());
         articuloExistente.setTiempoEstimadoMinutos(articuloManufacturado.getTiempoEstimadoMinutos());
         articuloExistente.setPrecioVenta(articuloManufacturado.getPrecioVenta());
+        articuloExistente.setFechaBaja(articuloManufacturado.getFechaBaja());
 
         // Actualizar detalles si existen
         if (articuloManufacturado.getDetalles() != null) {

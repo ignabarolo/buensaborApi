@@ -34,10 +34,15 @@ public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArti
 
     @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
             "LEFT JOIN FETCH c.articulo a " +
-            "WHERE c.denominacion = 'Menu' " +
+            "LEFT JOIN FETCH a.categoria cat " +
+            "LEFT JOIN FETCH a.sucursal s " +
+            "LEFT JOIN TREAT(a AS ArticuloManufacturado) am " +
+            "LEFT JOIN FETCH am.detalles d " +
+            "LEFT JOIN FETCH d.articuloInsumo ai " +
+            "WHERE c.categoriaPadre.denominacion = 'Menu' " +
             "AND c.fechaBaja IS NULL " +
             "AND c.sucursal.id = :sucursalId")
-    Optional<CategoriaArticulo> findMenuCategoryWithDetails(@Param("sucursalId") Long sucursalId);
+    List<CategoriaArticulo> findMenuChildCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
 
     @Query("SELECT c FROM CategoriaArticulo c " +
             "WHERE c.categoriaPadre.denominacion = 'Menu' " +
