@@ -4,8 +4,6 @@ import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import org.mapstruct.Mapper;
 
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface ArticuloManufacturadoMapper {
 

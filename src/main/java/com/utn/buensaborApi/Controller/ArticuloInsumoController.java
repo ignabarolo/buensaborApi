@@ -26,7 +26,7 @@ public ResponseEntity<?> listarTodosLosArticulosInsumo() {
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloInsumoPorId(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(articuloInsumoService.buscarPorIdConDetalle(id));
+            return ResponseEntity.ok(articuloInsumoService.buscarPorIdConDetalleSecond(id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

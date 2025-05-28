@@ -1,9 +1,13 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
+import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoDto;
 import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
 import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
+import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
+import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +20,13 @@ public class ArticuloInsumoService {
 
     private final ArticuloInsumoRepository articuloInsumoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
+    @Autowired
+    private final ArticuloInsumoMapper mapper;
 
-    public List<ArticuloInsumo> listarTodosConDetalle() {
-    return articuloInsumoRepository.findAllWithDetails();
+    public List<ArticuloInsumoDto> listarTodosConDetalle() {
+    return articuloInsumoRepository.findAllWithDetails().stream()
+            .map(mapper::toDto)
+            .toList();
 }
 
     
@@ -27,9 +35,14 @@ public class ArticuloInsumoService {
                 .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
     }
 
+    public ArticuloInsumoDto buscarPorIdConDetalleSecond(Long id) {
+        return articuloInsumoRepository.findByIdWithDetails(id).map(mapper::toDto)
+                .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
+    }
+
     //Listar Insumos por sucursal con detalle
-    public List<ArticuloInsumo> listarPorSucursalConDetalle(Long sucursalId) {
-        return articuloInsumoRepository.findAllBySucursalWithDetails(sucursalId);
+    public List<ArticuloInsumoDto> listarPorSucursalConDetalle(Long sucursalId) {
+        return articuloInsumoRepository.findAllBySucursalWithDetails(sucursalId).stream().map(mapper::toDto).toList();
     }
 
     //Listar Insumos para elaborar por sucursal
