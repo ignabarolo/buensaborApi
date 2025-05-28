@@ -12,6 +12,16 @@ import org.springframework.web.bind.annotation.*;
 public class ArticuloInsumoController {
 
     private final ArticuloInsumoService articuloInsumoService;
+    
+    @GetMapping
+public ResponseEntity<?> listarTodosLosArticulosInsumo() {
+    try {
+        return ResponseEntity.ok(articuloInsumoService.listarTodosConDetalle());
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+}
+
 
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloInsumoPorId(@PathVariable Long id) {

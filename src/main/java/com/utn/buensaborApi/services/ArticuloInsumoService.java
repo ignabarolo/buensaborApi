@@ -17,7 +17,11 @@ public class ArticuloInsumoService {
     private final ArticuloInsumoRepository articuloInsumoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
 
-    //Buscar Insumo por id con detalle
+    public List<ArticuloInsumo> listarTodosConDetalle() {
+    return articuloInsumoRepository.findAllWithDetails();
+}
+
+    
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
         return articuloInsumoRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
