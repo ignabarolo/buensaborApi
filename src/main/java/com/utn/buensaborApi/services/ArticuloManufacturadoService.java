@@ -97,6 +97,18 @@ public List<ArticuloManufacturadoDto> obtenerTodos() {
                 detalles = detalleService.guardarDetalles(savedArticulo, detalles);
                 savedArticulo.setDetalles(detalles);
 
+                System.out.println("Calculando costo del artículo manufacturado...");
+                double costoAntes = savedArticulo.getPrecioCosto() != null ? savedArticulo.getPrecioCosto() : 0.0;
+                savedArticulo.costoCalculado();
+                System.out.println("Costo calculado - Antes: " + costoAntes +
+                        ", Después: " + savedArticulo.getPrecioCosto());
+
+                System.out.println("Calculando precio de venta...");
+                double precioAntes = savedArticulo.getPrecioVenta() != null ? savedArticulo.getPrecioVenta() : 0.0;
+                savedArticulo.precioCalculado();
+                System.out.println("Precio calculado - Antes: " + precioAntes +
+                        ", Después: " + savedArticulo.getPrecioVenta() +
+                        ", Margen aplicado: " + savedArticulo.getMargenGanancia() + "%");
             }
 
             // Procesar Categoria

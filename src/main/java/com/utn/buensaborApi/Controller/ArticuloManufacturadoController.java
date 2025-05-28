@@ -102,9 +102,6 @@ public class ArticuloManufacturadoController {
         }
     }
 
-
-
-
     @PutMapping("")
     public ResponseEntity<?> actualizar(
             @RequestPart("articuloManufacturado") ArticuloManufacturado articuloManufacturado,
