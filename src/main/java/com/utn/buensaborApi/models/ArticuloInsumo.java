@@ -24,4 +24,12 @@ public class ArticuloInsumo extends Articulo{
     protected Double obtenerCostoBase() {
         return precioCompra;
     }
+
+    //Metodo para determinar el estado segun el stock disponible
+    @Override
+    public boolean obtenerEstado() {
+        return this.getStockPorSucursal().stream()
+                .allMatch(sucursalInsumo -> sucursalInsumo.getStockActual() > sucursalInsumo.getStockMinimo());
+    }
+
 }

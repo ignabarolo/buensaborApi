@@ -23,4 +23,5 @@ public class ArticuloManufacturadoDto extends BaseEntity {
 
     private List<ImagenDto> imagenes;
     private CategoriaArticuloDto categoria;
+    private boolean estado;
 }
