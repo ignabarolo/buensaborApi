@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,6 +18,6 @@ public class ArticuloManufacturadoDetalle extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "articuloManufacturado_id")
-    @JsonIgnore
+    @JsonBackReference
     private ArticuloManufacturado articuloManufacturado;
 }

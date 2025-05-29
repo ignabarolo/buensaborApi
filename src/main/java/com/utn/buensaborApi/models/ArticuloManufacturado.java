@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class ArticuloManufacturado extends Articulo {
     private Double precioCosto;
 
     @OneToMany(mappedBy = "articuloManufacturado", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ArticuloManufacturadoDetalle> detalles = new ArrayList<>();
 
 
