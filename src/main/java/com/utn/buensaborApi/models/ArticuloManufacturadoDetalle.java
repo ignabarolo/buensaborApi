@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +17,6 @@ public class ArticuloManufacturadoDetalle extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "articuloManufacturado_id")
+    @JsonIgnore
     private ArticuloManufacturado articuloManufacturado;
 }
