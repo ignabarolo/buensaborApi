@@ -1,5 +1,6 @@
 
 package com.utn.buensaborApi.corsConfiguration;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -13,13 +14,13 @@ public class corsConfig {
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") 
-                        .allowedOrigins("*") 
+                registry.addMapping("/**")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("https://localhost:5173")
                         .allowCredentials(false)
-                        .maxAge(3600); // Cache de la configuración por 1 hora
+                        .maxAge(3600);
             }
         };
-    }  
+    }
 }

@@ -1,7 +1,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
+import com.utn.buensaborApi.models.Dtos.Manufacturado.*;
 import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
 import com.utn.buensaborApi.repositories.ImagenRepository;
@@ -15,9 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,17 +33,13 @@ public class ArticuloManufacturadoService {
     private final ArticuloManufacturadoMapper mapper;
 
     @Transactional(readOnly = true)
-    public List<ArticuloManufacturadoDto> obtenerTodos() {
-        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAllNoDetails();
-        return articulos.stream().peek(articulo-> articulo.setDetalles(articulo.getDetalles().stream().filter(detalle-> detalle.getFechaBaja() == null).toList()))
-                .map(mapper::toDto)
+    public List<ArticuloManufacturadoDto> obtenerTodosConDetalles() {
+        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAll()
+                .stream()
+                .filter(articulo -> articulo.getFechaBaja() == null) // Filtrar artículos activos
                 .toList();
-        // return articulos.stream()
-        // .map(mapper::toDto)
-        //.toList();
+        return articulos.stream().map(this::convertirADto).toList();
     }
-    
-    
    
     // Buscar articulo manufacturado por id sin detalle
     @Transactional(readOnly = true)
@@ -246,5 +240,59 @@ public class ArticuloManufacturadoService {
         // Dar de baja los detalles
         detalleService.eliminarDetallesLogico(id);
     }
+    private ArticuloManufacturadoDto convertirADto(ArticuloManufacturado articulo) {
+        ArticuloManufacturadoDto dto = new ArticuloManufacturadoDto();
+        dto.setId(articulo.getId());
+        dto.setDenominacion(articulo.getDenominacion());
+        dto.setPrecioVenta(articulo.getPrecioVenta());
+        dto.setMargenGanancia(articulo.getMargenGanancia());
+        dto.setTiempoEstimadoMinutos(articulo.getTiempoEstimadoMinutos());
+        dto.setDescripcion(articulo.getDescripcion());
+        dto.setPrecioCosto(articulo.getPrecioCosto());
+        dto.setDetalles(articulo.getDetalles().stream()
+                .map(this::convertirDetalleADto)
+                .toList());
 
+        // Asignar imágenes
+        if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
+            List<ImagenDto> imagenesInfo = articulo.getImagenes().stream()
+                    .map(imagen -> new ImagenDto(imagen.getId(), imagen.getNombre()))
+                    .toList();
+            dto.setImagenes(imagenesInfo);
+        } else {
+            dto.setImagenes(null);
+        }
+
+        // Validar y asignar CategoriaArticulo
+        if (articulo.getCategoria() != null) {
+            CategoriaArticuloDto categoriaDto = new CategoriaArticuloDto();
+            categoriaDto.setId(articulo.getCategoria().getId());
+            categoriaDto.setDenominacion(articulo.getCategoria().getDenominacion());
+            dto.setCategoria(categoriaDto);
+        } else {
+            dto.setCategoria(null); // O asignar un valor por defecto si es necesario
+        }
+
+        return dto;
+    }
+
+    private ArticuloManufacturadoDetalleDto convertirDetalleADto(ArticuloManufacturadoDetalle detalle) {
+        ArticuloManufacturadoDetalleDto detalleDto = new ArticuloManufacturadoDetalleDto();
+        detalleDto.setId(detalle.getId());
+        detalleDto.setCantidad(detalle.getCantidad());
+
+        // Usar el constructor vacío y asignar valores manualmente
+        ArticuloInsumoDto articuloInsumoDto = new ArticuloInsumoDto();
+        articuloInsumoDto.setId(detalle.getArticuloInsumo().getId());
+        articuloInsumoDto.setDenominacion(detalle.getArticuloInsumo().getDenominacion());
+        articuloInsumoDto.setPrecioCompra(detalle.getArticuloInsumo().getPrecioCompra());
+        articuloInsumoDto.setEsParaElaborar(detalle.getArticuloInsumo().getEsParaElaborar());
+        articuloInsumoDto.setUnidadMedida(new UnidadMedidaDto(
+                detalle.getArticuloInsumo().getUnidadMedida().getId(),
+                detalle.getArticuloInsumo().getUnidadMedida().getDenominacion()
+        ));
+
+        detalleDto.setArticuloInsumo(articuloInsumoDto);
+        return detalleDto;
+    }
 }

@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UnidadMedidaDto extends BaseEntity {
+    private Long id;
     private String denominacion;
 }

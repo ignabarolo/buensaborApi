@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class CategoriaArticuloDto extends BaseEntity {
+    private Long id;
     private String denominacion;
     private ImagenDto imagen;
 }

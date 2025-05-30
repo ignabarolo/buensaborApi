@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class ArticuloManufacturadoDto extends BaseEntity {
+    private Long id;
     private String denominacion;
     private Double precioVenta;
     private Double margenGanancia;

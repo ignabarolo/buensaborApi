@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ArticuloManufacturadoDetalleDto extends BaseEntity {
+    private Long id;
     private Double cantidad;
     private ArticuloInsumoDto articuloInsumo;
 }

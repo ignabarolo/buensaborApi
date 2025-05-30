@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.CategoriaArticulo;
+import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import com.utn.buensaborApi.services.ArticuloManufacturadoService;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,7 +30,7 @@ public class ArticuloManufacturadoController {
     @GetMapping
     public ResponseEntity<?> obtenerTodos() {
         try {
-            List<?> articulos = articuloManufacturadoService.obtenerTodos();
+            List<ArticuloManufacturadoDto> articulos = articuloManufacturadoService.obtenerTodosConDetalles();
             return ResponseEntity.ok(articulos);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

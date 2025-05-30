@@ -11,7 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class ArticuloInsumoDto extends BaseEntity {
-    private Double precioCompra;
-    private Boolean esParaElaborar;
-    private List<SucursalInsumoDto> stockPorSucursal;
+        private Long id;
+        private String denominacion;
+        private UnidadMedidaDto unidadMedida;
+        private Double precioCompra;
+        private Boolean esParaElaborar;
+        private List<SucursalInsumoDto> stockPorSucursal;
+
+        public ArticuloInsumoDto(String denominacion, UnidadMedidaDto unidadMedidaDto) {
+        }
 }
