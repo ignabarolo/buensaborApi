@@ -259,7 +259,7 @@ public class ArticuloManufacturadoService {
             }
 
 
-            // Guardar artículo actualizado con todo
+            // Guardar artículo actualizado con
             return articuloManufacturadoRepository.save(articuloExistente);
 
         } catch (Exception e) {
@@ -322,6 +322,7 @@ public class ArticuloManufacturadoService {
         } else {
             dto.setCategoria(null); // O asignar un valor por defecto si es necesario
         }
+        dto.setEstado(articulo.obtenerEstado());
 
         return dto;
     }
