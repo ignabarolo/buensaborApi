@@ -184,14 +184,55 @@ public class ArticuloManufacturadoService {
             // Eliminar los detalles antiguos
             detalleService.eliminarDetallesLogico(articuloExistente.getId());
 
-            // Agregar los nuevos detalles
+            // Manejar los detalles
             if (articuloManufacturado.getDetalles() != null && !articuloManufacturado.getDetalles().isEmpty()) {
-                for (ArticuloManufacturadoDetalle detalle : articuloManufacturado.getDetalles()) {
-                    detalle.setArticuloManufacturado(articuloExistente);
-                    detalle.setFechaAlta(LocalDateTime.now());
+                List<ArticuloManufacturadoDetalle> detallesExistentes = articuloExistente.getDetalles();
+                List<ArticuloManufacturadoDetalle> detallesIngresados = articuloManufacturado.getDetalles();
+
+                // Crear listas para nuevos detalles y detalles a eliminar
+                List<ArticuloManufacturadoDetalle> nuevosDetalles = new ArrayList<>();
+                List<ArticuloManufacturadoDetalle> detallesAEliminar = new ArrayList<>(detallesExistentes);
+
+                for (ArticuloManufacturadoDetalle detalleIngresado : detallesIngresados) {
+                    boolean encontrado = false;
+
+                    for (ArticuloManufacturadoDetalle detalleExistente : detallesExistentes) {
+                        if (detalleIngresado.getArticuloInsumo().getId().equals(detalleExistente.getArticuloInsumo().getId())) {
+                            encontrado = true;
+                            detallesAEliminar.remove(detalleExistente);
+                            detalleExistente.setFechaBaja(null);
+
+                            // Comparar cantidades
+                            if (!detalleIngresado.getCantidad().equals(detalleExistente.getCantidad())) {
+                                detalleExistente.setCantidad(detalleIngresado.getCantidad());
+                                detalleExistente.setFechaAlta(LocalDateTime.now());
+                            }
+                            break;
+                        }
+                    }
+
+                    // Si no se encontró, es un nuevo detalle
+                    if (!encontrado) {
+                        detalleIngresado.setArticuloManufacturado(articuloExistente);
+                        detalleIngresado.setFechaAlta(LocalDateTime.now());
+                        nuevosDetalles.add(detalleIngresado);
+                    }
                 }
-                List<ArticuloManufacturadoDetalle> detallesGuardados = detalleService.guardarDetalles(articuloExistente, articuloManufacturado.getDetalles());
-                articuloExistente.setDetalles(detallesGuardados);
+
+                // Guardar nuevos detalles
+                if (!nuevosDetalles.isEmpty()) {
+                    detalleService.guardarDetalles(articuloExistente, nuevosDetalles);
+                }
+
+                // Eliminar detalles que no están en los ingresados
+                if (!detallesAEliminar.isEmpty()) {
+                    for (ArticuloManufacturadoDetalle detalleAEliminar : detallesAEliminar) {
+                        detalleService.eliminarDetallesLogico(detalleAEliminar.getId());
+                    }
+                }
+
+                // Actualizar la lista de detalles en el artículo existente
+                articuloExistente.setDetalles(detalleService.buscarDetallesPorArticuloId(articuloExistente.getId()));
 
                 // Recalcular costos y precios
                 articuloExistente.costoCalculado();

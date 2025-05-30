@@ -43,7 +43,8 @@ public class ArticuloManufacturado extends Articulo {
                 total += subtotal;
             }
         }
-        this.precioCosto = total;
+        // Redondear a dos decimales
+        this.precioCosto = Math.round(total * 100.0) / 100.0;
     }
 
     //Metodo para calcular stock disponible del articuloManufatcturado

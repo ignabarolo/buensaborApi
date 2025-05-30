@@ -42,7 +42,7 @@ public abstract class Articulo extends BaseEntity {
         if (costo == null || margenGanancia == null) {
             throw new IllegalStateException("No se puede calcular precio: falta costo o margen");
         }
-        this.precioVenta = costo * (1 + (margenGanancia/100));
+        this.precioVenta = Math.round(costo * (1 + (margenGanancia / 100)) * 100.0) / 100.0;
     }
 
     //Metodo para obtener Estado en funcion del Stock disponible
