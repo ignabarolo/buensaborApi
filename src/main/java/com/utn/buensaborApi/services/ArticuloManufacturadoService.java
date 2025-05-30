@@ -159,7 +159,7 @@ public class ArticuloManufacturadoService {
             ArticuloManufacturado articuloExistente = articuloManufacturadoRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Artículo manufacturado no encontrado"));
 
-            // Comparar y actualizar campos básicos
+            // Actualizar campos básicos si cambiaron
             if (!articuloExistente.getDenominacion().equals(articuloManufacturado.getDenominacion())) {
                 articuloExistente.setDenominacion(articuloManufacturado.getDenominacion());
             }
@@ -176,7 +176,12 @@ public class ArticuloManufacturadoService {
                 articuloExistente.setUnidadMedida(articuloManufacturado.getUnidadMedida());
             }
 
-            // Eliminar los detalles existentes
+            // Actualizar categoría si cambió
+            if (!articuloExistente.getCategoria().equals(categoriaArticulo)) {
+                articuloExistente.setCategoria(categoriaArticulo);
+            }
+
+            // Eliminar los detalles antiguos
             detalleService.eliminarDetallesLogico(articuloExistente.getId());
 
             // Agregar los nuevos detalles
@@ -193,23 +198,27 @@ public class ArticuloManufacturadoService {
                 articuloExistente.precioCalculado();
             }
 
-            // Procesar categoría si es distinta
-            if (!articuloExistente.getCategoria().equals(categoriaArticulo)) {}
-            articuloExistente.setCategoria(categoriaArticulo);
+            // Procesar nuevas imágenes si las hay
+            if (nuevasImagenes != null && !nuevasImagenes.isEmpty()) {
+                // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
+                articuloExistente.getImagenes().clear();
 
-            // Guardar primero sin modificar las imágenes
-            articuloExistente = articuloManufacturadoRepository.save(articuloExistente);
-
-            // Actualizar detalles utilizando el método actualizarDetalles
-            if (articuloManufacturado.getDetalles() != null && !articuloManufacturado.getDetalles().isEmpty()) {
-                List<ArticuloManufacturadoDetalle> detallesActualizados = detalleService.actualizarDetalles(articuloExistente, articuloManufacturado.getDetalles());
-                articuloExistente.setDetalles(detallesActualizados);
-
-                // Recalcular costos y precios
-                articuloExistente.costoCalculado();
-                articuloExistente.precioCalculado();
+                List<Imagen> imagenesGuardadas = new ArrayList<>();
+                for (MultipartFile imagen : nuevasImagenes) {
+                    try {
+                        Imagen imagenGuardada = imagenService.uploadImage(imagen);
+                        imagenGuardada.setArticuloManufacturado(articuloExistente);
+                        imagenesGuardadas.add(imagenGuardada);
+                    } catch (IOException e) {
+                        System.err.println("Error al procesar imagen en actualización: " + e.getMessage());
+                        throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+                    }
+                }
+                articuloExistente.getImagenes().addAll(imagenesGuardadas);
             }
 
+
+            // Guardar artículo actualizado con todo
             return articuloManufacturadoRepository.save(articuloExistente);
 
         } catch (Exception e) {
