@@ -79,4 +79,20 @@ public class ArticuloManufacturado extends Articulo {
 
         return stockMaxFabricable;
     }
+
+    //Metodo para obtener el estado en funcion del stock disponible
+    @Override
+    public boolean obtenerEstado() {
+        for (ArticuloManufacturadoDetalle detalle : detalles) {
+            ArticuloInsumo insumo = detalle.getArticuloInsumo();
+            if (insumo != null) {
+                boolean stockSuficiente = insumo.getStockPorSucursal().stream()
+                        .allMatch(sucursalInsumo -> sucursalInsumo.getStockActual() > sucursalInsumo.getStockMinimo());
+                if (!stockSuficiente) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

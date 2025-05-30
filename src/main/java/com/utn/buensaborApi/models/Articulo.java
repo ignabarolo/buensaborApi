@@ -44,4 +44,7 @@ public abstract class Articulo extends BaseEntity {
         }
         this.precioVenta = costo * (1 + (margenGanancia/100));
     }
+
+    //Metodo para obtener Estado en funcion del Stock disponible
+       public abstract boolean obtenerEstado();
 }
