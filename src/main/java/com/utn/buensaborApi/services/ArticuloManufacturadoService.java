@@ -34,11 +34,15 @@ public class ArticuloManufacturadoService {
 
     @Transactional(readOnly = true)
     public List<ArticuloManufacturadoDto> obtenerTodosConDetalles() {
-        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAll()
-                .stream()
-                .filter(articulo -> articulo.getFechaBaja() == null) // Filtrar artículos activos
-                .toList();
+        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAll();
         return articulos.stream().map(this::convertirADto).toList();
+    }
+
+    public List<ArticuloManufacturadoDto> obtenerTodosSinFiltrar() {
+        return articuloManufacturadoRepository.findAll()
+                .stream()
+                .map(this::convertirADto)
+                .toList();
     }
    
     // Buscar articulo manufacturado por id sin detalle
@@ -323,6 +327,7 @@ public class ArticuloManufacturadoService {
             dto.setCategoria(null); // O asignar un valor por defecto si es necesario
         }
         dto.setEstado(articulo.obtenerEstado());
+        dto.setFechaBaja(articulo.getFechaBaja());
 
         return dto;
     }

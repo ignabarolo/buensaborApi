@@ -38,10 +38,16 @@ public class ArticuloManufacturadoController {
         }
     }
 
-    
-    
-    
-    
+    @GetMapping("/todos")
+    public ResponseEntity<?> obtenerTodosIncluyendoDadosDeBaja() {
+        try {
+            List<ArticuloManufacturadoDto> articulos = articuloManufacturadoService.obtenerTodosSinFiltrar();
+            return ResponseEntity.ok(articulos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloManufacturadoPorId(@PathVariable Long id) {

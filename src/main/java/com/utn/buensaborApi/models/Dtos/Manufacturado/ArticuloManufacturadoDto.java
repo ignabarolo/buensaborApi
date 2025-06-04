@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -25,4 +26,5 @@ public class ArticuloManufacturadoDto extends BaseEntity {
     private List<ImagenDto> imagenes;
     private CategoriaArticuloDto categoria;
     private boolean estado;
+    private LocalDateTime fechaBaja;
 }
