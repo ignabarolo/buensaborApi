@@ -145,8 +145,6 @@ public class ArticuloManufacturadoController {
         }
     }
 
-
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarArticuloManufacturado(@PathVariable Long id) {
         try {
@@ -157,5 +155,11 @@ public class ArticuloManufacturadoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @PutMapping("/alta/{id}")
+    public ResponseEntity<Void> darDeAlta(@PathVariable Long id) {
+        articuloManufacturadoService.darDeAlta(id);
+        return ResponseEntity.ok().build();
     }
 }

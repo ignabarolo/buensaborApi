@@ -351,4 +351,13 @@ public class ArticuloManufacturadoService {
         detalleDto.setArticuloInsumo(articuloInsumoDto);
         return detalleDto;
     }
+
+    @Transactional
+    public void darDeAlta(Long id) {
+        ArticuloManufacturado articulo = articuloManufacturadoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
+        articulo.setFechaBaja(null);
+        articuloManufacturadoRepository.save(articulo);
+    }
+
 }
