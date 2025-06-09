@@ -14,9 +14,9 @@ import java.util.List;
 @Getter
 @Setter
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,         // Usaremos un nombre para identificar el tipo
-        include = JsonTypeInfo.As.PROPERTY, // Incluirá una propiedad en el JSON
-        property = "tipoArticulo"           // El nombre de la propiedad en el JSON será "tipoArticulo"
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "tipoArticulo"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ArticuloManufacturado.class, name = "manufacturado"),
