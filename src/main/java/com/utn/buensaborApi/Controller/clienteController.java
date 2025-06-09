@@ -1,9 +1,13 @@
 package com.utn.buensaborApi.Controller;
 
 
-
+import com.utn.buensaborApi.Dtos.clienteDTO;
+import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.models.Cliente;
+import com.utn.buensaborApi.models.Domicilio;
+import com.utn.buensaborApi.models.Localidad;
 import com.utn.buensaborApi.services.clienteServices;
+import com.utn.buensaborApi.services.localidadServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +20,8 @@ public class clienteController {
 
     @Autowired
     private clienteServices clienteServices;
+    @Autowired
+    private localidadServices localidadServices;
 
     @GetMapping
     public ResponseEntity<List<Cliente>> listarTodosLosClientes() {
@@ -33,10 +39,35 @@ public class clienteController {
     }
 
     @PostMapping
-    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente) {
-        Cliente nuevoCliente = clienteServices.guardar(cliente);
-        return ResponseEntity.ok(nuevoCliente);
+    public ResponseEntity<?> crearCliente(@RequestBody clienteDTO clienteDto) {
+        Cliente cliente = new Cliente();
+        cliente.setNombre(clienteDto.getNombre());
+        cliente.setApellido(clienteDto.getApellido());
+        cliente.setTelefono(clienteDto.getTelefono());
+        cliente.setEmail(clienteDto.getEmail());
+        cliente.setFechaDeNacimiento(clienteDto.getFechaDeNacimiento());
+        cliente.setUsuario(clienteDto.getUsuario());
+
+        // Convertir DomicilioDTO
+        domicilioDTO domicilioDto = clienteDto.getDomicilio();
+        Domicilio domicilio = new Domicilio();
+        domicilio.setCalle(domicilioDto.getCalle());
+        domicilio.setNumero(domicilioDto.getNumero());
+        domicilio.setCodigoPostal(domicilioDto.getCodigoPostal());
+
+        Localidad localidad = localidadServices.obtenerPorId(domicilioDto.getIdLocalidad());
+        if (localidad == null) {
+            return ResponseEntity.badRequest().body("Localidad no encontrada");
+        }
+
+        domicilio.setLocalidad(localidad);
+        cliente.setDomicilio(domicilio);
+
+        Cliente clienteGuardado = clienteServices.guardar(cliente);
+        return ResponseEntity.ok(clienteGuardado);
     }
+
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody Cliente clienteActualizado) {

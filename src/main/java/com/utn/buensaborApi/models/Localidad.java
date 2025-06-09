@@ -19,6 +19,7 @@ private List<Domicilio> domicilios;
    
 @ManyToOne
 @JoinColumn(name = "id_provincia", referencedColumnName = "id")
+@JsonIgnore
 private Provincia provincia;  
 
 

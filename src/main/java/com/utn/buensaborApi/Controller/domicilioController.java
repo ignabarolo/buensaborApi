@@ -1,6 +1,9 @@
 package com.utn.buensaborApi.Controller;
+import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.models.Domicilio;
+import com.utn.buensaborApi.models.Localidad;
 import com.utn.buensaborApi.services.domicilioServices;
+import com.utn.buensaborApi.services.localidadServices;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +15,31 @@ public class domicilioController {
 
     @Autowired
     private domicilioServices domicilioServices;
+    @Autowired
+    private localidadServices localidadServices;
 
     @GetMapping
     public List<Domicilio> listarTodos() {
         return domicilioServices.listarTodos();
     }
 
+    
+  
     @PostMapping
-    public Domicilio guardar(@RequestBody Domicilio domicilio) {
-        return domicilioServices.guardar(domicilio);
+    public ResponseEntity<Domicilio> guardar(@RequestBody domicilioDTO domicilioDto) {
+        Domicilio domicilio = new Domicilio();
+        domicilio.setCalle(domicilioDto.getCalle());
+        domicilio.setNumero(domicilioDto.getNumero());
+        domicilio.setCodigoPostal(domicilioDto.getCodigoPostal());
+
+        Localidad localidad = localidadServices.obtenerPorId(domicilioDto.getIdLocalidad());
+        if (localidad == null) {
+            return ResponseEntity.badRequest().build(); // o lanzar una excepción custom
+        }
+
+        domicilio.setLocalidad(localidad);
+        Domicilio guardado = domicilioServices.guardar(domicilio);
+        return ResponseEntity.ok(guardado);
     }
 
     @GetMapping("/{id}")

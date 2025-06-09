@@ -1,5 +1,6 @@
 
 package com.utn.buensaborApi.models;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +14,7 @@ private String calle;
 private int numero;
 private int codigoPostal;
 
+@JsonIgnore
 @OneToOne(mappedBy = "domicilio")
 private SucursalEmpresa sucursal;
 

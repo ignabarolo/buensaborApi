@@ -8,18 +8,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class corsConfig {
-      @Bean
+
+    @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
+                registry.addMapping("/**") // permite CORS en todos los endpoints
+                        .allowedOrigins("http://localhost:5173") // reemplazá con el puerto de tu frontend si es distinto
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("https://localhost:5173")
-                        .allowCredentials(false)
-                        .maxAge(3600);
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
