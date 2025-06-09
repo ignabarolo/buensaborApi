@@ -1,6 +1,8 @@
 package com.utn.buensaborApi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+
 public class PedidoVentaDetalle extends BaseEntity {
     private Integer cantidad;
     private Double subtotal;

@@ -1,10 +1,13 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.Utils.ServicesUtils;
+import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
+import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
+import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private ServicesUtils servicesUtils;
+
+    @Autowired
+    private PedidoVentaMapper mapper;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -82,6 +88,26 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
             pedidoVentaRepository.save(pedidoVenta);
             return pedidoVenta;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception{
+        try {
+//            if (pedidoVentadto.getPedidosVentaDetalle() != null) {
+//                pedidoVentadto.getPedidosVentaDetalle().forEach(detalle -> {
+//                    if (detalle.getPedidoVenta() == null){
+//                        detalle.setPedidoVenta(pedidoVenta);
+//                    }
+//                });
+//            }
+
+            PedidoVenta entity = mapper.toEntity(pedidoVentadto);
+
+            pedidoVentaRepository.save(entity);
+            return pedidoVentadto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

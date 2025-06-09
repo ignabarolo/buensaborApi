@@ -1,6 +1,8 @@
 package com.utn.buensaborApi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +13,15 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,         // Usaremos un nombre para identificar el tipo
+        include = JsonTypeInfo.As.PROPERTY, // Incluirá una propiedad en el JSON
+        property = "tipoArticulo"           // El nombre de la propiedad en el JSON será "tipoArticulo"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ArticuloManufacturado.class, name = "manufacturado"),
+        @JsonSubTypes.Type(value = ArticuloInsumo.class, name = "insumo")
+})
 public abstract class Articulo extends BaseEntity {
     private String denominacion;
     private Double precioVenta;
