@@ -3,6 +3,7 @@ package com.utn.buensaborApi.services.Implementations;
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
+import com.utn.buensaborApi.models.PedidoVentaDetalle;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
@@ -94,22 +95,20 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
     @Transactional
-    public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception{
+    public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
-//            if (pedidoVentadto.getPedidosVentaDetalle() != null) {
-//                pedidoVentadto.getPedidosVentaDetalle().forEach(detalle -> {
-//                    if (detalle.getPedidoVenta() == null){
-//                        detalle.setPedidoVenta(pedidoVenta);
-//                    }
-//                });
-//            }
-
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
+            if (entity.getPedidosVentaDetalle() != null) {
+                for (PedidoVentaDetalle detalle : entity.getPedidosVentaDetalle()) {
+                    detalle.setPedidoVenta(entity);
+                }
+            }
             pedidoVentaRepository.save(entity);
             return pedidoVentadto;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
+
 }
