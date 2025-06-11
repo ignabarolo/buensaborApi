@@ -48,4 +48,8 @@ public class clienteServices {
         }
         return null;
     }
+    
+    public Cliente obtenerPorEmail(String email) {
+    return clienteRepository.findByEmail(email).orElse(null);
+}
 }

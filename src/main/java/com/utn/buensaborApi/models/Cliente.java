@@ -1,6 +1,7 @@
 
 package com.utn.buensaborApi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,9 +28,10 @@ public class Cliente extends BaseEntity {
  @JoinColumn(name = "id_domicilio", referencedColumnName = "id")
  private Domicilio domicilio;
  
+ @JsonIgnore
  @OneToMany(mappedBy = "cliente")
  protected List<PedidoVenta> PedidosVenta;
- 
+ @JsonIgnore
   @OneToMany(mappedBy = "cliente")
  protected List<Factura> facturas;
 

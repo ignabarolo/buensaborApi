@@ -1,11 +1,9 @@
-
 package com.utn.buensaborApi.repositories;
-import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.utn.buensaborApi.models.Cliente;
-/**
- *
- * @author Enzo
- */
-public interface clienteRepository extends JpaRepository <Cliente , Long>{
-    
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface clienteRepository extends JpaRepository<Cliente, Long> {
+    Optional<Cliente> findByEmail(String email);
 }
