@@ -16,7 +16,7 @@ public class corsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // permite CORS en todos los endpoints
                         .allowedOrigins("http://localhost:5173") // reemplazá con el puerto de tu frontend si es distinto
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
