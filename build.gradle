@@ -48,12 +48,14 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
          
-        //Security
-        implementation 'org.springframework.boot:spring-boot-starter-security'
-        implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-        implementation 'org.springframework.boot:spring-boot-starter-web'
-        implementation 'com.nimbusds:nimbus-jose-jwt'
+	//Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'com.nimbusds:nimbus-jose-jwt'
 
+	//MercadoPago
+	implementation("com.mercadopago:sdk-java:2.1.24")
 }
 
 tasks.named('test') {
