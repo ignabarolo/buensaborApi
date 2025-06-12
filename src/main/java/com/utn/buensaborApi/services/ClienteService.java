@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class clienteServices {
+public class ClienteService {
      @Autowired
      
      private clienteRepository clienteRepository;

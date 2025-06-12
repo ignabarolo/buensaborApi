@@ -1,14 +1,15 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.Utils.ServicesUtils;
+import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.models.PedidoVentaDetalle;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
-import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
+import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private PedidoVentaMapper mapper;
+
+    @Autowired
+    private ClienteService clienteService;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -97,6 +101,13 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     @Transactional
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
+
+            // Obtener cliente por ID
+            Cliente cliente = clienteService.obtenerPorId(pedidoVentadto.getClienteId());
+            if (cliente == null) {
+                throw new Exception("Cliente no encontrado con ID: " + pedidoVentadto.getClienteId());
+            }
+
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
             if (entity.getPedidosVentaDetalle() != null) {

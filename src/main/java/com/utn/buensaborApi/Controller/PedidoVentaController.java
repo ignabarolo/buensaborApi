@@ -1,11 +1,16 @@
 package com.utn.buensaborApi.Controller;
 
+import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.services.Implementations.PedidoVentaServiceImpl;
+import com.utn.buensaborApi.services.ClienteService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,12 +18,34 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Pedido Venta", description = "Operaciones relacionadas con los pedidos de venta")
 public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, PedidoVentaServiceImpl>{
 
+    @Autowired
+    private ClienteService clienteService;
+
     @PostMapping("/Create")
-    public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto){
+    public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
         try {
+            // 1. Obtener el email desde el JWT
+            String email = jwt.getClaimAsString("email");
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"error\": \"No se encontró el email en el token.\"}");
+            }
+
+            // 2. Buscar el cliente por email
+            Cliente cliente = clienteService.obtenerPorEmail(email);
+            if (cliente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
+            }
+
+            // 3. Asignar el ID del cliente al pedido
+            dto.setClienteId(cliente.getId());
+
+            // 4. Guardar el pedido
             return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\":" + "\"" + e.getMessage() + ".\"}");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 }

@@ -60,7 +60,7 @@ public class SecurityConfig {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
 
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            List<String> roles = jwt.getClaimAsStringList("https://buen-sabor.com/roles");
+            List<String> roles = jwt.getClaimAsStringList("https://buensaboroto.com/roles");
             logger.info("Roles recibidos en el JWT: {}", roles);
             if (roles == null) return List.of();
 

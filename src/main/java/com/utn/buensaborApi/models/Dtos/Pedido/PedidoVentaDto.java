@@ -26,12 +26,11 @@ public class PedidoVentaDto extends BaseEntity {
     private Double totalCosto;
     private Double totalVenta;
 
+    private Long clienteId;
 
     private DomicilioDto domicilio;
 
     private Set<PedidoVentaDetalleDto> pedidosVentaDetalle;
-
-//    private Cliente cliente;
 
 //    private Empleado empleado;
 

@@ -6,7 +6,7 @@ import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Domicilio;
 import com.utn.buensaborApi.models.Localidad;
-import com.utn.buensaborApi.services.clienteServices;
+import com.utn.buensaborApi.services.ClienteService;
 import com.utn.buensaborApi.services.localidadServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ import java.util.List;
 public class clienteController {
 
     @Autowired
-    private clienteServices clienteServices;
+    private ClienteService clienteServices;
     @Autowired
     private localidadServices localidadServices;
 
