@@ -1,6 +1,8 @@
 package com.utn.buensaborApi.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.FormaPago;
 import com.utn.buensaborApi.enums.TipoEnvio;

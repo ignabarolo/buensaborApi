@@ -1,18 +1,22 @@
-package com.utn.buensaborApi.models;
+package com.utn.buensaborApi.models.Dtos.Manufacturado;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import com.utn.buensaborApi.models.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -22,7 +26,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = ArticuloManufacturado.class, name = "manufacturado"),
         @JsonSubTypes.Type(value = ArticuloInsumo.class, name = "insumo")
 })
-public abstract class Articulo extends BaseEntity {
+public abstract class ArticuloDto extends BaseEntity {
     private String denominacion;
     private Double precioVenta;
     private Double margenGanancia;
@@ -57,5 +61,5 @@ public abstract class Articulo extends BaseEntity {
     }
 
     //Metodo para obtener Estado en funcion del Stock disponible
-       public abstract boolean obtenerEstado();
+    public abstract boolean obtenerEstado();
 }

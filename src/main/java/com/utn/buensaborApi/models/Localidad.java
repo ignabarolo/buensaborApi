@@ -11,17 +11,14 @@ import  lombok.*;
 @Setter
 public class Localidad extends BaseEntity {
 
- private String nombre;
+    private String nombre;
   
-@OneToMany(mappedBy = "localidad")
-@JsonIgnore
-private List<Domicilio> domicilios;
-   
-@ManyToOne
-@JoinColumn(name = "id_provincia", referencedColumnName = "id")
-@JsonIgnore
-private Provincia provincia;  
+    @OneToMany(mappedBy = "localidad")
+    @JsonIgnore
+    private List<Domicilio> domicilios;
 
-
-
-   }
+    @ManyToOne
+    @JoinColumn(name = "id_provincia", referencedColumnName = "id")
+    @JsonIgnore
+    private Provincia provincia;
+}
