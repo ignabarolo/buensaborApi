@@ -101,13 +101,6 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     @Transactional
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
-
-            // Obtener cliente por ID
-            Cliente cliente = clienteService.obtenerPorId(pedidoVentadto.getClienteId());
-            if (cliente == null) {
-                throw new Exception("Cliente no encontrado con ID: " + pedidoVentadto.getClienteId());
-            }
-
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
             if (entity.getPedidosVentaDetalle() != null) {

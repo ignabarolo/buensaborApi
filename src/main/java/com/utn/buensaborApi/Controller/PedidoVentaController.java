@@ -39,7 +39,7 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
             }
 
             // 3. Asignar el ID del cliente al pedido
-            dto.setClienteId(cliente.getId());
+            dto.setCliente(cliente);
 
             // 4. Guardar el pedido
             return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
