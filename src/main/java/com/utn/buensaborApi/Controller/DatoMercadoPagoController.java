@@ -22,17 +22,15 @@ public class DatoMercadoPagoController extends BaseControllerImpl<DatoMercadoPag
     @Autowired
     private MercadoPagoService mercadoPagoService;
 
-    @PostMapping("/{facturaId}")
-    public ResponseEntity<?> crearPago(@PathVariable Long facturaId) {
+    @PostMapping("/{pedidoId}")
+    public ResponseEntity<?> crearPagoPorPedidoCustom(@PathVariable Long pedidoId) {
         try {
-            Map<String, String> datosPago = mercadoPagoService.crearPago(facturaId);
-
-            Map<String, String> response = new HashMap<>();
-            response.put("preferenceId", datosPago.get("preference_id"));
-            response.put("initPoint", datosPago.get("init_point"));
-            response.put("sandboxInitPoint", datosPago.getOrDefault("sandbox_init_point", null));
-
-            return ResponseEntity.ok(response);
+            Map<String, String> response = mercadoPagoService.crearPagoPorPedido(pedidoId);
+            Map<String, Object> customResponse = new HashMap<>();
+            customResponse.put("preferenceId", response.get("preference_id"));
+            customResponse.put("initPoint", response.get("init_point"));
+            customResponse.put("sandboxInitPoint", response.get("sandbox_init_point"));
+            return ResponseEntity.ok(customResponse);
         } catch (IllegalArgumentException e) {
             log.error("Error al crear pago: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -41,5 +39,4 @@ public class DatoMercadoPagoController extends BaseControllerImpl<DatoMercadoPag
             return ResponseEntity.internalServerError().body(Map.of("error", "Error al procesar el pago con Mercado Pago"));
         }
     }
-
 }

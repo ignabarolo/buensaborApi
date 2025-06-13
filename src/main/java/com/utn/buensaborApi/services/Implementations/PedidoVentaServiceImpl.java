@@ -75,38 +75,38 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
 
-    @Override
-    @Transactional
-    public PedidoVenta save(PedidoVenta pedidoVenta) throws Exception {
-        try {
-            // Guardar primero el pedido para obtener el ID
-            pedidoVenta = pedidoVentaRepository.save(pedidoVenta);
-
-            // Crear y asociar la factura si no existe
-            if (pedidoVenta.getFacturas() == null || pedidoVenta.getFacturas().isEmpty()) {
-                Factura factura = new Factura();
-                factura.setFechaFacturacion(pedidoVenta.getFechaPedido());
-                factura.setFormaPago(pedidoVenta.getFormaPago());
-                factura.setDescuento(pedidoVenta.getDescuento());
-                factura.setGastoEnvio(pedidoVenta.getGastoEnvio());
-                factura.setTotalVenta(pedidoVenta.getTotalVenta());
-                factura.setPedidoVenta(pedidoVenta);
-
-                facturaService.save(factura);
-
-                Set<Factura> facturas = pedidoVenta.getFacturas();
-                if (facturas == null) {
-                    facturas = new HashSet<>();
-                }
-                facturas.add(factura);
-                pedidoVenta.setFacturas(facturas);
-            }
-
-            return pedidoVenta;
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-    }
+ //   @Override
+//    @Transactional
+//    public PedidoVenta save(PedidoVenta pedidoVenta) throws Exception {
+//        try {
+//            // Guardar primero el pedido para obtener el ID
+//            pedidoVenta = pedidoVentaRepository.save(pedidoVenta);
+//
+//            // Crear y asociar la factura si no existe
+//            if (pedidoVenta.getFacturas() == null || pedidoVenta.getFacturas().isEmpty()) {
+//                Factura factura = new Factura();
+//                factura.setFechaFacturacion(pedidoVenta.getFechaPedido());
+//                factura.setFormaPago(pedidoVenta.getFormaPago());
+//                factura.setDescuento(pedidoVenta.getDescuento());
+//                factura.setGastoEnvio(pedidoVenta.getGastoEnvio());
+//                factura.setTotalVenta(pedidoVenta.getTotalVenta());
+//                factura.setPedidoVenta(pedidoVenta);
+//
+//                facturaService.save(factura);
+//
+//                Set<Factura> facturas = pedidoVenta.getFacturas();
+//                if (facturas == null) {
+//                    facturas = new HashSet<>();
+//                }
+//                facturas.add(factura);
+//                pedidoVenta.setFacturas(facturas);
+//            }
+//
+//            return pedidoVenta;
+//        } catch (Exception e) {
+//            throw new Exception(e.getMessage());
+//        }
+//    }
 
 
     @Transactional

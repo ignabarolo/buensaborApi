@@ -48,16 +48,13 @@ public class MercadoPagoService {
         }
 
         // Crear items para MercadoPago (ajusta según tu modelo de detalle)
-        List<PreferenceItemRequest> items = new ArrayList<>();
-        factura.getPedidoVenta().getPedidosVentaDetalle().forEach(detalle -> {
-            PreferenceItemRequest item = PreferenceItemRequest.builder()
-                    .title(detalle.getArticulo().getDenominacion())
-                    .quantity(detalle.getCantidad())
-                    .unitPrice(BigDecimal.valueOf(detalle.getArticulo().getPrecioVenta()))
-                    .currencyId("ARS")
-                    .build();
-            items.add(item);
-        });
+        PreferenceItemRequest item = PreferenceItemRequest.builder()
+                .title("Pago de Factura #" + factura.getId())
+                .quantity(1)
+                .unitPrice(BigDecimal.valueOf(factura.getTotalVenta()))
+                .currencyId("ARS")
+                .build();
+
 
         // URLs de retorno
         String successUrl = appendFacturaId(mercadoPagoConfig.getSuccessUrl(), facturaId);
@@ -71,7 +68,7 @@ public class MercadoPagoService {
                 .build();
 
         PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-                .items(items)
+                .items(List.of(item))
                 .backUrls(backUrls)
                 .externalReference(facturaId.toString())
                 .build();
@@ -98,6 +95,26 @@ public class MercadoPagoService {
 
     private String appendFacturaId(String url, Long facturaId) {
         return url.contains("?") ? url + "&factura_id=" + facturaId : url + "?factura_id=" + facturaId;
+    }
+
+    public Map<String, String> crearPagoPorPedido(Long idPedido) throws MPException, MPApiException {
+        Factura factura = obtenerFacturaPorPedido(idPedido);
+        if (factura == null) {
+            log.error("No se encontró factura para el pedido {}", idPedido);
+            throw new IllegalArgumentException("No se encontró factura para el pedido " + idPedido);
+        }
+        if (factura.getPedidoVenta() == null) {
+            log.error("La factura {} no tiene un pedido asociado", factura.getId());
+            throw new IllegalArgumentException("La factura no tiene un pedido asociado");
+        }
+        return crearPago(factura.getId());
+    }
+
+    public Factura obtenerFacturaPorPedido(Long idPedido) {
+        return facturaRepository.findAll().stream()
+                .filter(f -> f.getPedidoVenta() != null && f.getPedidoVenta().getId().equals(idPedido))
+                .findFirst()
+                .orElse(null);
     }
 }
 
