@@ -1,15 +1,14 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.Utils.ServicesUtils;
-import com.utn.buensaborApi.models.Cliente;
+import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
-import com.utn.buensaborApi.models.Factura;
-import com.utn.buensaborApi.models.PedidoVenta;
-import com.utn.buensaborApi.models.PedidoVentaDetalle;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
+import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
+import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
@@ -38,6 +37,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private FacturaService facturaService;
+
+    @Autowired
+    private DomicilioServices domicilioServices;
+
+    @Autowired
+    private DomicilioMapper mapperDomicilio;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -113,6 +118,21 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
+
+            // Manejo del domicilio
+            if (pedidoVentadto.getDomicilio() != null) {
+                if (pedidoVentadto.getDomicilio().getId() != null) {
+                    // Domicilio existente
+                    entity.setDomicilio(domicilioServices.obtenerPorId(pedidoVentadto.getDomicilio().getId()));
+                } else {
+                    // Domicilio nuevo
+                    Domicilio nuevoDomicilio = mapperDomicilio.toEntity(pedidoVentadto.getDomicilio());
+                    Domicilio domicilioGuardado = domicilioServices.guardar(nuevoDomicilio);
+                    entity.setDomicilio(domicilioGuardado);
+                }
+            } else {
+                entity.setDomicilio(null);
+            }
 
             if (entity.getPedidosVentaDetalle() != null) {
                 for (PedidoVentaDetalle detalle : entity.getPedidosVentaDetalle()) {

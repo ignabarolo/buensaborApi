@@ -2,7 +2,7 @@ package com.utn.buensaborApi.Controller;
 import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.models.Domicilio;
 import com.utn.buensaborApi.models.Localidad;
-import com.utn.buensaborApi.services.domicilioServices;
+import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.localidadServices;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class domicilioController {
 
     @Autowired
-    private domicilioServices domicilioServices;
+    private DomicilioServices domicilioServices;
     @Autowired
     private localidadServices localidadServices;
 
