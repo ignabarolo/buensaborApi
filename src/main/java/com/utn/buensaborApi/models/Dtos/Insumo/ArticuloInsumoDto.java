@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,6 +19,7 @@ public class ArticuloInsumoDto extends BaseEntity {
     private UnidadMedidaDto unidadMedida;
     private Boolean esParaElaborar;
     private Double precioCompra;
+    private BigDecimal precioVenta;
     private CategoriaArticuloDto categoria;
     private List<SucursalInsumoDto> stockPorSucursal;
 }

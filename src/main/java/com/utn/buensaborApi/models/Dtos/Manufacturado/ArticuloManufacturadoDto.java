@@ -20,6 +20,8 @@ public class ArticuloManufacturadoDto extends BaseEntity {
     private String descripcion;
     private Double precioCosto;
 
+    private String tipoArticulo;
+
     private List<ArticuloManufacturadoDetalleDto> detalles;
     private UnidadMedidaDto unidadMedida;
 

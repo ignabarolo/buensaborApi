@@ -7,6 +7,7 @@ import com.utn.buensaborApi.models.CategoriaArticulo;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import com.utn.buensaborApi.services.ArticuloManufacturadoService;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
+import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ public class ArticuloManufacturadoController {
 
     private final ArticuloManufacturadoService articuloManufacturadoService;
     private final CategoriaArticuloRepository categoriaArticuloRepository;
+    private final ArticuloManufacturadoMapper articuloManufacturadoMapper;
 
     @GetMapping
     public ResponseEntity<?> obtenerTodos() {
@@ -79,35 +81,29 @@ public class ArticuloManufacturadoController {
             @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
             if (articuloManufacturadoJson == null || articuloManufacturadoJson.isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body("El JSON del artículo no puede estar vacío.");
+                return ResponseEntity.badRequest().body("El JSON del artículo no puede estar vacío.");
             }
 
-            // Convertir el JSON del artículo a un objeto ArticuloManufacturado
             ObjectMapper objectMapper = new ObjectMapper();
-            ArticuloManufacturado articuloManufacturado = objectMapper.readValue(articuloManufacturadoJson, ArticuloManufacturado.class);
+            ArticuloManufacturadoDto dto = objectMapper.readValue(articuloManufacturadoJson, ArticuloManufacturadoDto.class);
 
-            //Convertir json a un objeto categoriaArticulo
-            CategoriaArticulo categoria = new CategoriaArticulo();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(articuloManufacturadoJson);
-            if (jsonNode.has("categoria") && jsonNode.get("categoria").has("id")) {
-                Long categoriaId = jsonNode.get("categoria").get("id").asLong();
-                categoria = categoriaArticuloRepository.findById(categoriaId)
-                        .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con ID: " + categoriaId));
-                articuloManufacturado.setCategoria(categoria);
-            } else {
-                throw new IllegalArgumentException("Se requiere una categoría válida para el artículo manufacturado");
-            }
+            // Obtener categoría (ya está en el DTO como objeto con ID)
+            Long categoriaId = dto.getCategoria().getId();
+            CategoriaArticulo categoria = categoriaArticuloRepository.findById(categoriaId)
+                    .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con ID: " + categoriaId));
 
-            // Guardar el nuevo artículo manufacturado
-            Object nuevoArticulo = articuloManufacturadoService.crear(articuloManufacturado, categoria, imagenes);
+            // Mapper de DTO a entidad
+            ArticuloManufacturado articulo = articuloManufacturadoMapper.toEntity(dto);
+            articulo.setCategoria(categoria); // por seguridad
+
+            Object nuevoArticulo = articuloManufacturadoService.crear(articulo, categoria, imagenes);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoArticulo);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al procesar el JSON o las imágenes: " + e.getMessage());
         }
     }
+
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> actualizar(

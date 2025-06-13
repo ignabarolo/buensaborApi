@@ -1,10 +1,12 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.*;
+import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoSimpleDto;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.*;
 import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
 import com.utn.buensaborApi.repositories.ImagenRepository;
+import com.utn.buensaborApi.services.Mappers.ArticuloInsumoSimpleMapper;
 import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,9 @@ public class ArticuloManufacturadoService {
 
     @Autowired
     private final ArticuloManufacturadoMapper mapper;
+
+    @Autowired
+    private ArticuloInsumoSimpleMapper articuloInsumoSimpleMapper;
 
     @Transactional(readOnly = true)
     public List<ArticuloManufacturadoDto> obtenerTodosConDetalles() {
@@ -337,20 +342,12 @@ public class ArticuloManufacturadoService {
         detalleDto.setId(detalle.getId());
         detalleDto.setCantidad(detalle.getCantidad());
 
-        // Usar el constructor vacío y asignar valores manualmente
-        ArticuloInsumoDto articuloInsumoDto = new ArticuloInsumoDto();
-        articuloInsumoDto.setId(detalle.getArticuloInsumo().getId());
-        articuloInsumoDto.setDenominacion(detalle.getArticuloInsumo().getDenominacion());
-        articuloInsumoDto.setPrecioCompra(detalle.getArticuloInsumo().getPrecioCompra());
-        articuloInsumoDto.setEsParaElaborar(detalle.getArticuloInsumo().getEsParaElaborar());
-        articuloInsumoDto.setUnidadMedida(new UnidadMedidaDto(
-                detalle.getArticuloInsumo().getUnidadMedida().getId(),
-                detalle.getArticuloInsumo().getUnidadMedida().getDenominacion()
-        ));
+        ArticuloInsumoSimpleDto insumoSimpleDto = articuloInsumoSimpleMapper.toDto(detalle.getArticuloInsumo());
+        detalleDto.setArticuloInsumo(insumoSimpleDto);
 
-        detalleDto.setArticuloInsumo(articuloInsumoDto);
         return detalleDto;
     }
+
 
     @Transactional
     public void darDeAlta(Long id) {

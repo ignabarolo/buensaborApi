@@ -4,10 +4,13 @@ import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        uses = { ArticuloManufacturadoDetalleMapper.class }
+)
 public interface ArticuloManufacturadoMapper {
 
     ArticuloManufacturado toEntity(ArticuloManufacturadoDto dto);
