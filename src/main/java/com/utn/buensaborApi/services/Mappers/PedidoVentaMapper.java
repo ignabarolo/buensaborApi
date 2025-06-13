@@ -18,6 +18,7 @@ public interface PedidoVentaMapper {
 //    PedidoVentaDto toDto(PedidoVenta entity);
 
 
+    PedidoVentaDto toDto(PedidoVenta entity);
 
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
