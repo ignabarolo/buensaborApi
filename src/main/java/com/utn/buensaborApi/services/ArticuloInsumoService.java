@@ -2,10 +2,13 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
 import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoDto;
+import com.utn.buensaborApi.models.SucursalEmpresa;
+import com.utn.buensaborApi.models.SucursalInsumo;
 import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
+import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
 import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
-import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,14 +23,18 @@ public class ArticuloInsumoService {
 
     private final ArticuloInsumoRepository articuloInsumoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
+
     @Autowired
     private final ArticuloInsumoMapper mapper;
 
+    @Autowired
+    private SucursalEmpresaRepository sucursalEmpresaRepository;
+
     public List<ArticuloInsumoDto> listarTodosConDetalle() {
-    return articuloInsumoRepository.findAllWithDetails().stream()
+        return articuloInsumoRepository.findAllWithDetails().stream()
             .map(mapper::toDto)
             .toList();
-}
+    }
 
     
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
@@ -54,21 +61,26 @@ public class ArticuloInsumoService {
     @Transactional
     public ArticuloInsumo crearArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
         articuloInsumo.setFechaAlta(LocalDateTime.now());
-        
+
         // Guardar primero el ArticuloInsumo
         ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
 
+        // Obtener sucursal 1 (única sucursal por ahora)
+        SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Sucursal 1 no encontrada"));
+
         // Crear y guardar SucursalInsumo asociado
         if (articuloInsumo.getStockPorSucursal() != null) {
-            articuloInsumo.getStockPorSucursal().forEach(stock -> {
-                stock.setArticuloInsumo(articuloInsumo);
+            for (SucursalInsumo stock : articuloInsumo.getStockPorSucursal()) {
+                stock.setArticuloInsumo(savedArticulo);
+                stock.setSucursal(sucursal);
                 stock.setFechaAlta(LocalDateTime.now());
                 sucursalInsumoRepository.save(stock);
-            });
+            }
         }
-
         return savedArticulo;
     }
+
 
     @Transactional
     public ArticuloInsumo actualizarArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {

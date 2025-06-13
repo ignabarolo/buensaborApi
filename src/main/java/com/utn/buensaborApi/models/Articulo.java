@@ -42,7 +42,6 @@ public abstract class Articulo extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name ="categoria_id")
-    @JsonIgnore
     private CategoriaArticulo categoria;
 
     //Metodo para Calcular precio de Venta

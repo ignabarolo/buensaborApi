@@ -22,7 +22,7 @@ public class DataInitializerServices {
     private final provinciaRepository provinciaRepository;
     private final localidadRepository localidadRepository;
     private final empresaRepository empresaRepository;
-    private final sucursalRepository sucursalRepository;
+    private final SucursalEmpresaRepository sucursalRepository;
     private final domicilioRepository domicilioRepository;
     private final CategoriaArticuloRepository categoriaRepository;
     private final ArticuloInsumoRepository articuloInsumoRepository;

@@ -2,7 +2,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.SucursalEmpresa;
-import com.utn.buensaborApi.repositories.sucursalRepository;
+import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class sucursalServices {
              @Autowired
-     private sucursalRepository sucursalRepository;
+     private SucursalEmpresaRepository sucursalRepository;
      
      public List<SucursalEmpresa> listarTodos(){
          return sucursalRepository.findAll();

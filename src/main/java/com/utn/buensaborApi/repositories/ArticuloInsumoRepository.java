@@ -29,10 +29,11 @@ public interface ArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, 
             "AND a.esParaElaborar = true " +
             "AND a.fechaBaja IS NULL")
     List<ArticuloInsumo> findAllForElaborationBySucursal(@Param("sucursalId") Long sucursalId);
-    
+
     @Query("SELECT DISTINCT a FROM ArticuloInsumo a " +
-        "LEFT JOIN FETCH a.stockPorSucursal s " +
-        "WHERE a.fechaBaja IS NULL")
+            "LEFT JOIN FETCH a.stockPorSucursal s " +
+            "LEFT JOIN FETCH a.categoria c " +
+            "WHERE a.fechaBaja IS NULL")
     List<ArticuloInsumo> findAllWithDetails();
 
 }
