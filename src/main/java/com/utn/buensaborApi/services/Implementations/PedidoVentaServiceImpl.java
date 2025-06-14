@@ -79,8 +79,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         }
     }
 
+    public List<PedidoVenta> obtenerPedidosPorCliente(Long clienteId) {
+        return pedidoVentaRepository.findByClienteId(clienteId);
+    }
 
- //   @Override
+
+    //   @Override
 //    @Transactional
 //    public PedidoVenta save(PedidoVenta pedidoVenta) throws Exception {
 //        try {

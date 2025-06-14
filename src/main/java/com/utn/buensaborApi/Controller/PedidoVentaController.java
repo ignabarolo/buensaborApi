@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "api/v1/pedidoVenta")
 @Tag(name = "Pedido Venta", description = "Operaciones relacionadas con los pedidos de venta")
@@ -20,6 +22,35 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
 
     @Autowired
     private ClienteService clienteService;
+
+    @GetMapping("/mis-pedidos")
+    public ResponseEntity<?> obtenerPedidosDelCliente(@AuthenticationPrincipal Jwt jwt) {
+        try {
+            // 1. Obtener el email desde el JWT
+            String email = jwt.getClaimAsString("email");
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"error\": \"No se encontró el email en el token.\"}");
+            }
+
+            // 2. Buscar el cliente por email
+            Cliente cliente = clienteService.obtenerPorEmail(email);
+            if (cliente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
+            }
+
+            // 3. Obtener pedidos del cliente
+            List<PedidoVenta> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
+
+            return ResponseEntity.ok(pedidos);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
 
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
