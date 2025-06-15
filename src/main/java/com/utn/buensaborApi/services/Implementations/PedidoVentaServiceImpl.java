@@ -14,7 +14,10 @@ import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -85,7 +88,17 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         return pedidoVentaRepository.findByClienteId(clienteId);
     }
 
+    public List<PedidoVentaDto> listarPedidosDtoPorCliente(Long clienteId) {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteId(clienteId);
+        return pedidos.stream()
+                .map(mapper::toDto)
+                .toList();
+    }
 
+    public List<PedidoVentaDto> listarPedidosDtoPorClienteYFechas(Long clienteId, LocalDate fechaDesde, LocalDate fechaHasta) {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteIdAndFechaPedidoBetween(clienteId, fechaDesde, fechaHasta);
+        return pedidos.stream().map(mapper::toDto).toList();
+    }
 
     //Crear pedido Venta, asociar domicilio y factura
     @Transactional

@@ -15,6 +15,11 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
 
     List<PedidoVenta> findByClienteId(Long clienteId);
 
+    // Listar pedidos por cliente y fecha
+    @Query("SELECT p FROM PedidoVenta p WHERE p.cliente.id = :clienteId AND p.fechaPedido BETWEEN :fechaDesde AND :fechaHasta")
+    List<PedidoVenta> findByClienteIdAndFechaPedidoBetween(@Param("clienteId") Long clienteId,
+                                                           @Param("fechaDesde") LocalDate fechaDesde,
+                                                           @Param("fechaHasta") LocalDate fechaHasta);
     // Ranking de productos
     @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto(a.denominacion, SUM(d.cantidad), c.denominacion) " +
             "FROM PedidoVenta pv " +
