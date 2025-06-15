@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.services;
 
+import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class RankingService {
         this.pedidoVentaRepository = pedidoVentaRepository;
     }
 
+    //Ranking de productos vendidos
     public Map<String, List<ProductoRankingDto>> obtenerRankingProductos(LocalDate desde, LocalDate hasta) {
         List<ProductoRankingDto> resultados = pedidoVentaRepository.obtenerRankingProductosConCategoria(desde, hasta);
 
@@ -34,4 +36,10 @@ public class RankingService {
         }
         return ranking;
     }
+
+    //Ranking de clientes
+    public List<ClienteRankingDto> obtenerRankingClientes(LocalDate desde, LocalDate hasta, String orden) {
+        return pedidoVentaRepository.obtenerRankingClientes(desde, hasta, orden);
+    }
+
 }
