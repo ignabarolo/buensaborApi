@@ -1,6 +1,8 @@
 package com.utn.buensaborApi.Controller;
 
 import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioMensualDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.services.RankingService;
 import com.utn.buensaborApi.Utils.ExcelService;
@@ -70,6 +72,38 @@ public class RankingController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ranking_clientes.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(file);
+    }
+
+    // Estadísticas totales de ventas
+    @GetMapping("/totales")
+    public ResponseEntity<EstadoMonetarioDto> obtenerTotales(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) {
+        return ResponseEntity.ok(rankingService.obtenerTotales(desde, hasta));
+    }
+
+    @GetMapping("/totales/mensuales")
+    public ResponseEntity<List<EstadoMonetarioMensualDto>> obtenerTotalesMensuales(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) {
+        return ResponseEntity.ok(rankingService.obtenerTotalesMensuales(desde, hasta));
+    }
+
+
+    // Exportar estadísticas totales a Excel
+    @GetMapping("/totales/excel")
+    public ResponseEntity<Resource> exportarTotalesAExcel(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) throws IOException {
+        EstadoMonetarioDto totales = rankingService.obtenerTotales(desde, hasta);
+        List<EstadoMonetarioMensualDto> mensuales= rankingService.obtenerTotalesMensuales(desde, hasta);
+        ByteArrayInputStream in = excelService.exportarTotalesAExcel(mensuales, totales);
+        InputStreamResource file = new InputStreamResource(in);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=totales.xlsx")
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(file);
     }

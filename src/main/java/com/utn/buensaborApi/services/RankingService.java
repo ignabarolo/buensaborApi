@@ -1,6 +1,7 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import org.springframework.stereotype.Service;
@@ -42,4 +43,13 @@ public class RankingService {
         return pedidoVentaRepository.obtenerRankingClientes(desde, hasta, orden);
     }
 
+    // Estadísticas totales de ventas
+    public EstadoMonetarioDto obtenerTotales(LocalDate desde, LocalDate hasta) {
+        return pedidoVentaRepository.obtenerTotalesEntreFechas(desde, hasta);
+    }
+
+    // Estadísticas ventas mensuales
+    public List<EstadoMonetarioMensualDto> obtenerTotalesMensuales(LocalDate desde, LocalDate hasta) {
+        return pedidoVentaRepository.obtenerTotalesMensualesEntreFechas(desde, hasta);
+    }
 }

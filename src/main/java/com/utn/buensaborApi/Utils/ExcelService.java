@@ -1,6 +1,7 @@
 package com.utn.buensaborApi.Utils;
 
 import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Service
 public class ExcelService {
 
-    //Exporta el ranking de productos a un archivo Excel
+    //Exportar el ranking de productos a un archivo Excel
     public ByteArrayInputStream exportarRankingProdcutoAExcel(Map<String, List<ProductoRankingDto>> ranking) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
             for (String tipo : ranking.keySet()) {
@@ -39,7 +40,7 @@ public class ExcelService {
         }
     }
 
-    // Exporta el ranking de clientes a un archivo Excel
+    // Exportar el ranking de clientes a un archivo Excel
     public ByteArrayInputStream exportarRankingClienteAExcel(List<ClienteRankingDto> ranking, String orden) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Clientes");
@@ -65,6 +66,40 @@ public class ExcelService {
                     row.createCell(2).setCellValue(dto.getImporteTotal());
                 }
             }
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+    }
+
+    //Exportar el movimiento monetario a un archivo Excel
+    public ByteArrayInputStream exportarTotalesAExcel(List<EstadoMonetarioMensualDto> mensuales, EstadoMonetarioDto totales) throws IOException {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Totales");
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("Año");
+            header.createCell(1).setCellValue("Mes");
+            header.createCell(2).setCellValue("Ingresos");
+            header.createCell(3).setCellValue("Costos");
+            header.createCell(4).setCellValue("Ganancias");
+
+            int rowIdx = 1;
+            for (EstadoMonetarioMensualDto dto : mensuales) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(dto.getAnio());
+                row.createCell(1).setCellValue(dto.getMes());
+                row.createCell(2).setCellValue(dto.getIngreso());
+                row.createCell(3).setCellValue(dto.getCosto());
+                row.createCell(4).setCellValue(dto.getGanancia());
+            }
+
+            // Fila de totales
+            Row totalRow = sheet.createRow(rowIdx);
+            totalRow.createCell(0).setCellValue("TOTAL");
+            totalRow.createCell(2).setCellValue(totales.getIngreso());
+            totalRow.createCell(3).setCellValue(totales.getCosto());
+            totalRow.createCell(4).setCellValue(totales.getGanancia());
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
