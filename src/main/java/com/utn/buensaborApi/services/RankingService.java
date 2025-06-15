@@ -1,0 +1,37 @@
+package com.utn.buensaborApi.services;
+
+import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
+import com.utn.buensaborApi.repositories.PedidoVentaRepository;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class RankingService {
+    private final PedidoVentaRepository pedidoVentaRepository;
+
+    public RankingService(PedidoVentaRepository pedidoVentaRepository) {
+        this.pedidoVentaRepository = pedidoVentaRepository;
+    }
+
+    public Map<String, List<ProductoRankingDto>> obtenerRankingProductos(LocalDate desde, LocalDate hasta) {
+        List<ProductoRankingDto> resultados = pedidoVentaRepository.obtenerRankingProductosConCategoria(desde, hasta);
+
+        Map<String, List<ProductoRankingDto>> ranking = new HashMap<>();
+        ranking.put("bebida", new ArrayList<>());
+        ranking.put("comida", new ArrayList<>());
+
+        for (ProductoRankingDto dto : resultados) {
+            if ("bebida".equalsIgnoreCase(dto.getCategoria())) {
+                ranking.get("bebida").add(dto);
+            } else {
+                ranking.get("comida").add(dto);
+            }
+        }
+        return ranking;
+    }
+}

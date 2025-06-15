@@ -3,6 +3,7 @@ package com.utn.buensaborApi.services.Implementations;
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.DomicilioServices;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -84,40 +86,8 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
 
-    //   @Override
-//    @Transactional
-//    public PedidoVenta save(PedidoVenta pedidoVenta) throws Exception {
-//        try {
-//            // Guardar primero el pedido para obtener el ID
-//            pedidoVenta = pedidoVentaRepository.save(pedidoVenta);
-//
-//            // Crear y asociar la factura si no existe
-//            if (pedidoVenta.getFacturas() == null || pedidoVenta.getFacturas().isEmpty()) {
-//                Factura factura = new Factura();
-//                factura.setFechaFacturacion(pedidoVenta.getFechaPedido());
-//                factura.setFormaPago(pedidoVenta.getFormaPago());
-//                factura.setDescuento(pedidoVenta.getDescuento());
-//                factura.setGastoEnvio(pedidoVenta.getGastoEnvio());
-//                factura.setTotalVenta(pedidoVenta.getTotalVenta());
-//                factura.setPedidoVenta(pedidoVenta);
-//
-//                facturaService.save(factura);
-//
-//                Set<Factura> facturas = pedidoVenta.getFacturas();
-//                if (facturas == null) {
-//                    facturas = new HashSet<>();
-//                }
-//                facturas.add(factura);
-//                pedidoVenta.setFacturas(facturas);
-//            }
-//
-//            return pedidoVenta;
-//        } catch (Exception e) {
-//            throw new Exception(e.getMessage());
-//        }
-//    }
 
-
+    //Crear pedido Venta, asociar domicilio y factura
     @Transactional
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
@@ -172,5 +142,4 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             throw new Exception(e.getMessage());
         }
     }
-
 }
