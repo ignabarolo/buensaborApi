@@ -11,9 +11,12 @@ import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +39,7 @@ public class ArticuloInsumoService {
             .toList();
     }
 
-    
+
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
         return articuloInsumoRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
@@ -119,6 +122,26 @@ public class ArticuloInsumoService {
         }
 
         articuloInsumoRepository.save(articuloInsumo);
+    }
+
+    public List<ArticuloInsumoDto> listarTodosIncluyendoBajas() {
+        return articuloInsumoRepository.findAllIncludingBajas()
+                .stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    // darDeBaja en grilla
+    public void darDeBaja(Long id) {
+        ArticuloInsumo insumo = articuloInsumoRepository.findById(id).orElseThrow(() -> new RuntimeException("No encontrado"));
+        insumo.setFechaBaja(LocalDate.now().atStartOfDay());
+        articuloInsumoRepository.save(insumo);
+    }
+    // darDeAlta en grilla
+    public void darDeAlta(Long id) {
+        ArticuloInsumo insumo = articuloInsumoRepository.findById(id).orElseThrow(() -> new RuntimeException("No encontrado"));
+        insumo.setFechaBaja(null);
+        articuloInsumoRepository.save(insumo);
     }
 
 }

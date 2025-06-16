@@ -36,4 +36,9 @@ public interface ArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, 
             "WHERE a.fechaBaja IS NULL")
     List<ArticuloInsumo> findAllWithDetails();
 
+    @Query("SELECT DISTINCT a FROM ArticuloInsumo a " +
+            "LEFT JOIN FETCH a.stockPorSucursal s " +
+            "LEFT JOIN FETCH a.categoria c")
+    List<ArticuloInsumo> findAllIncludingBajas();
+
 }
