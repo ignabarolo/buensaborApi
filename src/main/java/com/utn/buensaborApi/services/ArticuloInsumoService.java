@@ -60,17 +60,18 @@ public class ArticuloInsumoService {
         return articuloInsumoRepository.findAllForElaborationBySucursal(sucursalId);
     }
 
-    //Guardar Insumo
+    //Crear Insumo
     @Transactional
     public ArticuloInsumo crearArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
         articuloInsumo.setFechaAlta(LocalDateTime.now());
 
-        // Guardar primero el ArticuloInsumo
-        ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
-
-        // Obtener sucursal 1 (única sucursal por ahora)
         SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Sucursal 1 no encontrada"));
+
+        articuloInsumo.setSucursal(sucursal);
+
+        // Guardar primero el ArticuloInsumo
+        ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
 
         // Crear y guardar SucursalInsumo asociado
         if (articuloInsumo.getStockPorSucursal() != null) {

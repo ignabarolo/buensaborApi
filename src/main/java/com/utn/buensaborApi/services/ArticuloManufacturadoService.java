@@ -3,9 +3,7 @@ package com.utn.buensaborApi.services;
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoSimpleDto;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.*;
-import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
-import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
-import com.utn.buensaborApi.repositories.ImagenRepository;
+import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.Mappers.ArticuloInsumoSimpleMapper;
 import com.utn.buensaborApi.services.Mappers.ArticuloManufacturadoMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,6 +28,7 @@ public class ArticuloManufacturadoService {
     private final ImagenRepository imagenRepository;
     private final ArticuloInsumoService articuloInsumoService;
     private final CategoriaArticuloRepository categoriaArticuloRepository;
+    private final SucursalEmpresaRepository sucursalEmpresaRepository;
 
     @Autowired
     private final ArticuloManufacturadoMapper mapper;
@@ -126,6 +125,10 @@ public class ArticuloManufacturadoService {
 
             // Procesar Categoria
             savedArticulo.setCategoria(categoria);
+
+            SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
+                    .orElseThrow(() -> new EntityNotFoundException("Sucursal con ID 1 no encontrada"));
+            articuloManufacturado.setSucursal(sucursal);
 
             // Guardar inmediatamente después de asignar la categoría
             savedArticulo = articuloManufacturadoRepository.save(savedArticulo);
