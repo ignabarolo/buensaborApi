@@ -21,18 +21,35 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
                                                            @Param("fechaDesde") LocalDate fechaDesde,
                                                            @Param("fechaHasta") LocalDate fechaHasta);
     // Ranking de productos
-    @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto(a.denominacion, SUM(d.cantidad), c.denominacion) " +
-            "FROM PedidoVenta pv " +
-            "JOIN pv.pedidosVentaDetalle d " +
-            "JOIN d.articulo a " +
-            "JOIN a.categoria c " +
-            "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +
-            "AND pv.fechaBaja IS NULL " +
-            "GROUP BY a.denominacion, c.denominacion " +
-            "ORDER BY SUM(d.cantidad) DESC")
+    @Query(
+            value = "SELECT sub.denominacion as nombre, CAST(SUM(sub.cantidad_total) AS SIGNED) as cantidadVendida, sub.categoria " +
+                    "FROM ( " +
+                    "  SELECT a.id as articulo_id, a.denominacion, c.denominacion as categoria, SUM(d.cantidad) as cantidad_total " +
+                    "  FROM pedido_venta pv " +
+                    "  JOIN pedido_venta_detalle d ON pv.id = d.id_pedido_venta " +
+                    "  JOIN articulo a ON d.id_articulo = a.id " +
+                    "  JOIN categoria_articulo c ON a.categoria_id = c.id " +
+                    "  WHERE pv.fecha_pedido BETWEEN :fechaInicio AND :fechaFin " +
+                    "    AND pv.fecha_baja IS NULL " +
+                    "  GROUP BY a.id, a.denominacion, c.denominacion " +
+                    "  UNION ALL " +
+                    "  SELECT a.id as articulo_id, a.denominacion, c.denominacion as categoria, SUM(d.cantidad * dp.cantidad) as cantidad_total " +
+                    "  FROM pedido_venta pv " +
+                    "  JOIN pedido_venta_detalle d ON pv.id = d.id_pedido_venta " +
+                    "  JOIN promocion p ON d.id_promocion = p.id " +
+                    "  JOIN promocion_detalle dp ON p.id = dp.id_promocion " +
+                    "  JOIN articulo a ON dp.id_articulo = a.id " +
+                    "  JOIN categoria_articulo c ON a.categoria_id = c.id " +
+                    "  WHERE pv.fecha_pedido BETWEEN :fechaInicio AND :fechaFin " +
+                    "    AND pv.fecha_baja IS NULL " +
+                    "  GROUP BY a.id, a.denominacion, c.denominacion " +
+                    ") as sub " +
+                    "GROUP BY sub.articulo_id, sub.denominacion, sub.categoria " +
+                    "ORDER BY cantidadVendida DESC",
+            nativeQuery = true
+    )
     List<ProductoRankingDto> obtenerRankingProductosConCategoria(@Param("fechaInicio") LocalDate fechaInicio,
                                                                  @Param("fechaFin") LocalDate fechaFin);
-
     // Ranking por cliente
     @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto(" +
             "c.id, CONCAT(c.nombre, ' ', c.apellido), COUNT(pv), SUM(pv.totalVenta)) " +
