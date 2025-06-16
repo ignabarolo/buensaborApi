@@ -11,9 +11,12 @@ import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,7 +39,7 @@ public class ArticuloInsumoService {
             .toList();
     }
 
-    
+
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
         return articuloInsumoRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
@@ -57,17 +60,18 @@ public class ArticuloInsumoService {
         return articuloInsumoRepository.findAllForElaborationBySucursal(sucursalId);
     }
 
-    //Guardar Insumo
+    //Crear Insumo
     @Transactional
     public ArticuloInsumo crearArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
         articuloInsumo.setFechaAlta(LocalDateTime.now());
 
-        // Guardar primero el ArticuloInsumo
-        ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
-
-        // Obtener sucursal 1 (única sucursal por ahora)
         SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
                 .orElseThrow(() -> new RuntimeException("Sucursal 1 no encontrada"));
+
+        articuloInsumo.setSucursal(sucursal);
+
+        // Guardar primero el ArticuloInsumo
+        ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
 
         // Crear y guardar SucursalInsumo asociado
         if (articuloInsumo.getStockPorSucursal() != null) {
@@ -119,6 +123,26 @@ public class ArticuloInsumoService {
         }
 
         articuloInsumoRepository.save(articuloInsumo);
+    }
+
+    public List<ArticuloInsumoDto> listarTodosIncluyendoBajas() {
+        return articuloInsumoRepository.findAllIncludingBajas()
+                .stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    // darDeBaja en grilla
+    public void darDeBaja(Long id) {
+        ArticuloInsumo insumo = articuloInsumoRepository.findById(id).orElseThrow(() -> new RuntimeException("No encontrado"));
+        insumo.setFechaBaja(LocalDate.now().atStartOfDay());
+        articuloInsumoRepository.save(insumo);
+    }
+    // darDeAlta en grilla
+    public void darDeAlta(Long id) {
+        ArticuloInsumo insumo = articuloInsumoRepository.findById(id).orElseThrow(() -> new RuntimeException("No encontrado"));
+        insumo.setFechaBaja(null);
+        articuloInsumoRepository.save(insumo);
     }
 
 }
