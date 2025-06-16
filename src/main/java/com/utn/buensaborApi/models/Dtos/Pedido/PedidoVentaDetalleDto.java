@@ -2,7 +2,7 @@ package com.utn.buensaborApi.models.Dtos.Pedido;
 
 import com.utn.buensaborApi.models.Articulo;
 import com.utn.buensaborApi.models.BaseEntity;
-import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
+import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
 import lombok.*;
 
 @AllArgsConstructor
@@ -14,4 +14,24 @@ public class PedidoVentaDetalleDto extends BaseEntity {
     private Double subtotalCosto;
 
     private Articulo articulo;
+    private PromocionDto promocion;
+
+
+    // Constructor para artículo
+    public PedidoVentaDetalleDto(Integer cantidad, Double subtotal, Double subtotalCosto, Articulo articulo) {
+        this.cantidad = cantidad;
+        this.subtotal = subtotal;
+        this.subtotalCosto = subtotalCosto;
+        this.articulo = articulo;
+        this.promocion = null;
+    }
+
+    // Constructor para promoción
+    public PedidoVentaDetalleDto(Integer cantidad, Double subtotal, Double subtotalCosto, PromocionDto promocion) {
+        this.cantidad = cantidad;
+        this.subtotal = subtotal;
+        this.subtotalCosto = subtotalCosto;
+        this.articulo = null;
+        this.promocion = promocion;
+    }
 }
