@@ -13,6 +13,8 @@ import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -96,6 +98,8 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
     public List<PedidoVentaDto> listarPedidosDtoPorClienteYFechas(Long clienteId, LocalDate fechaDesde, LocalDate fechaHasta) {
+        Logger logger = LoggerFactory.getLogger(PedidoVentaServiceImpl.class);
+        logger.info("Consultando pedidos para cliente {} desde {} hasta {}", clienteId, fechaDesde, fechaHasta);
         List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteIdAndFechaPedidoBetween(clienteId, fechaDesde, fechaHasta);
         return pedidos.stream().map(mapper::toDto).toList();
     }
