@@ -77,4 +77,13 @@ public ResponseEntity<Empleado> actualizar(@PathVariable Long id, @RequestBody E
 
     return ResponseEntity.ok(empleado);
 }
+   @GetMapping("/email/{email}")
+    public ResponseEntity<Empleado> obtenerClientePorEmail(@PathVariable String email) {
+    Empleado empleado = empleadoServices.obtenerPorEmail(email);
+    if (empleado != null) {
+        return ResponseEntity.ok(empleado);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 }

@@ -146,8 +146,8 @@ public Empleado crearEmpleadoConAuth0(EmpleadoDTO dto) {
         throw new RuntimeException("Error al crear el empleado: " + e.getMessage());
     }
 }
-
-
-
+ public Empleado obtenerPorEmail(String email) {
+    return empleadoRepository.findByEmail(email).orElse(null);
+}
 
 }
