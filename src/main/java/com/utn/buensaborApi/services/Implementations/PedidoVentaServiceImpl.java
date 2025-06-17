@@ -114,7 +114,8 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
             //Establecer fecha alta
-            entity.setFechaAlta(LocalDateTime.now());
+            LocalDateTime fechaAhora = LocalDateTime.now();
+            entity.setFechaAlta(fechaAhora);
 
             //Asignar Sucursal al pedido
             if (pedidoVentadto.getSucursal() != null && pedidoVentadto.getSucursal().getId() != null) {
@@ -139,14 +140,87 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 entity.setDomicilio(null);
             }
 
+            // Procesar detalles del pedido
             if (entity.getPedidosVentaDetalle() != null) {
                 for (PedidoVentaDetalle detalle : entity.getPedidosVentaDetalle()) {
+                    // Establecer fecha alta para cada detalle
+                    detalle.setFechaAlta(fechaAhora);
+
+                    // Asociar el detalle con el pedido
                     detalle.setPedidoVenta(entity);
+
+                    // Validar y establecer los campos correctamente según el tipo
+                    if (detalle.getPromocion() != null && detalle.getPromocion().getId() != null) {
+                        // Es una promoción - asegurar que artículo sea null
+                        detalle.setArticulo(null);
+
+                        // Calcular subtotal para la promoción
+                        Promocion promocion = detalle.getPromocion();
+                        detalle.setSubtotal(promocion.getPrecioVenta().doubleValue() * detalle.getCantidad());
+
+                        // Calcular costo para inventario
+                        double costoPorUnidad = 0;
+                        if (promocion.getPromocionesDetalle() != null) {
+                            for (PromocionDetalle promoDetalle : promocion.getPromocionesDetalle()) {
+                                if (promoDetalle.getArticulo() instanceof ArticuloInsumo) {
+                                    costoPorUnidad += ((ArticuloInsumo) promoDetalle.getArticulo()).getPrecioCompra() * promoDetalle.getCantidad();
+                                } else if (promoDetalle.getArticulo() instanceof ArticuloManufacturado) {
+                                    costoPorUnidad += ((ArticuloManufacturado) promoDetalle.getArticulo()).getPrecioCosto() * promoDetalle.getCantidad();
+                                }
+                            }
+                        }
+                        detalle.setSubtotalCosto(costoPorUnidad * detalle.getCantidad());
+
+                    } else if (detalle.getArticulo() != null && detalle.getArticulo().getId() != null) {
+                        // Es un artículo (insumo o manufacturado) - asegurar que promoción sea null
+                        detalle.setPromocion(null);
+
+                        // Calcular subtotal según tipo de artículo
+                        if (detalle.getArticulo() instanceof ArticuloInsumo) {
+                            ArticuloInsumo insumo = (ArticuloInsumo) detalle.getArticulo();
+                            detalle.setSubtotal(insumo.getPrecioVenta() * detalle.getCantidad());
+                            detalle.setSubtotalCosto(insumo.getPrecioCompra() * detalle.getCantidad());
+                        } else if (detalle.getArticulo() instanceof ArticuloManufacturado) {
+                            ArticuloManufacturado manufacturado = (ArticuloManufacturado) detalle.getArticulo();
+                            detalle.setSubtotal(manufacturado.getPrecioVenta() * detalle.getCantidad());
+                            detalle.setSubtotalCosto(manufacturado.getPrecioCosto() * detalle.getCantidad());
+                        }
+                    } else {
+                        // Si ambos son null o inválidos, es un error
+                        throw new RuntimeException("El detalle del pedido debe tener un artículo o una promoción válidos");
+                    }
+                }
+            }
+            // Calcular totales del pedido
+            double totalVenta = 0;
+            double totalCosto = 0;
+            if (entity.getPedidosVentaDetalle() != null) {
+                for (PedidoVentaDetalle detalle : entity.getPedidosVentaDetalle()) {
+                    totalVenta += detalle.getSubtotal();
+                    totalCosto += detalle.getSubtotalCosto();
                 }
             }
 
+            // Aplicar descuento si existe
+            if (entity.getDescuento() != null && entity.getDescuento() > 0) {
+                double montoDescuento = totalVenta * (entity.getDescuento() / 100.0);
+                totalVenta -= montoDescuento;
+            }
+
+            // Agregar costo de envío si existe
+            if (entity.getGastoEnvio() != null && entity.getGastoEnvio() > 0) {
+                totalVenta += entity.getGastoEnvio();
+            }
+
+            entity.setTotalVenta(Math.round(totalVenta * 100.0) / 100.0);  // Redondear a 2 decimales
+            entity.setTotalCosto(Math.round(totalCosto * 100.0) / 100.0);
+
+
             // Guardar primero el pedido para obtener el ID
             entity = pedidoVentaRepository.save(entity);
+
+            // Actualizar el stock de insumos
+            entity.disminuirStockInsumos();
 
             // Crear y asociar la factura si no existe
             if (entity.getFacturas() == null || entity.getFacturas().isEmpty()) {
@@ -157,6 +231,7 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 factura.setGastoEnvio(entity.getGastoEnvio());
                 factura.setTotalVenta(entity.getTotalVenta());
                 factura.setPedidoVenta(entity);
+                factura.setFechaAlta(fechaAhora);
 
                 facturaService.save(factura);
 
