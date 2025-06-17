@@ -96,4 +96,31 @@ public class ArticuloManufacturado extends Articulo {
         }
         return true;
     }
+
+    // Método para obtener el stock máximo disponible
+    public Integer stockMaximoCalculado() {
+        if (this.detalles == null || detalles.isEmpty()) {
+            return 0;
+        }
+
+        int stockMaxFabricable = Integer.MAX_VALUE;
+
+        for (ArticuloManufacturadoDetalle detalle : detalles) {
+            ArticuloInsumo insumo = detalle.getArticuloInsumo();
+
+            if (insumo == null || detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+                return 0;
+            }
+
+            // Calcular cuántas unidades podemos fabricar con el stock máximo del insumo
+            int maxStockInsumo = insumo.obtenerStockMaximo();
+            int unidadesPosibles = (int) (maxStockInsumo / detalle.getCantidad());
+
+            if (unidadesPosibles < stockMaxFabricable) {
+                stockMaxFabricable = unidadesPosibles;
+            }
+        }
+
+        return stockMaxFabricable;
+    }
 }

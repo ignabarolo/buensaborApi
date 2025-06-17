@@ -17,4 +17,7 @@ public interface ArticuloManufacturadoRepository extends JpaRepository<ArticuloM
 
     @Query("SELECT a FROM ArticuloManufacturado a WHERE a.fechaBaja IS NULL")
     List<ArticuloManufacturado> findAllNoDetails();
+
+    List<ArticuloManufacturado> findAllByFechaBajaIsNull();
+
 }

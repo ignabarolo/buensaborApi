@@ -41,4 +41,7 @@ public interface ArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, 
             "LEFT JOIN FETCH a.categoria c")
     List<ArticuloInsumo> findAllIncludingBajas();
 
+    List<ArticuloInsumo> findByEsParaElaborarFalseAndFechaBajaIsNull();
+
+
 }

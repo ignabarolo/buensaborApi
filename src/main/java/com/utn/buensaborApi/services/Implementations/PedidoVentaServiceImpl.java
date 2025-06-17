@@ -3,7 +3,6 @@ package com.utn.buensaborApi.services.Implementations;
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.DomicilioServices;
@@ -16,16 +15,16 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.itextpdf.kernel.xmp.PdfConst.Date;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -109,6 +108,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
+
+            //Establecer fecha alta
+            entity.setFechaAlta(LocalDateTime.now());
 
             // Manejo del domicilio
             if (pedidoVentadto.getDomicilio() != null) {
