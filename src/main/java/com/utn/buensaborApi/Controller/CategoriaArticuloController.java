@@ -21,36 +21,50 @@ public class CategoriaArticuloController {
 
     private final CategoriaArticuloService categoriaService;
 
-
+    // Categoria por ID
     @GetMapping("/{id}/detalle")
     public ResponseEntity<?> mostrarCategoriaPorId(@PathVariable Long id) {
         return ResponseEntity.ok(categoriaService.buscarCategoriaPorIdConDetalle(id));
     }
 
-    @GetMapping("/insumos/{sucursalId}")
-    public ResponseEntity<?> listarCategoriasInsumos(@PathVariable Long sucursalId) {
-        return ResponseEntity.ok(categoriaService.obtenerCategoriasInsumosConDetalle(sucursalId));
-    }
-
-    @GetMapping("/insumos/general/{sucursalId}")
-    public ResponseEntity<?> listarCategoriasGeneralInsumo(@PathVariable Long sucursalId) {
-        return ResponseEntity.ok(categoriaService.obtenerCategoriasInsumosSinDetalle(sucursalId));
-    }
-
-    @GetMapping("/menu/{sucursalId}")
-    public ResponseEntity<?> listarCategoriasMenu(@PathVariable Long sucursalId) {
+    // Listado ABM: categorías menú con bajas incluidas (para grilla ABM)
+    @GetMapping("/menu/abm/{sucursalId}")
+    public ResponseEntity<?> listarCategoriasMenuConBajas(@PathVariable Long sucursalId) {
         try {
-            return ResponseEntity.ok(categoriaService.obtenerCategoriasHijasMenuConDetalle(sucursalId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.ok(categoriaService.obtenerCategoriasMenuConBajas(sucursalId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/productos/{sucursalId}")
-    public ResponseEntity<?> listarCategoriaProducto(@PathVariable Long sucursalId) {
-        return ResponseEntity.ok(categoriaService.obtenerCategoriasProductosSinDetalle(sucursalId));
+    // Listado selects: solo categorías menú activas (para dropdowns)
+    @GetMapping("/menu/activas/{sucursalId}")
+    public ResponseEntity<?> listarCategoriasMenuActivas(@PathVariable Long sucursalId) {
+        try {
+            return ResponseEntity.ok(categoriaService.obtenerCategoriasMenuActivas(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    // Listado ABM: categorías insumo con bajas incluidas (para grilla ABM)
+    @GetMapping("/insumos/abm/{sucursalId}")
+    public ResponseEntity<?> listarCategoriasInsumosConBajas(@PathVariable Long sucursalId) {
+        try {
+            return ResponseEntity.ok(categoriaService.obtenerCategoriasInsumosConBajas(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    // Listado selects: solo categorías insumo activas (para dropdowns)
+    @GetMapping("/insumos/activas/{sucursalId}")
+    public ResponseEntity<?> listarCategoriasInsumosActivas(@PathVariable Long sucursalId) {
+        try {
+            return ResponseEntity.ok(categoriaService.obtenerCategoriasInsumosActivas(sucursalId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PostMapping
@@ -108,7 +122,6 @@ public class CategoriaArticuloController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> modificarCategoria(@PathVariable Long id, @RequestBody CategoriaArticuloDto dto) {

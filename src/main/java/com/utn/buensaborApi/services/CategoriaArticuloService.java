@@ -23,39 +23,33 @@ public class CategoriaArticuloService {
 
     private final CategoriaArticuloRepository categoriaRepository;
 
-    private final ImagenService imagenService;
-
     @Autowired
     private SucursalEmpresaRepository sucursalRepository;
 
-    // Buscar categoría por ID con todo el detalle
+    // Categoria por ID
     public CategoriaArticulo buscarCategoriaPorIdConDetalle(Long id) {
         return categoriaRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
     }
 
-    // Listar categorías de insumos y manufacturados con detalle
-    public List<CategoriaArticulo> obtenerCategoriasInsumosConDetalle(Long sucursalId) {
+    // Listado selects: solo categorías menú activas (para dropdowns)
+    public List<CategoriaArticulo> obtenerCategoriasMenuActivas(Long sucursalId) {
+        return categoriaRepository.findActiveMenuChildCategories(sucursalId);
+    }
+
+    // Listado selects: solo categorías insumo activas (para dropdowns)
+    public List<CategoriaArticulo> obtenerCategoriasInsumosActivas(Long sucursalId) {
+        return categoriaRepository.findActiveInsumosCategoriesWithDetails(sucursalId);
+    }
+
+    // Listado ABM: categorías menú con bajas incluidas (para grilla ABM)
+    public List<CategoriaArticulo> obtenerCategoriasMenuConBajas(Long sucursalId) {
+        return categoriaRepository.findMenuChildCategoriesWithDetails(sucursalId);
+    }
+
+    // Listado ABM: categorías insumo con bajas incluidas (para grilla ABM)
+    public List<CategoriaArticulo> obtenerCategoriasInsumosConBajas(Long sucursalId) {
         return categoriaRepository.findAllInsumosCategoriesWithDetails(sucursalId);
-    }
-
-    // Listar categorías generales de insumos sin detalle
-    public List<CategoriaArticulo> obtenerCategoriasInsumosSinDetalle(Long sucursalId) {
-        return categoriaRepository.findParentInsumosCategoriesNoDetails(sucursalId);
-    }
-
-    // Listar categoría Menú con detalle
-    public List<CategoriaArticulo> obtenerCategoriasHijasMenuConDetalle(Long sucursalId) {
-        List<CategoriaArticulo> categorias = categoriaRepository.findMenuChildCategoriesWithDetails(sucursalId);
-        if (categorias.isEmpty()) {
-            throw new RuntimeException("No se encontraron categorías hijas de Menú");
-        }
-        return categorias;
-    }
-
-    // Listar categorías de productos sin detalle
-    public List<CategoriaArticulo> obtenerCategoriasProductosSinDetalle(Long sucursalId) {
-        return categoriaRepository.findProductCategoriesNoDetails(sucursalId);
     }
 
     public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria) {
@@ -132,7 +126,6 @@ public class CategoriaArticuloService {
         return categoriaRepository.save(categoria);
     }
 
-    // Eliminado lógico
     public void eliminarLogico(Long id) {
         CategoriaArticulo categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));

@@ -12,26 +12,30 @@ import java.util.Optional;
 @Repository
 public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArticulo, Long> {
 
+    // Categoria por ID
     @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
             "LEFT JOIN FETCH c.articulo a " +
             "WHERE c.id = :id AND c.fechaBaja IS NULL")
     Optional<CategoriaArticulo> findByIdWithDetails(@Param("id") Long id);
 
+    // Listado selects: solo categorías menú activas (para dropdowns)
+    @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
+            "LEFT JOIN FETCH c.articulo a " +
+            "WHERE c.categoriaPadre.denominacion = 'Menu' " +
+            "AND c.fechaBaja IS NULL " +
+            "AND c.sucursal.id = :sucursalId")
+    List<CategoriaArticulo> findActiveMenuChildCategories(@Param("sucursalId") Long sucursalId);
+
+    // Listado selects: solo categorías insumo activas (para dropdowns)
     @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
             "LEFT JOIN FETCH c.articulo a " +
             "WHERE c.categoriaPadre IS NULL " +
             "AND c.denominacion != 'Menu' " +
             "AND c.fechaBaja IS NULL " +
             "AND c.sucursal.id = :sucursalId")
-    List<CategoriaArticulo> findInsumosCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
+    List<CategoriaArticulo> findActiveInsumosCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
 
-    @Query("SELECT c FROM CategoriaArticulo c " +
-            "WHERE c.categoriaPadre IS NULL " +
-            "AND c.denominacion != 'Menu' " +
-            "AND c.fechaBaja IS NULL " +
-            "AND c.sucursal.id = :sucursalId")
-    List<CategoriaArticulo> findParentInsumosCategoriesNoDetails(@Param("sucursalId") Long sucursalId);
-
+    // Listado ABM: categorías menú con bajas incluidas (para grilla ABM)
     @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
             "LEFT JOIN FETCH c.articulo a " +
             "LEFT JOIN FETCH a.categoria cat " +
@@ -43,13 +47,7 @@ public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArti
             "AND c.sucursal.id = :sucursalId")
     List<CategoriaArticulo> findMenuChildCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
 
-
-    @Query("SELECT c FROM CategoriaArticulo c " +
-            "WHERE c.categoriaPadre.denominacion = 'Menu' " +
-            "AND c.fechaBaja IS NULL " +
-            "AND c.sucursal.id = :sucursalId")
-    List<CategoriaArticulo> findProductCategoriesNoDetails(@Param("sucursalId") Long sucursalId);
-
+    // Listado ABM: categorías insumo con bajas incluidas (para grilla ABM)
     @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
             "LEFT JOIN FETCH c.articulo a " +
             "WHERE c.categoriaPadre IS NULL " +
