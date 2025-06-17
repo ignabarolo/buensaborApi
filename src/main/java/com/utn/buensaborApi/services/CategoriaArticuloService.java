@@ -34,9 +34,9 @@ public class CategoriaArticuloService {
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
     }
 
-    // Listar categorías de insumos con detalle
+    // Listar categorías de insumos y manufacturados con detalle
     public List<CategoriaArticulo> obtenerCategoriasInsumosConDetalle(Long sucursalId) {
-        return categoriaRepository.findInsumosCategoriesWithDetails(sucursalId);
+        return categoriaRepository.findAllInsumosCategoriesWithDetails(sucursalId);
     }
 
     // Listar categorías generales de insumos sin detalle
@@ -63,13 +63,15 @@ public class CategoriaArticuloService {
             throw new RuntimeException("Sucursal es obligatoria");
         }
 
-        // Si no viene padre, se asigna el padre "Menú"
-        if (categoria.getCategoriaPadre() == null || categoria.getCategoriaPadre().getId() == null) {
-            Optional<CategoriaArticulo> padreMenu = categoriaRepository.findMenuPadreBySucursal(categoria.getSucursal().getId());
-            categoria.setCategoriaPadre(
-                    padreMenu.orElseThrow(() -> new RuntimeException("No se encontró la categoría padre 'Menú'"))
-            );
+        // Si se envió un padre válido, se busca y asigna. Si no, se deja como null.
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            categoria.setCategoriaPadre(null); // Se deja sin padre si no vino nada
         }
+
 
         // Validar que la sucursal exista
         SucursalEmpresa sucursal = sucursalRepository.findById(categoria.getSucursal().getId())
@@ -114,9 +116,7 @@ public class CategoriaArticuloService {
                     .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
             categoria.setCategoriaPadre(padre);
         } else {
-            CategoriaArticulo padreMenu = categoriaRepository.findMenuPadreBySucursal(categoria.getSucursal().getId())
-                    .orElseThrow(() -> new RuntimeException("No se encontró la categoría padre 'Menú'"));
-            categoria.setCategoriaPadre(padreMenu);
+            categoria.setCategoriaPadre(null);
         }
 
         boolean existeDuplicado = existeCategoriaActivaParaOtroId(
@@ -136,13 +136,7 @@ public class CategoriaArticuloService {
     public void eliminarLogico(Long id) {
         CategoriaArticulo categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
-
-        // Eliminar lógicamente la imagen si existe
-        if (categoria.getImagen() != null) {
-            imagenService.delete(categoria.getImagen().getId());
-        }
-
-        categoria.setFechaAlta(LocalDateTime.now());
+        categoria.setFechaBaja(LocalDateTime.now());
         categoriaRepository.save(categoria);
     }
 

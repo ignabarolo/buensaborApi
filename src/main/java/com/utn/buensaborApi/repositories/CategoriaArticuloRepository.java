@@ -50,6 +50,13 @@ public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArti
             "AND c.sucursal.id = :sucursalId")
     List<CategoriaArticulo> findProductCategoriesNoDetails(@Param("sucursalId") Long sucursalId);
 
+    @Query("SELECT DISTINCT c FROM CategoriaArticulo c " +
+            "LEFT JOIN FETCH c.articulo a " +
+            "WHERE c.categoriaPadre IS NULL " +
+            "AND c.denominacion != 'Menu' " +
+            "AND c.sucursal.id = :sucursalId")
+    List<CategoriaArticulo> findAllInsumosCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
+
     // Verifica existencia por denominación y sucursal, con categoría activa
     boolean existsByDenominacionAndSucursalIdAndFechaBajaIsNull(String denominacion, Long sucursalId);
 

@@ -129,6 +129,8 @@ public class CategoriaArticuloController {
                 CategoriaArticulo padre = new CategoriaArticulo();
                 padre.setId(dto.getCategoriaPadreId());
                 categoria.setCategoriaPadre(padre);
+            }else {
+                categoria.setCategoriaPadre(null);
             }
 
             categoria.setArticulo(new ArrayList<>());
@@ -140,7 +142,6 @@ public class CategoriaArticuloController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarCategoria(@PathVariable Long id) {
