@@ -78,4 +78,33 @@ public class Auth0Service {
                 .toBodilessEntity()
                 .block();
     }
+    public void removerTodosLosRoles(String userId) {
+    String token = obtenerToken();
+
+    // 1. Obtener los roles actuales del usuario
+    Map[] roles = webClient.get()
+            .uri(domain + "/api/v2/users/" + userId + "/roles")
+            .header("Authorization", "Bearer " + token)
+            .retrieve()
+            .bodyToMono(Map[].class)
+            .block();
+
+    // 2. Si tiene roles, eliminarlos
+    if (roles != null && roles.length > 0) {
+        String[] roleIds = new String[roles.length];
+        for (int i = 0; i < roles.length; i++) {
+            roleIds[i] = roles[i].get("id").toString();
+        }
+
+        webClient.method(org.springframework.http.HttpMethod.DELETE)
+        .uri(domain + "/api/v2/users/" + userId + "/roles")
+        .header("Authorization", "Bearer " + token)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(Map.of("roles", roleIds))
+        .retrieve()
+        .toBodilessEntity()
+        .block();
+    }
+}
+
 }
