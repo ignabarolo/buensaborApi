@@ -40,14 +40,30 @@ public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArti
             "LEFT JOIN FETCH am.detalles d " +
             "LEFT JOIN FETCH d.articuloInsumo ai " +
             "WHERE c.categoriaPadre.denominacion = 'Menu' " +
-            "AND c.fechaBaja IS NULL " +
             "AND c.sucursal.id = :sucursalId")
     List<CategoriaArticulo> findMenuChildCategoriesWithDetails(@Param("sucursalId") Long sucursalId);
+
 
     @Query("SELECT c FROM CategoriaArticulo c " +
             "WHERE c.categoriaPadre.denominacion = 'Menu' " +
             "AND c.fechaBaja IS NULL " +
             "AND c.sucursal.id = :sucursalId")
     List<CategoriaArticulo> findProductCategoriesNoDetails(@Param("sucursalId") Long sucursalId);
+
+    // Verifica existencia por denominación y sucursal, con categoría activa
+    boolean existsByDenominacionAndSucursalIdAndFechaBajaIsNull(String denominacion, Long sucursalId);
+
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM CategoriaArticulo c " +
+            "WHERE c.denominacion = :denominacion " +
+            "AND c.sucursal.id = :sucursalId " +
+            "AND c.fechaBaja IS NULL " +
+            "AND c.id <> :id")
+    boolean existsByDenominacionAndSucursalIdAndFechaBajaIsNullAndIdNot(
+            @Param("denominacion") String denominacion,
+            @Param("sucursalId") Long sucursalId,
+            @Param("id") Long id);
+
+    @Query("SELECT c FROM CategoriaArticulo c WHERE c.denominacion = 'Menu' AND c.sucursal.id = :sucursalId AND c.fechaBaja IS NULL")
+    Optional<CategoriaArticulo> findMenuPadreBySucursal(@Param("sucursalId") Long sucursalId);
 
 }

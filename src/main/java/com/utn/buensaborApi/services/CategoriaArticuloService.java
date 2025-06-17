@@ -2,8 +2,11 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.CategoriaArticulo;
 import com.utn.buensaborApi.models.Imagen;
+import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
+import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +22,11 @@ import java.util.List;
 public class CategoriaArticuloService {
 
     private final CategoriaArticuloRepository categoriaRepository;
+
     private final ImagenService imagenService;
+
+    @Autowired
+    private SucursalEmpresaRepository sucursalRepository;
 
     // Buscar categoría por ID con todo el detalle
     public CategoriaArticulo buscarCategoriaPorIdConDetalle(Long id) {
@@ -50,43 +58,79 @@ public class CategoriaArticuloService {
         return categoriaRepository.findProductCategoriesNoDetails(sucursalId);
     }
 
-    // Guardar nueva categoría
-    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
-        if (imagen != null && !imagen.isEmpty()) {
-            System.out.println("Imagen recibida: " + imagen.getOriginalFilename());
-            Imagen nuevaImagen = imagenService.uploadImage(imagen);
-            categoria.setImagen(nuevaImagen);
-        }else{
-            System.out.println("No se recibió imagen o está vacía.");
+    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria) {
+        if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
+            throw new RuntimeException("Sucursal es obligatoria");
         }
 
+        // Si no viene padre, se asigna el padre "Menú"
+        if (categoria.getCategoriaPadre() == null || categoria.getCategoriaPadre().getId() == null) {
+            Optional<CategoriaArticulo> padreMenu = categoriaRepository.findMenuPadreBySucursal(categoria.getSucursal().getId());
+            categoria.setCategoriaPadre(
+                    padreMenu.orElseThrow(() -> new RuntimeException("No se encontró la categoría padre 'Menú'"))
+            );
+        }
+
+        // Validar que la sucursal exista
+        SucursalEmpresa sucursal = sucursalRepository.findById(categoria.getSucursal().getId())
+                .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + categoria.getSucursal().getId()));
+
+        categoria.setSucursal(sucursal);
+
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            categoria.setCategoriaPadre(null);
+        }
+
+        boolean existe = categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNull(
+                categoria.getDenominacion(),
+                categoria.getSucursal().getId()
+        );
+        if (existe) {
+            throw new RuntimeException("Ya existe una categoría activa con esa denominación.");
+        }
         categoria.setFechaAlta(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 
-    // Actualizar categoría
-    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
+    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria) {
         if (!categoriaRepository.existsById(categoria.getId())) {
             throw new RuntimeException("Categoría no encontrada con ID: " + categoria.getId());
         }
 
-        // Si hay una nueva imagen, actualizar
-        if (imagen != null && !imagen.isEmpty()) {
-            // Si ya existe una imagen, actualizarla
-            if (categoria.getImagen() != null) {
-                Imagen imagenActualizada = imagenService.updateImage(categoria.getImagen().getId(), imagen);
-                categoria.setImagen(imagenActualizada);
-            } else {
-                // Si no existe imagen previa, crear una nueva
-                Imagen nuevaImagen = imagenService.uploadImage(imagen);
-                categoria.setImagen(nuevaImagen);
-            }
+        if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
+            throw new RuntimeException("Sucursal es obligatoria");
+        }
+
+        SucursalEmpresa sucursal = sucursalRepository.findById(categoria.getSucursal().getId())
+                .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + categoria.getSucursal().getId()));
+        categoria.setSucursal(sucursal);
+
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            CategoriaArticulo padreMenu = categoriaRepository.findMenuPadreBySucursal(categoria.getSucursal().getId())
+                    .orElseThrow(() -> new RuntimeException("No se encontró la categoría padre 'Menú'"));
+            categoria.setCategoriaPadre(padreMenu);
+        }
+
+        boolean existeDuplicado = existeCategoriaActivaParaOtroId(
+                categoria.getDenominacion(),
+                categoria.getSucursal().getId(),
+                categoria.getId()
+        );
+        if (existeDuplicado) {
+            throw new RuntimeException("Ya existe una categoría activa con esa denominación en esta sucursal.");
         }
 
         categoria.setFechaModificacion(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
-
 
     // Eliminado lógico
     public void eliminarLogico(Long id) {
@@ -98,7 +142,15 @@ public class CategoriaArticuloService {
             imagenService.delete(categoria.getImagen().getId());
         }
 
-        categoria.setFechaBaja(LocalDateTime.now());
+        categoria.setFechaAlta(LocalDateTime.now());
         categoriaRepository.save(categoria);
+    }
+
+    public boolean existeCategoriaActiva(String denominacion, Long sucursalId) {
+        return categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNull(denominacion, sucursalId);
+    }
+
+    public boolean existeCategoriaActivaParaOtroId(String denominacion, Long sucursalId, Long id) {
+        return categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNullAndIdNot(denominacion, sucursalId, id);
     }
 }

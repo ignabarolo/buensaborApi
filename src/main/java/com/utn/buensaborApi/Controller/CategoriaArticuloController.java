@@ -2,6 +2,8 @@ package com.utn.buensaborApi.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utn.buensaborApi.models.CategoriaArticulo;
+import com.utn.buensaborApi.models.Dtos.Manufacturado.CategoriaArticuloDto;
+import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.services.CategoriaArticuloService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/categoria")
@@ -50,43 +53,94 @@ public class CategoriaArticuloController {
         return ResponseEntity.ok(categoriaService.obtenerCategoriasProductosSinDetalle(sucursalId));
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<?> crearCategoria(
-            @RequestPart(value = "categoria", required = false) String categoriaJson,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+    @PostMapping
+    public ResponseEntity<?> crearCategoria(@RequestBody CategoriaArticuloDto dto) {
         try {
-            if (categoriaJson == null || categoriaJson.isEmpty()) {
-                return ResponseEntity.badRequest()
-                        .body("El JSON de la categoría no puede estar vacío.");
+            // Validar datos mínimos
+            if (dto.getSucursalId() == null) {
+                System.out.println("Sucursal es obligatoria, dto.getSucursalId() es null");
+                return ResponseEntity.badRequest().body("Sucursal es obligatoria");
             }
 
-            // Convertir el JSON de categoría a un objeto CategoriaArticulo
-            ObjectMapper objectMapper = new ObjectMapper();
-            CategoriaArticulo categoria = objectMapper.readValue(categoriaJson, CategoriaArticulo.class);
+            // Mapear DTO a entidad parcial para pasar al service
+            CategoriaArticulo categoria = new CategoriaArticulo();
+            categoria.setDenominacion(dto.getDenominacion());
+            categoria.setFechaBaja(dto.getFechaBaja());
 
-            // Guardar la nueva categoría
-            Object nuevaCategoria = categoriaService.guardarCategoria(categoria, imagen);
+            // Crear y asignar SucursalEmpresa sólo con id
+            SucursalEmpresa sucursal = new SucursalEmpresa();
+            sucursal.setId(dto.getSucursalId());
+            categoria.setSucursal(sucursal);
+
+            // Si viene categoriaPadreId, asignar también
+            if (dto.getCategoriaPadreId() != null) {
+                CategoriaArticulo padre = new CategoriaArticulo();
+                padre.setId(dto.getCategoriaPadreId());
+                categoria.setCategoriaPadre(padre);
+            } else {
+                System.out.println("Categoria padre no enviada (null)");
+            }
+
+            // Inicializar lista vacía de articulos
+            categoria.setArticulo(new ArrayList<>());
+
+            // Validar duplicado
+            boolean existe = categoriaService.existeCategoriaActiva(
+                    categoria.getDenominacion(),
+                    categoria.getSucursal().getId()
+            );
+
+            if (existe) {
+                System.out.println("Categoria duplicada detectada, retornando 400");
+                return ResponseEntity.badRequest()
+                        .body("Ya existe una categoría activa con esa denominación en esta sucursal.");
+            }
+
+            CategoriaArticulo nuevaCategoria = categoriaService.guardarCategoria(categoria);
+            System.out.println("Categoria guardada con id: " + nuevaCategoria.getId());
+
+            System.out.println("=== crearCategoria - Fin ===");
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaCategoria);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al procesar la imagen o el JSON: " + e.getMessage());
+
+        } catch (RuntimeException e) {
+            System.out.println("Error en crearCategoria:");
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> modificarCategoria(
-            @PathVariable Long id,
-            @RequestPart("categoria") CategoriaArticulo categoria,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> modificarCategoria(@PathVariable Long id, @RequestBody CategoriaArticuloDto dto) {
         try {
+            if (dto.getSucursalId() == null) {
+                return ResponseEntity.badRequest().body("Sucursal es obligatoria");
+            }
+
+            CategoriaArticulo categoria = new CategoriaArticulo();
             categoria.setId(id);
-            return ResponseEntity.ok(categoriaService.actualizarCategoria(categoria, imagen));
-        } catch (IOException e) {
-            return ResponseEntity.badRequest()
-                    .body("Error al procesar la imagen: " + e.getMessage());
+            categoria.setDenominacion(dto.getDenominacion());
+
+            SucursalEmpresa sucursal = new SucursalEmpresa();
+            sucursal.setId(dto.getSucursalId());
+            categoria.setSucursal(sucursal);
+
+            if (dto.getCategoriaPadreId() != null) {
+                CategoriaArticulo padre = new CategoriaArticulo();
+                padre.setId(dto.getCategoriaPadreId());
+                categoria.setCategoriaPadre(padre);
+            }
+
+            categoria.setArticulo(new ArrayList<>());
+
+            CategoriaArticulo actualizada = categoriaService.actualizarCategoria(categoria);
+            return ResponseEntity.ok(actualizada);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarCategoria(@PathVariable Long id) {
