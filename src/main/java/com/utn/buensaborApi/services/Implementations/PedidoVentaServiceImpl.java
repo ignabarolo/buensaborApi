@@ -5,6 +5,7 @@ import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
+import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
@@ -49,6 +50,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private DomicilioMapper mapperDomicilio;
+
+    @Autowired
+    private SucursalEmpresaRepository sucursalEmpresaRepository;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -112,6 +116,14 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             //Establecer fecha alta
             entity.setFechaAlta(LocalDateTime.now());
 
+            //Asignar Sucursal al pedido
+            if (pedidoVentadto.getSucursal() != null && pedidoVentadto.getSucursal().getId() != null) {
+                SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(pedidoVentadto.getSucursal().getId())
+                        .orElseThrow(() -> new RuntimeException("No se encontró la sucursal con ID: " + pedidoVentadto.getSucursal().getId()));
+                entity.setSucursal(sucursal);
+            } else {
+                throw new RuntimeException("El pedido debe tener una sucursal asignada");
+            }
             // Manejo del domicilio
             if (pedidoVentadto.getDomicilio() != null) {
                 if (pedidoVentadto.getDomicilio().getId() != null) {

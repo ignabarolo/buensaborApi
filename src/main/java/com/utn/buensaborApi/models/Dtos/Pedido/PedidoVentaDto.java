@@ -32,6 +32,8 @@ public class PedidoVentaDto extends BaseEntity {
 
     private Set<PedidoVentaDetalleDto> pedidosVentaDetalle;
 
+    private SucursalDto sucursal;
+
 //    private Empleado empleado;
 
     public LocalTime HoraFinalizacion() {

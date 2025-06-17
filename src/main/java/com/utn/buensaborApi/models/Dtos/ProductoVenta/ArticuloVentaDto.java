@@ -19,4 +19,5 @@ public class ArticuloVentaDto {
     private BigDecimal precioVenta;
     private String imagenUrl;
     private Integer stockDisponible;
+    private boolean disponible;
 }

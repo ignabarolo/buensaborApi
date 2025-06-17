@@ -69,7 +69,7 @@ public class Promocion extends BaseEntity {
     }
 
     // Metodo para obtener el stock disponible de la promoción
-    public Integer obtenerStockDisponible() {
+    public Integer obtenerStockDisponiblePorSucursal(Long idSucursal) {
         if (promocionesDetalle == null || promocionesDetalle.isEmpty()) {
             return 0;
         }
@@ -83,9 +83,9 @@ public class Promocion extends BaseEntity {
                     Integer stockDisponible;
 
                     if (detalle.getArticulo() instanceof ArticuloInsumo) {
-                        stockDisponible = ((ArticuloInsumo) detalle.getArticulo()).obtenerStockMaximo();
+                        stockDisponible = ((ArticuloInsumo) detalle.getArticulo()).obtenerStockEnSucursal(idSucursal);
                     } else if (detalle.getArticulo() instanceof ArticuloManufacturado) {
-                        stockDisponible = ((ArticuloManufacturado) detalle.getArticulo()).stockMaximoCalculado();
+                        stockDisponible = ((ArticuloManufacturado) detalle.getArticulo()).stockCalculadoPorSucursal(idSucursal);
                     } else {
                         return 0;
                     }
@@ -94,5 +94,28 @@ public class Promocion extends BaseEntity {
                 })
                 .min(Integer::compare)
                 .orElse(0);
+    }
+    // Metodo para verificar si la promoción está disponible en una sucursal
+    public boolean obtenerDisponible(Long idSucursal) {
+        if (promocionesDetalle == null || promocionesDetalle.isEmpty()) {
+            return false;
+        }
+
+        return promocionesDetalle.stream()
+                .allMatch(detalle -> {
+                    if (detalle.getArticulo() == null || detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+                        return false;
+                    }
+
+                    if (detalle.getArticulo() instanceof ArticuloInsumo) {
+                        ArticuloInsumo insumo = (ArticuloInsumo) detalle.getArticulo();
+                        return insumo.obtenerStockEnSucursal(idSucursal) >= detalle.getCantidad();
+                    } else if (detalle.getArticulo() instanceof ArticuloManufacturado) {
+                        ArticuloManufacturado manufacturado = (ArticuloManufacturado) detalle.getArticulo();
+                        return manufacturado.stockCalculadoPorSucursal(idSucursal) >= detalle.getCantidad();
+                    }
+
+                    return false;
+                });
     }
 }

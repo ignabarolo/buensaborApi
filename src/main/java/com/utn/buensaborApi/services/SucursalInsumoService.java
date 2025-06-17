@@ -25,7 +25,7 @@ public class SucursalInsumoService {
     // Listar por sucursal (activos)
     @Transactional(readOnly = true)
     public List<SucursalInsumoDto> findBySucursal(Long idSucursal) {
-        List<SucursalInsumo> sucursalInsumos = sucursalInsumoRepository.findBySucursalIdAndFechaBajaIsNull(idSucursal);
+        List<SucursalInsumo> sucursalInsumos = sucursalInsumoRepository.findBySucursalIdAndFechaBajaIsNullWithArticuloInsumo(idSucursal);
         List<SucursalInsumoDto> sucursalInsumosDto = sucursalInsumoMapper.toDtoList(sucursalInsumos);
         return sucursalInsumosDto;
     }

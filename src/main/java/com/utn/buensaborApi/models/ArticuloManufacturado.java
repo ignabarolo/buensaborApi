@@ -97,13 +97,13 @@ public class ArticuloManufacturado extends Articulo {
         return true;
     }
 
-    // Método para obtener el stock máximo disponible
-    public Integer stockMaximoCalculado() {
+    // Metodo para obtener disponible
+    public Integer stockCalculadoPorSucursal(Long idSucursal) {
         if (this.detalles == null || detalles.isEmpty()) {
             return 0;
         }
 
-        int stockMaxFabricable = Integer.MAX_VALUE;
+        int stockFabricable = Integer.MAX_VALUE;
 
         for (ArticuloManufacturadoDetalle detalle : detalles) {
             ArticuloInsumo insumo = detalle.getArticuloInsumo();
@@ -112,15 +112,15 @@ public class ArticuloManufacturado extends Articulo {
                 return 0;
             }
 
-            // Calcular cuántas unidades podemos fabricar con el stock máximo del insumo
-            int maxStockInsumo = insumo.obtenerStockMaximo();
-            int unidadesPosibles = (int) (maxStockInsumo / detalle.getCantidad());
+            // Obtener stock del insumo en la sucursal específica
+            int stockInsumoSucursal = insumo.obtenerStockEnSucursal(idSucursal);
+            int unidadesPosibles = (int) (stockInsumoSucursal / detalle.getCantidad());
 
-            if (unidadesPosibles < stockMaxFabricable) {
-                stockMaxFabricable = unidadesPosibles;
+            if (unidadesPosibles < stockFabricable) {
+                stockFabricable = unidadesPosibles;
             }
         }
 
-        return stockMaxFabricable;
+        return stockFabricable;
     }
 }
