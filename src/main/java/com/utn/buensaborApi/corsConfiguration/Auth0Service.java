@@ -44,28 +44,28 @@ public class Auth0Service {
                 .get("access_token").toString();
     }
 
-    public String crearUsuario(String email, String nombre) {
-        String token = obtenerToken();
+    public String crearUsuario(String email, String nombre, String password) {
+    String token = obtenerToken();
 
-        JSONObject body = new JSONObject();
-        body.put("email", email);
-        body.put("user_metadata", new JSONObject().put("nombre", nombre));
-        body.put("connection", "Username-Password-Authentication");
-        body.put("email_verified", false);
-        body.put("verify_email", true);
-        body.put("password", "Empleado123@"); 
+    JSONObject body = new JSONObject();
+    body.put("email", email);
+    body.put("user_metadata", new JSONObject().put("nombre", nombre));
+    body.put("connection", "Username-Password-Authentication");
+    body.put("email_verified", false);
+    body.put("verify_email", true);
+    body.put("password", password); // <-- acá uso la password recibida
 
-        Map response = webClient.post()
-                .uri(domain + "/api/v2/users")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(body.toString())
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
+    Map response = webClient.post()
+            .uri(domain + "/api/v2/users")
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(body.toString())
+            .retrieve()
+            .bodyToMono(Map.class)
+            .block();
 
-        return response.get("user_id").toString(); // auth0id
-    }
+    return response.get("user_id").toString(); // auth0id
+}
 
     public void asignarRol(String userId, String rolId) {
         String token = obtenerToken();

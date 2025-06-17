@@ -1,4 +1,3 @@
-
 package com.utn.buensaborApi.Dtos;
 
 import com.utn.buensaborApi.enums.Rol;
@@ -16,5 +15,7 @@ public class EmpleadoDTO {
     private Rol rol;
     private Long sucursalId;
     private domicilioDTO domicilio;
+    
+    private String password;  // <-- agregá esta línea
 }
 
