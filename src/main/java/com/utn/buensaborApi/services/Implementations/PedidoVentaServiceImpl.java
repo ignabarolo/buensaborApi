@@ -3,6 +3,7 @@ package com.utn.buensaborApi.services.Implementations;
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
+import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import com.utn.buensaborApi.services.DomicilioServices;
@@ -12,9 +13,15 @@ import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -83,41 +90,21 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         return pedidoVentaRepository.findByClienteId(clienteId);
     }
 
+    public List<PedidoVentaDto> listarPedidosDtoPorCliente(Long clienteId) {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteId(clienteId);
+        return pedidos.stream()
+                .map(mapper::toDto)
+                .toList();
+    }
 
-    //   @Override
-//    @Transactional
-//    public PedidoVenta save(PedidoVenta pedidoVenta) throws Exception {
-//        try {
-//            // Guardar primero el pedido para obtener el ID
-//            pedidoVenta = pedidoVentaRepository.save(pedidoVenta);
-//
-//            // Crear y asociar la factura si no existe
-//            if (pedidoVenta.getFacturas() == null || pedidoVenta.getFacturas().isEmpty()) {
-//                Factura factura = new Factura();
-//                factura.setFechaFacturacion(pedidoVenta.getFechaPedido());
-//                factura.setFormaPago(pedidoVenta.getFormaPago());
-//                factura.setDescuento(pedidoVenta.getDescuento());
-//                factura.setGastoEnvio(pedidoVenta.getGastoEnvio());
-//                factura.setTotalVenta(pedidoVenta.getTotalVenta());
-//                factura.setPedidoVenta(pedidoVenta);
-//
-//                facturaService.save(factura);
-//
-//                Set<Factura> facturas = pedidoVenta.getFacturas();
-//                if (facturas == null) {
-//                    facturas = new HashSet<>();
-//                }
-//                facturas.add(factura);
-//                pedidoVenta.setFacturas(facturas);
-//            }
-//
-//            return pedidoVenta;
-//        } catch (Exception e) {
-//            throw new Exception(e.getMessage());
-//        }
-//    }
+    public List<PedidoVentaDto> listarPedidosDtoPorClienteYFechas(Long clienteId, LocalDate fechaDesde, LocalDate fechaHasta) {
+        Logger logger = LoggerFactory.getLogger(PedidoVentaServiceImpl.class);
+        logger.info("Consultando pedidos para cliente {} desde {} hasta {}", clienteId, fechaDesde, fechaHasta);
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteIdAndFechaPedidoBetween(clienteId, fechaDesde, fechaHasta);
+        return pedidos.stream().map(mapper::toDto).toList();
+    }
 
-
+    //Crear pedido Venta, asociar domicilio y factura
     @Transactional
     public PedidoVentaDto saveDto(PedidoVentaDto pedidoVentadto) throws Exception {
         try {
@@ -172,5 +159,4 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             throw new Exception(e.getMessage());
         }
     }
-
 }

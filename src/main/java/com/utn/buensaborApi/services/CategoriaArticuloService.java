@@ -2,8 +2,11 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.CategoriaArticulo;
 import com.utn.buensaborApi.models.Imagen;
+import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.repositories.CategoriaArticuloRepository;
+import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,87 +22,122 @@ import java.util.List;
 public class CategoriaArticuloService {
 
     private final CategoriaArticuloRepository categoriaRepository;
-    private final ImagenService imagenService;
 
-    // Buscar categoría por ID con todo el detalle
+    @Autowired
+    private SucursalEmpresaRepository sucursalRepository;
+
+    // Categoria por ID
     public CategoriaArticulo buscarCategoriaPorIdConDetalle(Long id) {
         return categoriaRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
     }
 
-    // Listar categorías de insumos con detalle
-    public List<CategoriaArticulo> obtenerCategoriasInsumosConDetalle(Long sucursalId) {
-        return categoriaRepository.findInsumosCategoriesWithDetails(sucursalId);
+    // Listado selects: solo categorías menú activas (para dropdowns)
+    public List<CategoriaArticulo> obtenerCategoriasMenuActivas(Long sucursalId) {
+        return categoriaRepository.findActiveMenuChildCategories(sucursalId);
     }
 
-    // Listar categorías generales de insumos sin detalle
-    public List<CategoriaArticulo> obtenerCategoriasInsumosSinDetalle(Long sucursalId) {
-        return categoriaRepository.findParentInsumosCategoriesNoDetails(sucursalId);
+    // Listado selects: solo categorías insumo activas (para dropdowns)
+    public List<CategoriaArticulo> obtenerCategoriasInsumosActivas(Long sucursalId) {
+        return categoriaRepository.findActiveInsumosCategoriesWithDetails(sucursalId);
     }
 
-    // Listar categoría Menú con detalle
-    public List<CategoriaArticulo> obtenerCategoriasHijasMenuConDetalle(Long sucursalId) {
-        List<CategoriaArticulo> categorias = categoriaRepository.findMenuChildCategoriesWithDetails(sucursalId);
-        if (categorias.isEmpty()) {
-            throw new RuntimeException("No se encontraron categorías hijas de Menú");
-        }
-        return categorias;
+    // Listado ABM: categorías menú con bajas incluidas (para grilla ABM)
+    public List<CategoriaArticulo> obtenerCategoriasMenuConBajas(Long sucursalId) {
+        return categoriaRepository.findMenuChildCategoriesWithDetails(sucursalId);
     }
 
-    // Listar categorías de productos sin detalle
-    public List<CategoriaArticulo> obtenerCategoriasProductosSinDetalle(Long sucursalId) {
-        return categoriaRepository.findProductCategoriesNoDetails(sucursalId);
+    // Listado ABM: categorías insumo con bajas incluidas (para grilla ABM)
+    public List<CategoriaArticulo> obtenerCategoriasInsumosConBajas(Long sucursalId) {
+        return categoriaRepository.findAllInsumosCategoriesWithDetails(sucursalId);
     }
 
-    // Guardar nueva categoría
-    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
-        if (imagen != null && !imagen.isEmpty()) {
-            System.out.println("Imagen recibida: " + imagen.getOriginalFilename());
-            Imagen nuevaImagen = imagenService.uploadImage(imagen);
-            categoria.setImagen(nuevaImagen);
-        }else{
-            System.out.println("No se recibió imagen o está vacía.");
+    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria) {
+        if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
+            throw new RuntimeException("Sucursal es obligatoria");
         }
 
+        // Si se envió un padre válido, se busca y asigna. Si no, se deja como null.
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            categoria.setCategoriaPadre(null); // Se deja sin padre si no vino nada
+        }
+
+
+        // Validar que la sucursal exista
+        SucursalEmpresa sucursal = sucursalRepository.findById(categoria.getSucursal().getId())
+                .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + categoria.getSucursal().getId()));
+
+        categoria.setSucursal(sucursal);
+
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            categoria.setCategoriaPadre(null);
+        }
+
+        boolean existe = categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNull(
+                categoria.getDenominacion(),
+                categoria.getSucursal().getId()
+        );
+        if (existe) {
+            throw new RuntimeException("Ya existe una categoría activa con esa denominación.");
+        }
         categoria.setFechaAlta(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 
-    // Actualizar categoría
-    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria, MultipartFile imagen) throws IOException {
+    public CategoriaArticulo actualizarCategoria(CategoriaArticulo categoria) {
         if (!categoriaRepository.existsById(categoria.getId())) {
             throw new RuntimeException("Categoría no encontrada con ID: " + categoria.getId());
         }
 
-        // Si hay una nueva imagen, actualizar
-        if (imagen != null && !imagen.isEmpty()) {
-            // Si ya existe una imagen, actualizarla
-            if (categoria.getImagen() != null) {
-                Imagen imagenActualizada = imagenService.updateImage(categoria.getImagen().getId(), imagen);
-                categoria.setImagen(imagenActualizada);
-            } else {
-                // Si no existe imagen previa, crear una nueva
-                Imagen nuevaImagen = imagenService.uploadImage(imagen);
-                categoria.setImagen(nuevaImagen);
-            }
+        if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
+            throw new RuntimeException("Sucursal es obligatoria");
+        }
+
+        SucursalEmpresa sucursal = sucursalRepository.findById(categoria.getSucursal().getId())
+                .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: " + categoria.getSucursal().getId()));
+        categoria.setSucursal(sucursal);
+
+        if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
+            CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));
+            categoria.setCategoriaPadre(padre);
+        } else {
+            categoria.setCategoriaPadre(null);
+        }
+
+        boolean existeDuplicado = existeCategoriaActivaParaOtroId(
+                categoria.getDenominacion(),
+                categoria.getSucursal().getId(),
+                categoria.getId()
+        );
+        if (existeDuplicado) {
+            throw new RuntimeException("Ya existe una categoría activa con esa denominación en esta sucursal.");
         }
 
         categoria.setFechaModificacion(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 
-
-    // Eliminado lógico
     public void eliminarLogico(Long id) {
         CategoriaArticulo categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + id));
-
-        // Eliminar lógicamente la imagen si existe
-        if (categoria.getImagen() != null) {
-            imagenService.delete(categoria.getImagen().getId());
-        }
-
         categoria.setFechaBaja(LocalDateTime.now());
         categoriaRepository.save(categoria);
+    }
+
+    public boolean existeCategoriaActiva(String denominacion, Long sucursalId) {
+        return categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNull(denominacion, sucursalId);
+    }
+
+    public boolean existeCategoriaActivaParaOtroId(String denominacion, Long sucursalId, Long id) {
+        return categoriaRepository.existsByDenominacionAndSucursalIdAndFechaBajaIsNullAndIdNot(denominacion, sucursalId, id);
     }
 }

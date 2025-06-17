@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -20,8 +22,12 @@ import java.util.List;
 @Tag(name = "Pedido Venta", description = "Operaciones relacionadas con los pedidos de venta")
 public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, PedidoVentaServiceImpl>{
 
+    private static final Logger logger = LoggerFactory.getLogger(PedidoVentaController.class);
+
     @Autowired
     private ClienteService clienteService;
+    @Autowired
+    private PedidoVentaServiceImpl pedidoVentaServiceImpl;
 
     @GetMapping("/mis-pedidos")
     public ResponseEntity<?> obtenerPedidosDelCliente(@AuthenticationPrincipal Jwt jwt) {
@@ -78,5 +84,21 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
+    }
+
+    @GetMapping("/pedidos/cliente/{idCliente}")
+    public ResponseEntity<List<PedidoVentaDto>> pedidosPorCliente(@PathVariable Long idCliente) {
+        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorCliente(idCliente));
+    }
+
+    @GetMapping("/pedidos/cliente/{idCliente}/fechas")
+    public ResponseEntity<List<PedidoVentaDto>> pedidosPorClienteYFechas(
+            @PathVariable Long idCliente,
+            @RequestParam("desde") String desde,
+            @RequestParam("hasta") String hasta) {
+        LocalDate fechaDesde = LocalDate.parse(desde);
+        LocalDate fechaHasta = LocalDate.parse(hasta);
+        logger.info("Consultando pedidos para cliente {} desde {} hasta {}", idCliente, fechaDesde, fechaHasta);
+        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorClienteYFechas(idCliente, fechaDesde, fechaHasta));
     }
 }
