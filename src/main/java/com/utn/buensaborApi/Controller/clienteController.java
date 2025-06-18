@@ -91,7 +91,7 @@ public class clienteController {
         }
     }
     @GetMapping("/email/{email}")
-public ResponseEntity<Cliente> obtenerClientePorEmail(@PathVariable String email) {
+    public ResponseEntity<Cliente> obtenerClientePorEmail(@PathVariable String email) {
     Cliente cliente = clienteServices.obtenerPorEmail(email);
     if (cliente != null) {
         return ResponseEntity.ok(cliente);

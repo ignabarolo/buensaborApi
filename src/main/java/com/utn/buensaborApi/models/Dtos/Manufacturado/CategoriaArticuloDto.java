@@ -5,10 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+
 @Data
-public class CategoriaArticuloDto extends BaseEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class CategoriaArticuloDto {
     private Long id;
     private String denominacion;
+    private Long categoriaPadreId;
+    private Long sucursalId;
+    private LocalDateTime fechaBaja;
 }
