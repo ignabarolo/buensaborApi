@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.Controller;
 
+import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
@@ -59,6 +60,21 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         }
     }
 
+    @GetMapping("/pedidos/cliente/{idCliente}")
+    public ResponseEntity<List<PedidoVentaDto>> pedidosPorCliente(@PathVariable Long idCliente) {
+        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorCliente(idCliente));
+    }
+
+    @GetMapping("/pedidos/cliente/{idCliente}/fechas")
+    public ResponseEntity<List<PedidoVentaDto>> pedidosPorClienteYFechas(
+            @PathVariable Long idCliente,
+            @RequestParam("desde") String desde,
+            @RequestParam("hasta") String hasta) {
+        LocalDate fechaDesde = LocalDate.parse(desde);
+        LocalDate fechaHasta = LocalDate.parse(hasta);
+        logger.info("Consultando pedidos para cliente {} desde {} hasta {}", idCliente, fechaDesde, fechaHasta);
+        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorClienteYFechas(idCliente, fechaDesde, fechaHasta));
+    }
 
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
@@ -90,19 +106,12 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         }
     }
 
-    @GetMapping("/pedidos/cliente/{idCliente}")
-    public ResponseEntity<List<PedidoVentaDto>> pedidosPorCliente(@PathVariable Long idCliente) {
-        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorCliente(idCliente));
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<?> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody Estado nuevoEstado) {
+        PedidoVenta pedidoActualizado = pedidoVentaServiceImpl.cambiarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(pedidoActualizado);
     }
 
-    @GetMapping("/pedidos/cliente/{idCliente}/fechas")
-    public ResponseEntity<List<PedidoVentaDto>> pedidosPorClienteYFechas(
-            @PathVariable Long idCliente,
-            @RequestParam("desde") String desde,
-            @RequestParam("hasta") String hasta) {
-        LocalDate fechaDesde = LocalDate.parse(desde);
-        LocalDate fechaHasta = LocalDate.parse(hasta);
-        logger.info("Consultando pedidos para cliente {} desde {} hasta {}", idCliente, fechaDesde, fechaHasta);
-        return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorClienteYFechas(idCliente, fechaDesde, fechaHasta));
-    }
 }

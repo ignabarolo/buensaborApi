@@ -353,4 +353,13 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             throw new Exception("Error al guardar el pedido: " + e.getMessage(), e);
         }
     }
+
+    // Cambiar estado de pedido de venta
+    public PedidoVenta cambiarEstado(Long id, Estado nuevoEstado) {
+        PedidoVenta pedido = baseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        pedido.setEstado(nuevoEstado);
+        return baseRepository.save(pedido);
+    }
+
 }
