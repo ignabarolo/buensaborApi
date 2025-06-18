@@ -49,7 +49,7 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
             }
 
             // 3. Obtener pedidos del cliente
-            List<PedidoVenta> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
+            List<PedidoVentaDto> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
 
             return ResponseEntity.ok(pedidos);
 

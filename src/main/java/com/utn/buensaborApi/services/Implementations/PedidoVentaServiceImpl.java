@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -103,8 +100,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         }
     }
 
-    public List<PedidoVenta> obtenerPedidosPorCliente(Long clienteId) {
-        return pedidoVentaRepository.findByClienteId(clienteId);
+    public List<PedidoVentaDto> obtenerPedidosPorCliente(Long clienteId) {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteId(clienteId);
+        return pedidos.stream().map(mapper::toDto).toList();
     }
 
     public List<PedidoVentaDto> listarPedidosDtoPorCliente(Long clienteId) {
@@ -325,11 +323,26 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 factura.setPedidoVenta(entity);
                 factura.setFechaAlta(fechaAhora);
 
+                // Asociar el cliente del pedido a la factura
+                factura.setCliente(entity.getCliente());
+                // Asociar la sucursal del pedido a la factura
+                factura.setSucursal(entity.getSucursal());
+                // Guardar la factura para obtener su ID
+                factura = facturaService.save(factura);
+
+                // Generar el número de comprobante con formato idFactura-idPedido (3-5 dígitos)
+                String idFacturaFormateado = String.format("%03d", factura.getId());
+                String idPedidoFormateado = String.format("%05d", entity.getId());
+                Integer nroComprobante = Integer.parseInt(idFacturaFormateado + idPedidoFormateado);
+
+                // Actualizar la factura con el número de comprobante
+                factura.setNroComprobante(nroComprobante);
                 facturaService.save(factura);
 
-                Set<Factura> facturas = entity.getFacturas();
+
+                List<Factura> facturas = entity.getFacturas();
                 if (facturas == null) {
-                    facturas = new HashSet<>();
+                    facturas = new ArrayList<>();
                 }
                 facturas.add(factura);
                 entity.setFacturas(facturas);

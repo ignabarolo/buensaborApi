@@ -8,18 +8,20 @@ import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.SubclassMapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {FacturaMapper.class})
 public interface PedidoVentaMapper {
 
 //    PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    PedidoVentaDto toDto(PedidoVenta entity);
 
-
+    @Mapping(source = "facturas", target = "factura")
     PedidoVentaDto toDto(PedidoVenta entity);
 
+    @Mapping(source = "factura", target = "facturas")
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    // ESTO ES LO CRUCIAL:
