@@ -1,11 +1,17 @@
 package com.utn.buensaborApi.services.Implementations;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utn.buensaborApi.Utils.ServicesUtils;
+import com.utn.buensaborApi.enums.Estado;
+import com.utn.buensaborApi.enums.FormaPago;
+import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
+import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDetalleDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
-import com.utn.buensaborApi.repositories.BaseRepository;
-import com.utn.buensaborApi.repositories.PedidoVentaRepository;
-import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
+import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
+import com.utn.buensaborApi.models.Dtos.Pedido.SucursalDto;
+import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
@@ -20,12 +26,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.itextpdf.kernel.xmp.PdfConst.Date;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -53,6 +58,15 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private SucursalEmpresaRepository sucursalEmpresaRepository;
+
+    @Autowired
+    private ArticuloInsumoRepository articuloInsumoRepository;
+
+    @Autowired
+    private ArticuloManufacturadoRepository articuloManufacturadoRepository;
+
+    @Autowired
+    private PromocionRepository promocionRepository;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -113,11 +127,11 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         try {
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
-            //Establecer fecha alta
+            // Establecer fecha alta
             LocalDateTime fechaAhora = LocalDateTime.now();
             entity.setFechaAlta(fechaAhora);
 
-            //Asignar Sucursal al pedido
+            // Asignar Sucursal al pedido
             if (pedidoVentadto.getSucursal() != null && pedidoVentadto.getSucursal().getId() != null) {
                 SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(pedidoVentadto.getSucursal().getId())
                         .orElseThrow(() -> new RuntimeException("No se encontró la sucursal con ID: " + pedidoVentadto.getSucursal().getId()));
@@ -125,13 +139,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             } else {
                 throw new RuntimeException("El pedido debe tener una sucursal asignada");
             }
+
             // Manejo del domicilio
             if (pedidoVentadto.getDomicilio() != null) {
                 if (pedidoVentadto.getDomicilio().getId() != null) {
-                    // Domicilio existente
                     entity.setDomicilio(domicilioServices.obtenerPorId(pedidoVentadto.getDomicilio().getId()));
                 } else {
-                    // Domicilio nuevo
                     Domicilio nuevoDomicilio = mapperDomicilio.toEntity(pedidoVentadto.getDomicilio());
                     Domicilio domicilioGuardado = domicilioServices.guardar(nuevoDomicilio);
                     entity.setDomicilio(domicilioGuardado);
@@ -154,18 +167,42 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                         // Es una promoción - asegurar que artículo sea null
                         detalle.setArticulo(null);
 
+                        // Obtener la promoción actualizada desde el repositorio
+                        Promocion promocionActual = promocionRepository.findById(detalle.getPromocion().getId())
+                                .orElseThrow(() -> new RuntimeException("No se encontró la promoción con ID: " +
+                                        detalle.getPromocion().getId()));
+
+                        detalle.setPromocion(promocionActual);
+
+                        // Verificar si el precio de venta existe
+                        if (promocionActual.getPrecioVenta() == null) {
+                            throw new RuntimeException("La promoción con ID " + promocionActual.getId() +
+                                    " no tiene precio de venta definido");
+                        }
+
                         // Calcular subtotal para la promoción
-                        Promocion promocion = detalle.getPromocion();
-                        detalle.setSubtotal(promocion.getPrecioVenta().doubleValue() * detalle.getCantidad());
+                        detalle.setSubtotal(promocionActual.getPrecioVenta().doubleValue() * detalle.getCantidad());
 
                         // Calcular costo para inventario
                         double costoPorUnidad = 0;
-                        if (promocion.getPromocionesDetalle() != null) {
-                            for (PromocionDetalle promoDetalle : promocion.getPromocionesDetalle()) {
+                        if (promocionActual.getPromocionesDetalle() != null) {
+                            for (PromocionDetalle promoDetalle : promocionActual.getPromocionesDetalle()) {
                                 if (promoDetalle.getArticulo() instanceof ArticuloInsumo) {
-                                    costoPorUnidad += ((ArticuloInsumo) promoDetalle.getArticulo()).getPrecioCompra() * promoDetalle.getCantidad();
+                                    ArticuloInsumo insumo = (ArticuloInsumo) promoDetalle.getArticulo();
+                                    if (insumo.getPrecioCompra() != null) {
+                                        costoPorUnidad += insumo.getPrecioCompra() * promoDetalle.getCantidad();
+                                    } else {
+                                        throw new RuntimeException("El insumo con ID " + insumo.getId() +
+                                                " no tiene precio de compra definido");
+                                    }
                                 } else if (promoDetalle.getArticulo() instanceof ArticuloManufacturado) {
-                                    costoPorUnidad += ((ArticuloManufacturado) promoDetalle.getArticulo()).getPrecioCosto() * promoDetalle.getCantidad();
+                                    ArticuloManufacturado manufacturado = (ArticuloManufacturado) promoDetalle.getArticulo();
+                                    if (manufacturado.getPrecioCosto() != null) {
+                                        costoPorUnidad += manufacturado.getPrecioCosto() * promoDetalle.getCantidad();
+                                    } else {
+                                        throw new RuntimeException("El artículo manufacturado con ID " + manufacturado.getId() +
+                                                " no tiene precio de costo definido");
+                                    }
                                 }
                             }
                         }
@@ -174,16 +211,56 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                     } else if (detalle.getArticulo() != null && detalle.getArticulo().getId() != null) {
                         // Es un artículo (insumo o manufacturado) - asegurar que promoción sea null
                         detalle.setPromocion(null);
+                        Long articuloId = detalle.getArticulo().getId();
+                        String tipoArticulo = detalle.getArticulo().getTipoArticulo();
 
-                        // Calcular subtotal según tipo de artículo
-                        if (detalle.getArticulo() instanceof ArticuloInsumo) {
-                            ArticuloInsumo insumo = (ArticuloInsumo) detalle.getArticulo();
-                            detalle.setSubtotal(insumo.getPrecioVenta() * detalle.getCantidad());
-                            detalle.setSubtotalCosto(insumo.getPrecioCompra() * detalle.getCantidad());
-                        } else if (detalle.getArticulo() instanceof ArticuloManufacturado) {
-                            ArticuloManufacturado manufacturado = (ArticuloManufacturado) detalle.getArticulo();
-                            detalle.setSubtotal(manufacturado.getPrecioVenta() * detalle.getCantidad());
-                            detalle.setSubtotalCosto(manufacturado.getPrecioCosto() * detalle.getCantidad());
+                        if ("insumo".equals(tipoArticulo)) {
+                            Optional<ArticuloInsumo> insumoOpt = articuloInsumoRepository.findById(articuloId);
+                            if (insumoOpt.isPresent()) {
+                                // Es un insumo
+                                ArticuloInsumo insumoActual = insumoOpt.get();
+                                detalle.setArticulo(insumoActual);
+
+                                // Verificar si tiene precios definidos
+                                if (insumoActual.getPrecioVenta() == null) {
+                                    throw new RuntimeException("El insumo con ID " + insumoActual.getId() +
+                                            " no tiene precio de venta definido");
+                                }
+                                if (insumoActual.getPrecioCompra() == null) {
+                                    throw new RuntimeException("El insumo con ID " + insumoActual.getId() +
+                                            " no tiene precio de compra definido");
+                                }
+
+                                detalle.setSubtotal(insumoActual.getPrecioVenta() * detalle.getCantidad());
+                                detalle.setSubtotalCosto(insumoActual.getPrecioCompra() * detalle.getCantidad());
+                            } else {
+                                throw new RuntimeException("No se encontró el insumo con ID: " + articuloId);
+                            }
+                        } else if ("manufacturado".equals(tipoArticulo)) {
+                            // Intenta buscar como ArticuloManufacturado
+                            Optional<ArticuloManufacturado> manufacturadoOpt = articuloManufacturadoRepository.findById(articuloId);
+                            if (manufacturadoOpt.isPresent()) {
+                                // Es un manufacturado
+                                ArticuloManufacturado manufacturadoActual = manufacturadoOpt.get();
+                                detalle.setArticulo(manufacturadoActual);
+
+                                // Verificar si tiene precios definidos
+                                if (manufacturadoActual.getPrecioVenta() == null) {
+                                    throw new RuntimeException("El artículo manufacturado con ID " + manufacturadoActual.getId() +
+                                            " no tiene precio de venta definido");
+                                }
+                                if (manufacturadoActual.getPrecioCosto() == null) {
+                                    throw new RuntimeException("El artículo manufacturado con ID " + manufacturadoActual.getId() +
+                                            " no tiene precio de costo definido");
+                                }
+
+                                detalle.setSubtotal(manufacturadoActual.getPrecioVenta() * detalle.getCantidad());
+                                detalle.setSubtotalCosto(manufacturadoActual.getPrecioCosto() * detalle.getCantidad());
+                            } else {
+                                throw new RuntimeException("No se encontró el artículo manufacturado con ID: " + articuloId);
+                            }
+                        } else {
+                            throw new RuntimeException("Tipo de artículo no válido: " + tipoArticulo);
                         }
                     } else {
                         // Si ambos son null o inválidos, es un error
@@ -191,6 +268,22 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                     }
                 }
             }
+
+            // Aplicar descuento para TAKE_AWAY (retiro en local)
+            if (entity.getTipoEnvio() == TipoEnvio.TAKE_AWAY) {
+                // Convertir el descuento si está en formato decimal (0.1 = 10%)
+                if (entity.getDescuento() != null && entity.getDescuento() < 1.0) {
+                    entity.setDescuento(entity.getDescuento() * 100);
+                }
+
+                // Aplicar 10% de descuento adicional
+                if (entity.getDescuento() == null) {
+                    entity.setDescuento(10.0);
+                } else {
+                    entity.setDescuento(entity.getDescuento() + 10.0);
+                }
+            }
+
             // Calcular totales del pedido
             double totalVenta = 0;
             double totalCosto = 0;
@@ -207,14 +300,13 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 totalVenta -= montoDescuento;
             }
 
-            // Agregar costo de envío si existe
+            // Agregar costo de envío si existe y no es retiro en local
             if (entity.getGastoEnvio() != null && entity.getGastoEnvio() > 0) {
                 totalVenta += entity.getGastoEnvio();
             }
 
-            entity.setTotalVenta(Math.round(totalVenta * 100.0) / 100.0);  // Redondear a 2 decimales
+            entity.setTotalVenta(Math.round(totalVenta * 100.0) / 100.0);
             entity.setTotalCosto(Math.round(totalCosto * 100.0) / 100.0);
-
 
             // Guardar primero el pedido para obtener el ID
             entity = pedidoVentaRepository.save(entity);
@@ -245,7 +337,7 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
             return mapper.toDto(entity);
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            throw new Exception("Error al guardar el pedido: " + e.getMessage(), e);
         }
     }
 }

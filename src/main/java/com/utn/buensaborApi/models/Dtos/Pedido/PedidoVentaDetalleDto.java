@@ -2,7 +2,6 @@ package com.utn.buensaborApi.models.Dtos.Pedido;
 
 import com.utn.buensaborApi.models.Articulo;
 import com.utn.buensaborApi.models.BaseEntity;
-import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
 import lombok.*;
 
 @AllArgsConstructor

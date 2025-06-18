@@ -57,4 +57,14 @@ public abstract class Articulo extends BaseEntity {
 
     //Metodo para obtener Estado en funcion del Stock disponible
        public abstract boolean obtenerEstado();
+
+    //Metodo para obtener el tipo de articulo
+    public String getTipoArticulo() {
+        if (this instanceof ArticuloInsumo) {
+            return "insumo";
+        } else if (this instanceof ArticuloManufacturado) {
+            return "manufacturado";
+        }
+        return null;
+    }
 }

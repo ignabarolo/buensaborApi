@@ -23,7 +23,7 @@ public interface PedidoVentaMapper {
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    // ESTO ES LO CRUCIAL:
-//    // Define un método de mapeo para la clase base Articulo (o su DTO)
+//    // Define un metodo de mapeo para la clase base Articulo (o su DTO)
 //    // y usa @SubclassMapping para indicar las subclases.
 //    @SubclassMapping(source = ArticuloManufacturadoDto.class, target = ArticuloManufacturado.class)
 //    @SubclassMapping(source = ArticuloInsumoDto.class, target = ArticuloInsumo.class)

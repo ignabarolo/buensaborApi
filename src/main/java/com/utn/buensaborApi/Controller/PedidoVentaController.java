@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "api/v1/pedidoVenta")
@@ -61,6 +63,7 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
         try {
+
             // 1. Obtener el email desde el JWT
             String email = jwt.getClaimAsString("email");
             if (email == null) {
@@ -79,6 +82,7 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
             dto.setCliente(cliente);
 
             // 4. Guardar el pedido
+            logger.info(" pedido : {}", dto);
             return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
