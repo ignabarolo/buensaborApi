@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.repositories;
 
+import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
@@ -87,4 +88,8 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
     List<EstadoMonetarioMensualDto> obtenerTotalesMensualesEntreFechas(
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin);
+
+    @Query("SELECT p FROM PedidoVenta p JOIN FETCH p.cliente WHERE p.estado = :estado")
+    List<PedidoVenta> findByEstadoConCliente(@Param("estado") Estado estado);
+
 }

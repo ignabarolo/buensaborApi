@@ -76,6 +76,12 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorClienteYFechas(idCliente, fechaDesde, fechaHasta));
     }
 
+    // GET PedidoVenta para DELIVERY
+    @GetMapping("/delivery")
+    public ResponseEntity<List<PedidoVenta>> getPedidosEnDelivery() {
+        return ResponseEntity.ok(pedidoVentaServiceImpl.obtenerPedidosEnDelivery());
+    }
+
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
         try {

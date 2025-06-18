@@ -362,4 +362,8 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         return baseRepository.save(pedido);
     }
 
+    // GET de PedidoVenta para DELIVERY
+    public List<PedidoVenta> obtenerPedidosEnDelivery() {
+        return pedidoVentaRepository.findByEstadoConCliente(Estado.EN_DELIVERY);
+    }
 }
