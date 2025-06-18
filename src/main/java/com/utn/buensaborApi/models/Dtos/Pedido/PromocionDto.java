@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PromocionDto {
+    private int id;
     private String denominacion;
     private String descripcion;
     private Double descuento;

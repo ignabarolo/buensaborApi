@@ -23,6 +23,22 @@ public class ArticuloInsumo extends Articulo{
         return precioCompra;
     }
 
+    //Metodo para obtener el stock máximo disponible
+    public Integer obtenerStockEnSucursal(Long idSucursal) {
+        if (this.stockPorSucursal == null || this.stockPorSucursal.isEmpty()) {
+            return 0;
+        }
+
+        return this.stockPorSucursal.stream()
+                .filter(sucursalInsumo -> sucursalInsumo.getSucursal() != null
+                        && sucursalInsumo.getSucursal().getId().equals(idSucursal))
+                .map(sucursalInsumo -> sucursalInsumo.getStockActual() != null ?
+                        sucursalInsumo.getStockActual().intValue() : 0)
+                .findFirst()
+                .orElse(0);
+    }
+
+
     //Metodo para determinar el estado segun el stock disponible
     @Override
     public boolean obtenerEstado() {

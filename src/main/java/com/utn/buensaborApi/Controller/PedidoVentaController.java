@@ -1,5 +1,6 @@
 package com.utn.buensaborApi.Controller;
 
+import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "api/v1/pedidoVenta")
@@ -47,41 +50,12 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
             }
 
             // 3. Obtener pedidos del cliente
-            List<PedidoVenta> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
+            List<PedidoVentaDto> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
 
             return ResponseEntity.ok(pedidos);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
-    }
-
-
-    @PostMapping("/Create")
-    public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
-        try {
-            // 1. Obtener el email desde el JWT
-            String email = jwt.getClaimAsString("email");
-            if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"error\": \"No se encontró el email en el token.\"}");
-            }
-
-            // 2. Buscar el cliente por email
-            Cliente cliente = clienteService.obtenerPorEmail(email);
-            if (cliente == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
-            }
-
-            // 3. Asignar el ID del cliente al pedido
-            dto.setCliente(cliente);
-
-            // 4. Guardar el pedido
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
@@ -101,4 +75,43 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         logger.info("Consultando pedidos para cliente {} desde {} hasta {}", idCliente, fechaDesde, fechaHasta);
         return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorClienteYFechas(idCliente, fechaDesde, fechaHasta));
     }
+
+    @PostMapping("/Create")
+    public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
+        try {
+
+            // 1. Obtener el email desde el JWT
+            String email = jwt.getClaimAsString("email");
+            if (email == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("{\"error\": \"No se encontró el email en el token.\"}");
+            }
+
+            // 2. Buscar el cliente por email
+            Cliente cliente = clienteService.obtenerPorEmail(email);
+            if (cliente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
+            }
+
+            // 3. Asignar el ID del cliente al pedido
+            dto.setCliente(cliente);
+
+            // 4. Guardar el pedido
+            logger.info(" pedido : {}", dto);
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<?> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody Estado nuevoEstado) {
+        PedidoVenta pedidoActualizado = pedidoVentaServiceImpl.cambiarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(pedidoActualizado);
+    }
+
 }

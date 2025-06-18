@@ -8,22 +8,24 @@ import com.utn.buensaborApi.models.Dtos.Manufacturado.ArticuloManufacturadoDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.SubclassMapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {FacturaMapper.class})
 public interface PedidoVentaMapper {
 
 //    PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    PedidoVentaDto toDto(PedidoVenta entity);
 
-
+    @Mapping(source = "facturas", target = "factura")
     PedidoVentaDto toDto(PedidoVenta entity);
 
+    @Mapping(source = "factura", target = "facturas")
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    // ESTO ES LO CRUCIAL:
-//    // Define un método de mapeo para la clase base Articulo (o su DTO)
+//    // Define un metodo de mapeo para la clase base Articulo (o su DTO)
 //    // y usa @SubclassMapping para indicar las subclases.
 //    @SubclassMapping(source = ArticuloManufacturadoDto.class, target = ArticuloManufacturado.class)
 //    @SubclassMapping(source = ArticuloInsumoDto.class, target = ArticuloInsumo.class)

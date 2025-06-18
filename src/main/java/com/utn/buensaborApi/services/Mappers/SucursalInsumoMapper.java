@@ -10,11 +10,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SucursalInsumoMapper {
 
-    @Mapping(target = "articuloInsumo", ignore = true) // Evita mapear ArticuloInsumo dentro de SucursalInsumoDto
+    //@Mapping(target = "articuloInsumo", ignore = true) // Evita mapear ArticuloInsumo dentro de SucursalInsumoDto
     @Mapping(source = "sucursal.id", target = "sucursalId")
     SucursalInsumoDto toDto(SucursalInsumo entity);
 
-    @Mapping(target = "articuloInsumo", ignore = true)
+    //@Mapping(target = "articuloInsumo", ignore = true)
     @Mapping(source = "sucursalId", target = "sucursal.id")
     SucursalInsumo toEntity(SucursalInsumoDto dto);
 

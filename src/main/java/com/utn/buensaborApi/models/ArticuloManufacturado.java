@@ -96,4 +96,31 @@ public class ArticuloManufacturado extends Articulo {
         }
         return true;
     }
+
+    // Metodo para obtener disponible
+    public Integer stockCalculadoPorSucursal(Long idSucursal) {
+        if (this.detalles == null || detalles.isEmpty()) {
+            return 0;
+        }
+
+        int stockFabricable = Integer.MAX_VALUE;
+
+        for (ArticuloManufacturadoDetalle detalle : detalles) {
+            ArticuloInsumo insumo = detalle.getArticuloInsumo();
+
+            if (insumo == null || detalle.getCantidad() == null || detalle.getCantidad() <= 0) {
+                return 0;
+            }
+
+            // Obtener stock del insumo en la sucursal específica
+            int stockInsumoSucursal = insumo.obtenerStockEnSucursal(idSucursal);
+            int unidadesPosibles = (int) (stockInsumoSucursal / detalle.getCantidad());
+
+            if (unidadesPosibles < stockFabricable) {
+                stockFabricable = unidadesPosibles;
+            }
+        }
+
+        return stockFabricable;
+    }
 }
