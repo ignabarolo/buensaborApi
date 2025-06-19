@@ -1,6 +1,7 @@
 package com.utn.buensaborApi.services.Implementations;
 
 
+import com.utn.buensaborApi.Utils.MailService;
 import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.TipoEnvio;
@@ -60,6 +61,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private PromocionRepository promocionRepository;
+
+    @Autowired
+    private MailService mailService;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -354,8 +358,41 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     public PedidoVenta cambiarEstado(Long id, Estado nuevoEstado) {
         PedidoVenta pedido = baseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        // Guardar el estado anterior para verificar si es un cambio a ENTREGADO
+        Estado estadoAnterior = pedido.getEstado();
+
+        // Actualizar el estado
         pedido.setEstado(nuevoEstado);
-        return baseRepository.save(pedido);
+        PedidoVenta pedidoActualizado = baseRepository.save(pedido);
+
+        // Si el nuevo estado es ENTREGADO, enviar la factura por correo
+        if (nuevoEstado == Estado.ENTREGADO && nuevoEstado != estadoAnterior) {
+            try {
+                Cliente cliente = pedido.getCliente();
+                // Verificar que el cliente tenga email
+                if (cliente != null && cliente.getEmail() != null && !cliente.getEmail().isEmpty()) {
+                    // Obtener la factura asociada al pedido
+                    if (pedido.getFacturas() != null && !pedido.getFacturas().isEmpty()) {
+                        Factura factura = pedido.getFacturas().get(0); // Tomamos la primera factura
+
+                        // Enviar la factura por correo electrónico
+                        mailService.enviarFacturaEmail(
+                                cliente.getEmail(),
+                                cliente.getNombre(),
+                                factura
+                        );
+
+                        System.out.println("Factura enviada por correo a: " + cliente.getEmail());
+                    }
+                }
+            } catch (Exception e) {
+                // Registrar el error pero permitir que la operación continúe
+                System.err.println("Error al enviar la factura por correo: " + e.getMessage());
+                // No lanzamos la excepción para evitar que falle la actualización del estado
+            }
+        }
+
+        return pedidoActualizado;
     }
 
     // GET de PedidoVenta para DELIVERY
