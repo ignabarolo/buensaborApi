@@ -24,7 +24,6 @@ API RESTful desarrollada en Java que permite gestionar:
 - **Autenticación:** JWT (Json Web Token)
 - **Documentación API:** Swagger / OpenAPI
 - **Gestión de dependencias:** Gradle
-- **Testing:** JUnit
 
 ## Instalación
 
