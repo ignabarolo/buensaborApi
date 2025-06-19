@@ -14,7 +14,6 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 @Service
 @RequiredArgsConstructor
@@ -78,8 +77,12 @@ public class MailService {
         }
     }
 
-    public void enviarFacturaEmail(String email, String nombre, Factura factura) {
+    public void enviarFacturaEmail(Factura factura) {
         try {
+            // Obtener el email y nombre del cliente asociado a la factura
+            String email = factura.getCliente().getEmail();
+            String nombre = factura.getCliente().getNombre();
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -106,8 +109,13 @@ public class MailService {
         }
     }
 
-    public void enviarNotaCreditoEmail(String email, String nombre, Factura notaCredito) {
+    public void enviarNotaCreditoEmail(Factura notaCredito) {
         try {
+            // Obtener el email y nombre del cliente asociado a la factura
+            String email = notaCredito.getCliente().getEmail();
+            String nombre = notaCredito.getCliente().getNombre();
+
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -146,7 +154,7 @@ public class MailService {
         <html>
         <head>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #000; }
                 .container { max-width: 600px; margin: 0 auto; }
                 .header { text-align: center; margin-bottom: 20px; }
                 .btn { background-color: #4CAF50; color: white; padding: 10px 20px; 
@@ -167,7 +175,7 @@ public class MailService {
                 </p>
                 <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
                 <div class="footer">
-                    <p>&copy; 2024 El Buen Sabor. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 El Buen Sabor. Todos los derechos reservados.</p>
                 </div>
             </div>
         </body>
@@ -181,7 +189,7 @@ public class MailService {
         <html>
         <head>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #000; }
                 .container { max-width: 600px; margin: 0 auto; }
                 .header { text-align: center; margin-bottom: 20px; }
                 .content { margin: 20px 0; }
@@ -199,7 +207,7 @@ public class MailService {
                     <p>Ahora podrás disfrutar de nuestras deliciosas comidas y promociones especiales.</p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2024 El Buen Sabor. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 El Buen Sabor. Todos los derechos reservados.</p>
                 </div>
             </div>
         </body>
@@ -213,7 +221,7 @@ public class MailService {
         <html>
         <head>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #000;}
                 .container { max-width: 600px; margin: 0 auto; }
                 .header { text-align: center; margin-bottom: 20px; }
                 .content { margin: 20px 0; }
@@ -237,7 +245,7 @@ public class MailService {
                     <p>Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos.</p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2024 El Buen Sabor. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 El Buen Sabor. Todos los derechos reservados.</p>
                 </div>
             </div>
         </body>
@@ -256,7 +264,7 @@ public class MailService {
         <html>
         <head>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #000;}
                 .container { max-width: 600px; margin: 0 auto; }
                 .header { text-align: center; margin-bottom: 20px; }
                 .content { margin: 20px 0; }
@@ -281,7 +289,7 @@ public class MailService {
                     <p>El importe será reintegrado según el método de pago original. Si tienes alguna duda, por favor contáctanos.</p>
                 </div>
                 <div class="footer">
-                    <p>&copy; 2024 El Buen Sabor. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 El Buen Sabor. Todos los derechos reservados.</p>
                 </div>
             </div>
         </body>

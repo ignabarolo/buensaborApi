@@ -1,8 +1,6 @@
 package com.utn.buensaborApi.services.Implementations;
 
-
 import com.utn.buensaborApi.Utils.MailService;
-import com.utn.buensaborApi.Utils.ServicesUtils;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
@@ -14,7 +12,6 @@ import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
 import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
-import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -32,14 +28,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     @Autowired
     private PedidoVentaRepository pedidoVentaRepository;
 
-    @Autowired
-    private ServicesUtils servicesUtils;
 
     @Autowired
     private PedidoVentaMapper mapper;
-
-    @Autowired
-    private ClienteService clienteService;
 
     @Autowired
     private FacturaService facturaService;
@@ -376,11 +367,7 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                         Factura factura = pedido.getFacturas().get(0); // Tomamos la primera factura
 
                         // Enviar la factura por correo electrónico
-                        mailService.enviarFacturaEmail(
-                                cliente.getEmail(),
-                                cliente.getNombre(),
-                                factura
-                        );
+                        mailService.enviarFacturaEmail(factura);
 
                         System.out.println("Factura enviada por correo a: " + cliente.getEmail());
                     }

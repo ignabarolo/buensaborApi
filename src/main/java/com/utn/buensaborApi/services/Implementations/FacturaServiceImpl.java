@@ -109,17 +109,12 @@ public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  impleme
             notaCredito = save(notaCredito);
 
             // 7. Enviar la nota de crédito por email al cliente
-            if (notaCredito.getCliente() != null && notaCredito.getCliente().getEmail() != null) {
-                try {
-                    mailService.enviarNotaCreditoEmail(
-                            notaCredito.getCliente().getEmail(),
-                            notaCredito.getCliente().getNombre(),
-                            notaCredito
-                    );
-                } catch (Exception emailError) {
-                    System.err.println("Error al enviar nota de crédito por email: " + emailError.getMessage());
-                }
+            try {
+                mailService.enviarNotaCreditoEmail(notaCredito);
+            } catch (Exception emailError) {
+                System.err.println("Error al enviar nota de crédito por email: " + emailError.getMessage());
             }
+
             return notaCredito;
         } catch (Exception e) {
             throw new Exception("Error al anular la factura: " + e.getMessage(), e);
