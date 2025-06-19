@@ -1,4 +1,4 @@
-# buensaborApi
+# Buen SaborApi
 
 Backend para el proyecto “El Buen Sabor 2025 - UTN TUP”.
 
