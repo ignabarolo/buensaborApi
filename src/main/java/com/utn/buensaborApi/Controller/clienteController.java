@@ -3,6 +3,7 @@ package com.utn.buensaborApi.Controller;
 
 import com.utn.buensaborApi.Dtos.clienteDTO;
 import com.utn.buensaborApi.Dtos.domicilioDTO;
+import com.utn.buensaborApi.Dtos.putClienteDTO;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Domicilio;
 import com.utn.buensaborApi.models.Dtos.Pedido.ClientePedidoDto;
@@ -45,6 +46,19 @@ public class clienteController {
         }
     }
 
+   @PutMapping("/{id}/reactivar")
+  public ResponseEntity<?> reactivarCliente(@PathVariable Long id) {
+    Cliente cliente = clienteServices.obtenerPorId(id);
+    if (cliente == null) {
+        return ResponseEntity.notFound().build();
+    }
+
+    cliente.setFechaBaja(null);
+    clienteServices.guardar(cliente); 
+
+    return ResponseEntity.ok(cliente);
+}
+
     @PostMapping
     public ResponseEntity<?> crearCliente(@RequestBody clienteDTO clienteDto) {
         Cliente cliente = new Cliente();
@@ -76,15 +90,15 @@ public class clienteController {
 
 
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody Cliente clienteActualizado) {
-        Cliente cliente = clienteServices.actualizar(id, clienteActualizado);
-        if (cliente != null) {
-            return ResponseEntity.ok(cliente);
-        } else {
-            return ResponseEntity.notFound().build();  // Si no se encuentra el cliente, se retorna 404
-        }
+   @PutMapping("/{id}")
+public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody putClienteDTO clienteActualizado) {
+    Cliente cliente = clienteServices.actualizar(id, clienteActualizado);
+    if (cliente != null) {
+        return ResponseEntity.ok(cliente);
+    } else {
+        return ResponseEntity.notFound().build();  // Si no se encuentra el cliente, se retorna 404
     }
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long id) {

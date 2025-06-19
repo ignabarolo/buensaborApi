@@ -50,7 +50,6 @@ public class PedidoVenta extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_cliente")
-    @JsonIgnore
     private Cliente cliente;
 
     @ManyToOne
