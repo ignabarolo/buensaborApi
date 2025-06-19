@@ -14,7 +14,7 @@ public class BuensaborApiApplication {
 		SpringApplication.run(BuensaborApiApplication.class, args);
 	}
 	Boolean seed = false;
-	@Bean
+	;@Bean
 	public CommandLineRunner dataInitializer(DataInitializerServices initializerService) {
 		return args -> {
 			if (seed) {
