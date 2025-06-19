@@ -1,11 +1,13 @@
 package com.utn.buensaborApi.services.Implementations;
 
+import com.utn.buensaborApi.Utils.MailService;
 import com.utn.buensaborApi.Utils.PdfService;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.repositories.BaseRepository;
 import com.utn.buensaborApi.repositories.FacturaRepository;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
+import com.utn.buensaborApi.Utils.MailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  impleme
 
     @Autowired
     private PdfService pdfService;
+    @Autowired
+    private MailService mailService;
 
     public FacturaServiceImpl(BaseRepository<Factura, Long> baseRepository) { super(baseRepository );
     }
@@ -104,6 +108,18 @@ public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  impleme
             // 6. Guardar nota de crédito y pedido actualizado
             notaCredito = save(notaCredito);
 
+            // 7. Enviar la nota de crédito por email al cliente
+            if (notaCredito.getCliente() != null && notaCredito.getCliente().getEmail() != null) {
+                try {
+                    mailService.enviarNotaCreditoEmail(
+                            notaCredito.getCliente().getEmail(),
+                            notaCredito.getCliente().getNombre(),
+                            notaCredito
+                    );
+                } catch (Exception emailError) {
+                    System.err.println("Error al enviar nota de crédito por email: " + emailError.getMessage());
+                }
+            }
             return notaCredito;
         } catch (Exception e) {
             throw new Exception("Error al anular la factura: " + e.getMessage(), e);
