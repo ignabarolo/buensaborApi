@@ -18,10 +18,10 @@ public interface PedidoVentaMapper {
 //
 //    PedidoVentaDto toDto(PedidoVenta entity);
 
-    @Mapping(source = "facturas", target = "factura")
+    @Mapping(source = "facturas", target = "facturas")
     PedidoVentaDto toDto(PedidoVenta entity);
 
-    @Mapping(source = "factura", target = "facturas")
+    @Mapping(source = "facturas", target = "facturas")
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    // ESTO ES LO CRUCIAL:

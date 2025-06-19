@@ -54,5 +54,5 @@ public class PedidoVentaDto extends BaseEntity {
         return 0D;
     }
 
-    private List<FacturaDto> factura;
+    private List<FacturaDto> facturas;
 }
