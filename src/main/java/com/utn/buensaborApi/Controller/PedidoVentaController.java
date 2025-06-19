@@ -82,6 +82,12 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         return ResponseEntity.ok(pedidoVentaServiceImpl.obtenerPedidosEnDelivery());
     }
 
+    // GET PedidoVenta para COCINERO
+    @GetMapping("/cocinero")
+    public ResponseEntity<List<PedidoVenta>> getPedidosEnCocinero() {
+        return ResponseEntity.ok(pedidoVentaServiceImpl.obtenerPedidosEnCocinero());
+    }
+
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
         try {
