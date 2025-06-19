@@ -14,6 +14,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -36,7 +37,7 @@ public class PedidoVenta extends BaseEntity {
     private Set<PedidoVentaDetalle> pedidosVentaDetalle;
 
     @OneToMany(mappedBy = "pedidoVenta", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Factura> facturas;
+    private List<Factura> facturas;
 
     @ManyToOne
     @JoinColumn(name = "id_sucursal")
@@ -49,7 +50,6 @@ public class PedidoVenta extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_cliente")
-    @JsonIgnore
     private Cliente cliente;
 
     @ManyToOne

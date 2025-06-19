@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  implements FacturaService {
@@ -18,7 +19,16 @@ public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  impleme
 
     public FacturaServiceImpl(BaseRepository<Factura, Long> baseRepository) { super(baseRepository );
     }
-
+    @Override
+    public Factura findById(Long id) throws Exception {
+        try {
+            Optional<Factura> facturaOptional = facturaRepository.findById(id);
+            return facturaOptional.orElseThrow(() ->
+                    new RuntimeException("No se encontró la factura con ID: " + id));
+        } catch (Exception e) {
+            throw new Exception("Error al buscar factura: " + e.getMessage());
+        }
+    }
     @Override
     @Transactional
     public Factura save(Factura factura) throws Exception{

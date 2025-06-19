@@ -4,12 +4,14 @@ import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.FormaPago;
 import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
+import com.utn.buensaborApi.models.Dtos.ProductoVenta.FacturaDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -51,4 +53,6 @@ public class PedidoVentaDto extends BaseEntity {
     public Double TotalCosto() {
         return 0D;
     }
+
+    private List<FacturaDto> factura;
 }
