@@ -5,10 +5,14 @@ import com.utn.buensaborApi.Dtos.clienteDTO;
 import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Domicilio;
+import com.utn.buensaborApi.models.Dtos.Pedido.ClientePedidoDto;
 import com.utn.buensaborApi.models.Localidad;
+import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.services.ClienteService;
+import com.utn.buensaborApi.services.Implementations.PedidoVentaServiceImpl;
 import com.utn.buensaborApi.services.localidadServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,8 @@ public class clienteController {
     private ClienteService clienteServices;
     @Autowired
     private localidadServices localidadServices;
+    @Autowired
+    private PedidoVentaServiceImpl pedidoVentaService;
 
     @GetMapping
     public ResponseEntity<List<Cliente>> listarTodosLosClientes() {
@@ -93,12 +99,40 @@ public class clienteController {
     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> obtenerClientePorEmail(@PathVariable String email) {
     Cliente cliente = clienteServices.obtenerPorEmail(email);
-    if (cliente != null) {
-        return ResponseEntity.ok(cliente);
-    } else {
-        return ResponseEntity.notFound().build();
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/por-pedido/{idPedido}")
+    public ResponseEntity<?> obtenerClientePorPedido(@PathVariable Long idPedido) {
+        try {
+            // Buscar el pedido por su ID
+            PedidoVenta pedido = pedidoVentaService.findById(idPedido);
+
+            if (pedido == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"No se encontró el pedido con el ID proporcionado.\"}");
+            }
+
+            // Obtener el cliente asociado al pedido
+            Cliente cliente = pedido.getCliente();
+
+            if (cliente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("{\"error\": \"El pedido no tiene un cliente asociado.\"}");
+            }
+
+            // Convertir a DTO
+            ClientePedidoDto clienteDto = clienteServices.toDto(cliente);
+
+            return ResponseEntity.ok(clienteDto);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 }
-
-}
-
