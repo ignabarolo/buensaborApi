@@ -142,4 +142,10 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/{id}/marcar-listo")
+    public ResponseEntity<Void> marcarPedidoListo(@PathVariable Long id) {
+        pedidoVentaServiceImpl.marcarPedidoListo(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

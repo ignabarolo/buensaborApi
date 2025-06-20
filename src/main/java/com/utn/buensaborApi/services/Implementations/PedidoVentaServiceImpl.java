@@ -401,5 +401,15 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         pedidoVentaRepository.save(pedido);
     }
 
+    public PedidoVenta marcarPedidoListo(Long id) {
+        PedidoVenta pedido = baseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        if (pedido.getTipoEnvio() == TipoEnvio.DELIVERY) {
+            pedido.setEstado(Estado.EN_DELIVERY);  // Para delivery
+        } else {
+            pedido.setEstado(Estado.LISTO);        // Para otros tipos
+        }
+        return baseRepository.save(pedido);
+    }
 
 }
