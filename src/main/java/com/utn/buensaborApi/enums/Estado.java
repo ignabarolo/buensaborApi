@@ -6,5 +6,6 @@ public enum Estado {
     CANCELADO,
     RECHAZADO,
     ENTREGADO,
-    EN_DELIVERY
+    EN_DELIVERY,
+    LISTO
 }
