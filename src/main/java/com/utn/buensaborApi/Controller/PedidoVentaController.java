@@ -132,4 +132,14 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
         return ResponseEntity.ok(pedidoActualizado);
     }
 
+    @PatchMapping("/{id}/minutos-extra")
+    public ResponseEntity<Void> agregarMinutosExtra(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request
+    ) {
+        Integer minutos = request.get("minutosExtra");
+        pedidoVentaServiceImpl.agregarMinutosExtra(id, minutos);
+        return ResponseEntity.ok().build();
+    }
+
 }

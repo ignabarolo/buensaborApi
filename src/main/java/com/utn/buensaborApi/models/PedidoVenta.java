@@ -33,6 +33,8 @@ public class PedidoVenta extends BaseEntity {
     private Double totalCosto;
     private Double totalVenta;
 
+    private Integer minutosExtra;
+
     @Transient
     private LocalTime horaEstimadaEntrega;
 
@@ -86,7 +88,7 @@ public class PedidoVenta extends BaseEntity {
 
         int extraDelivery = this.tipoEnvio == TipoEnvio.DELIVERY ? 10 : 0;
 
-        int totalMinutos = tiempoActual + tiempoEnColaDividido + extraDelivery;
+        int totalMinutos = tiempoActual + tiempoEnColaDividido + extraDelivery + (this.minutosExtra != null ? this.minutosExtra : 0);
 
         return this.horaPedido.plusMinutes(totalMinutos);
     }

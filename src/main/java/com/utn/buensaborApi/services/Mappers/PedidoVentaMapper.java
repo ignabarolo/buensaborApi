@@ -15,9 +15,12 @@ import org.mapstruct.SubclassMapping;
 public interface PedidoVentaMapper {
 
     @Mapping(source = "horaEstimadaEntrega", target = "horaEstimadaEntrega")
+    @Mapping(source = "minutosExtra", target = "minutosExtra")
     @Mapping(source = "facturas", target = "factura")
     PedidoVentaDto toDto(PedidoVenta entity);
 
+    @Mapping(source = "horaEstimadaEntrega", target = "horaEstimadaEntrega")
+    @Mapping(source = "minutosExtra", target = "minutosExtra")
     @Mapping(source = "factura", target = "facturas")
     PedidoVenta toEntity(PedidoVentaDto dto);
 //

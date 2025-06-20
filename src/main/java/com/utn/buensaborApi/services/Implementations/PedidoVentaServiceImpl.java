@@ -385,5 +385,21 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 .map(pedidoVentaMapper::toDto)
                 .collect(Collectors.toList());
     }
+    // Agregar minutos desde COCINERO
+    public void agregarMinutosExtra(Long pedidoId, int minutosExtra) {
+        PedidoVenta pedido = pedidoVentaRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        int minutos = pedido.getMinutosExtra() != null ? pedido.getMinutosExtra() : 0;
+        pedido.setMinutosExtra(minutos + minutosExtra);
+
+        // Recalcular la hora estimada
+        int cocineros = 3; // o configurable
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+
+        pedidoVentaRepository.save(pedido);
+    }
+
 
 }
