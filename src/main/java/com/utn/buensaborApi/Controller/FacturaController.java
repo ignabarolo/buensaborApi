@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +50,29 @@ public class FacturaController extends BaseControllerImpl<Factura, FacturaServic
             return ResponseEntity.internalServerError().build();
         }
     }
+    @PostMapping("/anular/{id}")
+    public ResponseEntity<?> anularFactura(@PathVariable Long id) {
+        try {
+            Factura notaCredito = facturaService.anularFactura(id);
+            return ResponseEntity.ok(notaCredito);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
 
+    @GetMapping("/nota-credito/{id}/pdf")
+    public ResponseEntity<byte[]> generarNotaCreditoPdf(@PathVariable Long id) {
+        try {
+            byte[] pdfBytes = facturaService.generarNotaCredito(id);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "nota-credito-" + id + ".pdf");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

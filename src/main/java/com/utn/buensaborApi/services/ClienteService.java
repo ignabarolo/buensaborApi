@@ -6,9 +6,14 @@ import com.utn.buensaborApi.Dtos.putClienteDTO;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Domicilio;
 import com.utn.buensaborApi.models.Localidad;
+import com.utn.buensaborApi.models.Dtos.Pedido.ClientePedidoDto;
+import com.utn.buensaborApi.models.Dtos.Pedido.DomicilioDto;
+import com.utn.buensaborApi.models.Dtos.Pedido.LocalidadDto;
 import com.utn.buensaborApi.repositories.clienteRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.utn.buensaborApi.services.Implementations.PedidoVentaServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +24,7 @@ public class ClienteService {
      
      @Autowired
      private localidadServices localidadServices;
-     
+
      public List<Cliente> listarTodos(){
          return clienteRepository.findAll();
      }
@@ -40,7 +45,7 @@ public class ClienteService {
             clienteRepository.save(cliente);
         }
     }
-      
+
 
   public Cliente actualizar(Long id, putClienteDTO dto) {
     Cliente clienteExistente = clienteRepository.findById(id).orElse(null);
@@ -72,4 +77,38 @@ public class ClienteService {
     public Cliente obtenerPorEmail(String email) {
     return clienteRepository.findByEmail(email).orElse(null);
 }
+
+
+    public ClientePedidoDto toDto(Cliente cliente) {
+        if (cliente == null) {
+            return null;
+        }
+
+        ClientePedidoDto dto = new ClientePedidoDto();
+        dto.setId(cliente.getId());
+        dto.setNombre(cliente.getNombre());
+        dto.setApellido(cliente.getApellido());
+        dto.setTelefono(cliente.getTelefono());
+        dto.setEmail(cliente.getEmail());
+
+        // Convertir el domicilio si existe
+        if (cliente.getDomicilio() != null) {
+            DomicilioDto domicilioDto = new DomicilioDto();
+            domicilioDto.setCalle(cliente.getDomicilio().getCalle());
+            domicilioDto.setNumero(cliente.getDomicilio().getNumero());
+            domicilioDto.setCodigoPostal(cliente.getDomicilio().getCodigoPostal());
+
+            // Si necesitas incluir la localidad
+            if (cliente.getDomicilio().getLocalidad() != null) {
+                LocalidadDto localidadDto = new LocalidadDto();
+                localidadDto.setId(cliente.getDomicilio().getLocalidad().getId());
+                localidadDto.setNombre(cliente.getDomicilio().getLocalidad().getNombre());
+                domicilioDto.setLocalidad(localidadDto);
+            }
+
+            dto.setDomicilio(domicilioDto);
+        }
+
+        return dto;
+    }
 }
