@@ -28,6 +28,8 @@ public class PedidoVentaDto extends BaseEntity {
     private Double totalCosto;
     private Double totalVenta;
 
+    private LocalTime horaEstimadaEntrega;
+
     private Cliente cliente;
 
     private DomicilioDto domicilio;

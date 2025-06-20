@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -61,6 +62,10 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private ArticuloManufacturadoRepository articuloManufacturadoRepository;
+
+
+    @Autowired
+    private PedidoVentaMapper pedidoVentaMapper;
 
     @Autowired
     private PromocionRepository promocionRepository;
@@ -368,7 +373,17 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
     // GET de PedidoVenta para COCINERO
-    public List<PedidoVenta> obtenerPedidosEnCocinero() {
-        return pedidoVentaRepository.findByEstadoConCliente(Estado.PREPARACION);
+    public List<PedidoVentaDto> obtenerPedidosEnCocinero() {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        int cocineros = 3;
+
+        for (PedidoVenta pedido : pedidos) {
+            pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+        }
+
+        return pedidos.stream()
+                .map(pedidoVentaMapper::toDto)
+                .collect(Collectors.toList());
     }
+
 }

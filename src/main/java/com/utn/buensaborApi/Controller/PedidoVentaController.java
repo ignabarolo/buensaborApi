@@ -6,6 +6,7 @@ import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 import com.utn.buensaborApi.models.PedidoVenta;
 import com.utn.buensaborApi.services.Implementations.PedidoVentaServiceImpl;
 import com.utn.buensaborApi.services.ClienteService;
+import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "api/v1/pedidoVenta")
@@ -26,6 +28,9 @@ import java.util.Map;
 public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, PedidoVentaServiceImpl>{
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoVentaController.class);
+
+    @Autowired
+    private PedidoVentaMapper pedidoVentaMapper;
 
     @Autowired
     private ClienteService clienteService;
@@ -84,8 +89,9 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
 
     // GET PedidoVenta para COCINERO
     @GetMapping("/cocinero")
-    public ResponseEntity<List<PedidoVenta>> getPedidosEnCocinero() {
-        return ResponseEntity.ok(pedidoVentaServiceImpl.obtenerPedidosEnCocinero());
+    public ResponseEntity<List<PedidoVentaDto>> getPedidosEnCocinero() {
+        List<PedidoVentaDto> dtoList = pedidoVentaServiceImpl.obtenerPedidosEnCocinero();
+        return ResponseEntity.ok(dtoList);
     }
 
     @PostMapping("/Create")

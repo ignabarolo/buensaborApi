@@ -92,4 +92,5 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
     @Query("SELECT p FROM PedidoVenta p JOIN FETCH p.cliente WHERE p.estado = :estado")
     List<PedidoVenta> findByEstadoConCliente(@Param("estado") Estado estado);
 
+    List<PedidoVenta> findByEstado(Estado estado);
 }

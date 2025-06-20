@@ -14,10 +14,7 @@ import org.mapstruct.SubclassMapping;
 @Mapper(componentModel = "spring", uses = {FacturaMapper.class})
 public interface PedidoVentaMapper {
 
-//    PedidoVenta toEntity(PedidoVentaDto dto);
-//
-//    PedidoVentaDto toDto(PedidoVenta entity);
-
+    @Mapping(source = "horaEstimadaEntrega", target = "horaEstimadaEntrega")
     @Mapping(source = "facturas", target = "factura")
     PedidoVentaDto toDto(PedidoVenta entity);
 
