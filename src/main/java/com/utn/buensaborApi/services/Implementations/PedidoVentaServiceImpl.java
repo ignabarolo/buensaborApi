@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -49,6 +50,10 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     @Autowired
     private ArticuloManufacturadoRepository articuloManufacturadoRepository;
+
+
+    @Autowired
+    private PedidoVentaMapper pedidoVentaMapper;
 
     @Autowired
     private PromocionRepository promocionRepository;
@@ -386,4 +391,45 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     public List<PedidoVenta> obtenerPedidosEnDelivery() {
         return pedidoVentaRepository.findByEstadoConCliente(Estado.EN_DELIVERY);
     }
+
+    // GET de PedidoVenta para COCINERO
+    public List<PedidoVentaDto> obtenerPedidosEnCocinero() {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        int cocineros = 3;
+
+        for (PedidoVenta pedido : pedidos) {
+            pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+        }
+
+        return pedidos.stream()
+                .map(pedidoVentaMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    // Agregar minutos desde COCINERO
+    public void agregarMinutosExtra(Long pedidoId, int minutosExtra) {
+        PedidoVenta pedido = pedidoVentaRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        int minutos = pedido.getMinutosExtra() != null ? pedido.getMinutosExtra() : 0;
+        pedido.setMinutosExtra(minutos + minutosExtra);
+
+        // Recalcular la hora estimada
+        int cocineros = 3; // o configurable
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+
+        pedidoVentaRepository.save(pedido);
+    }
+
+    public PedidoVenta marcarPedidoListo(Long id) {
+        PedidoVenta pedido = baseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        if (pedido.getTipoEnvio() == TipoEnvio.DELIVERY) {
+            pedido.setEstado(Estado.EN_DELIVERY);  // Para delivery
+        } else {
+            pedido.setEstado(Estado.LISTO);        // Para otros tipos
+        }
+        return baseRepository.save(pedido);
+    }
+
 }

@@ -33,6 +33,11 @@ public class PedidoVenta extends BaseEntity {
     private Double totalCosto;
     private Double totalVenta;
 
+    private Integer minutosExtra;
+
+    @Transient
+    private LocalTime horaEstimadaEntrega;
+
     @OneToMany(mappedBy = "pedidoVenta", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PedidoVentaDetalle> pedidosVentaDetalle;
 
@@ -56,6 +61,38 @@ public class PedidoVenta extends BaseEntity {
     @JoinColumn(name = "id_empleado")
     @JsonIgnore
     private Empleado empleado;
+
+    public LocalTime calcularHoraEstimadaFinalizacion() {
+        int minutosTotales = pedidosVentaDetalle.stream()
+                .filter(det -> det.getArticulo() instanceof ArticuloManufacturado)
+                .mapToInt(det -> ((ArticuloManufacturado) det.getArticulo()).getTiempoEstimadoMinutos())
+                .sum();
+
+        return horaPedido.plusMinutes(minutosTotales);
+    }
+
+    public LocalTime calcularHoraEstimadaEntrega(List<PedidoVenta> pedidosEnPreparacion, int cantidadCocineros) {
+        int tiempoActual = this.pedidosVentaDetalle.stream()
+                .filter(d -> d.getArticulo() instanceof ArticuloManufacturado)
+                .mapToInt(d -> ((ArticuloManufacturado) d.getArticulo()).getTiempoEstimadoMinutos() * d.getCantidad())
+                .sum();
+
+        int tiempoEnCola = pedidosEnPreparacion.stream()
+                .filter(p -> !p.getId().equals(this.id)) // Excluimos el pedido actual
+                .flatMap(p -> p.getPedidosVentaDetalle().stream())
+                .filter(d -> d.getArticulo() instanceof ArticuloManufacturado)
+                .mapToInt(d -> ((ArticuloManufacturado) d.getArticulo()).getTiempoEstimadoMinutos() * d.getCantidad())
+                .sum();
+
+        int tiempoEnColaDividido = tiempoEnCola / cantidadCocineros;
+
+        int extraDelivery = this.tipoEnvio == TipoEnvio.DELIVERY ? 10 : 0;
+
+        int totalMinutos = tiempoActual + tiempoEnColaDividido + extraDelivery + (this.minutosExtra != null ? this.minutosExtra : 0);
+
+        return this.horaPedido.plusMinutes(totalMinutos);
+    }
+
 
     public LocalTime HoraFinalizacion() {
         return this.horaPedido;

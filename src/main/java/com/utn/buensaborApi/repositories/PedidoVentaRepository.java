@@ -32,6 +32,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
                     "  JOIN categoria_articulo c ON a.categoria_id = c.id " +
                     "  WHERE pv.fecha_pedido BETWEEN :fechaInicio AND :fechaFin " +
                     "    AND pv.fecha_baja IS NULL " +
+                    "    AND pv.estado = 'ENTREGADO' " +
                     "  GROUP BY a.id, a.denominacion, c.denominacion " +
                     "  UNION ALL " +
                     "  SELECT a.id as articulo_id, a.denominacion, c.denominacion as categoria, SUM(d.cantidad * dp.cantidad) as cantidad_total " +
@@ -43,6 +44,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
                     "  JOIN categoria_articulo c ON a.categoria_id = c.id " +
                     "  WHERE pv.fecha_pedido BETWEEN :fechaInicio AND :fechaFin " +
                     "    AND pv.fecha_baja IS NULL " +
+                    "    AND pv.estado = 'ENTREGADO' " +
                     "  GROUP BY a.id, a.denominacion, c.denominacion " +
                     ") as sub " +
                     "GROUP BY sub.articulo_id, sub.denominacion, sub.categoria " +
@@ -51,6 +53,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
     )
     List<ProductoRankingDto> obtenerRankingProductosConCategoria(@Param("fechaInicio") LocalDate fechaInicio,
                                                                  @Param("fechaFin") LocalDate fechaFin);
+
     // Ranking por cliente
     @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto(" +
             "c.id, CONCAT(c.nombre, ' ', c.apellido), COUNT(pv), SUM(pv.totalVenta)) " +
@@ -58,6 +61,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
             "JOIN pv.cliente c " +
             "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +
             "AND pv.fechaBaja IS NULL " +
+            "AND pv.estado = com.utn.buensaborApi.enums.Estado.ENTREGADO " +
             "GROUP BY c.id, c.nombre, c.apellido " +
             "ORDER BY " +
             "CASE WHEN :orden = 'cantidad' THEN COUNT(pv) END DESC, " +
@@ -72,7 +76,8 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
             "SUM(pv.totalVenta), SUM(pv.totalCosto)) " +
             "FROM PedidoVenta pv " +
             "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +
-            "AND pv.fechaBaja IS NULL")
+            "AND pv.fechaBaja IS NULL " +
+            "AND pv.estado = com.utn.buensaborApi.enums.Estado.ENTREGADO")
     EstadoMonetarioDto obtenerTotalesEntreFechas(
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin);
@@ -83,6 +88,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
             "FROM PedidoVenta pv " +
             "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +
             "AND pv.fechaBaja IS NULL " +
+            "AND pv.estado = com.utn.buensaborApi.enums.Estado.ENTREGADO " +
             "GROUP BY YEAR(pv.fechaPedido), MONTH(pv.fechaPedido) " +
             "ORDER BY YEAR(pv.fechaPedido), MONTH(pv.fechaPedido)")
     List<EstadoMonetarioMensualDto> obtenerTotalesMensualesEntreFechas(
@@ -92,4 +98,5 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
     @Query("SELECT p FROM PedidoVenta p JOIN FETCH p.cliente WHERE p.estado = :estado")
     List<PedidoVenta> findByEstadoConCliente(@Param("estado") Estado estado);
 
+    List<PedidoVenta> findByEstado(Estado estado);
 }
