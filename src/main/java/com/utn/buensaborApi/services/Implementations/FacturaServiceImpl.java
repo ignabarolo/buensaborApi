@@ -97,10 +97,12 @@ public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  impleme
             // 3. Actualizar estado del pedido a CANCELADO
             pedido.setEstado(Estado.CANCELADO);
 
+            //4. Restaurar stock de insumos del pedido
+            pedido.restaurarStockInsumos();
             // 4. Restaurar stock solo si el pedido NO estaba en estado ENTREGADO
-            if (!Estado.ENTREGADO.equals(pedido.getEstado())) {
-                pedido.restaurarStockInsumos();
-            }
+//            if (!Estado.ENTREGADO.equals(pedido.getEstado())) {
+//                pedido.restaurarStockInsumos();
+//            }
 
             // 5. Marcar la factura original como anulada (fecha baja)
             facturaOriginal.setFechaBaja(LocalDateTime.now());
