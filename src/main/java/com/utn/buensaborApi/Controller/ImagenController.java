@@ -25,12 +25,12 @@ public class ImagenController {
         return ResponseEntity.ok(imagenService.findAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Imagen> getById(@PathVariable Long id) {
-        return imagenService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Imagen> getById(@PathVariable Long id) {
+//        return imagenService.findById(id)
+//                .map(ResponseEntity::ok)
+//                .orElse(ResponseEntity.notFound().build());
+//    }
 
     @PostMapping("/upload")
     public ResponseEntity<Imagen> uploadImage(@RequestParam("file") MultipartFile file) {

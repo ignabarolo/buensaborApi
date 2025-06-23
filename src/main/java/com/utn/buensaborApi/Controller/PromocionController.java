@@ -93,9 +93,14 @@ public class PromocionController extends BaseControllerImpl<Promocion, Promocion
     }
 
     @PutMapping("/alta/{id}")
-    public ResponseEntity<Void> darDeAlta(@PathVariable Long id) {
+    public ResponseEntity<?> darDeAlta(@PathVariable Long id) {
+        try {
+
         servicio.darDeAlta(id);
         return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 }

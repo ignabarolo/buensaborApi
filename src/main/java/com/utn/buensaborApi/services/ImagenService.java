@@ -45,8 +45,9 @@ public class ImagenService {
 
     //Buscar imagenes por ID(solo las activas)
     @Transactional(readOnly = true)
-    public Optional<Imagen> findById(Long id) {
-        return imagenRepository.findByIdAndFechaBajaIsNull(id);
+    public Imagen findById(Long id) {
+        var imagen = imagenRepository.findByIdAndFechaBajaIsNotNull(id).get();
+        return imagen;
     }
 
     //Subir nueva imagen

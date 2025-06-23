@@ -2,10 +2,7 @@ package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Promocion.PromocionDto;
-import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
-import com.utn.buensaborApi.repositories.BaseRepository;
-import com.utn.buensaborApi.repositories.ImagenRepository;
-import com.utn.buensaborApi.repositories.PromocionRepository;
+import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.ImagenService;
 import com.utn.buensaborApi.services.Interfaces.PromocionService;
 import com.utn.buensaborApi.services.Mappers.PromocionMapper;
@@ -38,6 +35,9 @@ public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> impl
 
     @Autowired
     private PromocionDetalleServiceImpl detalleService;
+
+    @Autowired
+    private PromocionDetalleRepository detalleRepository;
 
 
     public PromocionServiceImpl(BaseRepository<Promocion, Long> baseRepository) { super(baseRepository );
@@ -220,85 +220,24 @@ public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> impl
 
             var promocion = mapper.toEntity(entity);
 
-//            if (promocion.getPromocionesDetalle() != null && !promocion.getPromocionesDetalle().isEmpty()) {
-//                List<PromocionDetalle> detallesExistentes = promocionExistente.getPromocionesDetalle();
-//                List<PromocionDetalle> detallesIngresados = promocion.getPromocionesDetalle();
-//
-//                // Crear listas para nuevos detalles y detalles a eliminar
-//                List<PromocionDetalle> nuevosDetalles = new ArrayList<>();
-//                List<PromocionDetalle> detallesAEliminar = new ArrayList<>(detallesExistentes);
-//
-//                for (PromocionDetalle detalleIngresado : detallesIngresados) {
-//                    boolean encontrado = false;
-//
-//                    for (PromocionDetalle detalleExistente : detallesExistentes) {
-//                        if (detalleIngresado.getArticulo().getId().equals(detalleExistente.getArticulo().getId())) {
-//                            encontrado = true;
-//                            detallesAEliminar.remove(detalleExistente);
-//                            detalleExistente.setFechaBaja(null);
-//
-//                            // Comparar cantidades
-//                            if (!detalleIngresado.getCantidad().equals(detalleExistente.getCantidad())) {
-//                                detalleExistente.setCantidad(detalleIngresado.getCantidad());
-//                                detalleExistente.setFechaAlta(LocalDateTime.now());
-//                            }
-//                            break;
-//                        }
+
+//            if (savedPromocion.getPromocionesDetalle() != null) {
+//                savedPromocion.getPromocionesDetalle().forEach(detalle -> {
+//                    if (detalle.getPromocion() == null){
+//                        detalle.setPromocion(promocion);
+//                        detalle.setFechaModificacion(LocalDateTime.now());
 //                    }
-
-                    // Si no se encontró, es un nuevo detalle
-//                    if (!encontrado) {
-//                        detalleIngresado.setArticulo(articuloExistente);
-//                        detalleIngresado.setFechaAlta(LocalDateTime.now());
-//                        nuevosDetalles.add(detalleIngresado);
-//                    }
-//                }
-
-//                // Guardar nuevos detalles
-//                if (!nuevosDetalles.isEmpty()) {
-//                    detalleService.guardarDetalles(articuloExistente, nuevosDetalles);
-//                }
-
-//                // Eliminar detalles que no están en los ingresados
-//                if (!detallesAEliminar.isEmpty()) {
-//                    for (ArticuloManufacturadoDetalle detalleAEliminar : detallesAEliminar) {
-//                        detalleService.eliminarDetallesLogico(detalleAEliminar.getId());
-//                    }
-//                }
-
-                // Actualizar la lista de detalles en el artículo existente
-//                articuloExistente.setDetalles(detalleService.buscarDetallesPorArticuloId(articuloExistente.getId()));
-
-                // Recalcular costos y precios
-//                articuloExistente.costoCalculado();
-//                articuloExistente.precioCalculado();
+//                });
 //            }
 //
-//            if (promocion.getImagenes() != null){
-//                promocion.getImagenes().forEach(imagen ->
-//                        imagen.setFechaModificacion(LocalDateTime.now()));
+//            if (savedPromocion.getPedidosVentaDetalle() != null) {
+//                savedPromocion.getPedidosVentaDetalle().forEach(pedidoVenta -> {
+//                    if (pedidoVenta.getPromocion() == null){
+//                        pedidoVenta.setPromocion(promocion);
+//                        pedidoVenta.setFechaModificacion(LocalDateTime.now());
+//                    }
+//                });
 //            }
-
-            if (promocion.getPromocionesDetalle() != null) {
-                promocion.getPromocionesDetalle().forEach(detalle -> {
-                    if (detalle.getPromocion() == null){
-                        detalle.setPromocion(promocion);
-                        detalle.setFechaModificacion(LocalDateTime.now());
-                    }
-                });
-            }
-
-            if (promocion.getPedidosVentaDetalle() != null) {
-                promocion.getPedidosVentaDetalle().forEach(pedidoVenta -> {
-                    if (pedidoVenta.getPromocion() == null){
-                        pedidoVenta.setPromocion(promocion);
-                        pedidoVenta.setFechaModificacion(LocalDateTime.now());
-                    }
-                });
-            }
-
-            promocion.setFechaModificacion(LocalDateTime.now());
-            var savedPromocion = promocionRepository.save(promocion);
 
             if (imagenes != null && !imagenes.isEmpty()) {
                 // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
@@ -319,10 +258,17 @@ public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> impl
                 }
                 promocionExistente.getImagenes().addAll(imagenesGuardadas);
             }
+            else {
+                List<Imagen> auxImg = promocionExistente.getImagenes();
+                promocionExistente = promocion;
+                promocionExistente.setImagenes(auxImg);
+            }
+
+            promocionExistente.setFechaModificacion(LocalDateTime.now());
+            promocionExistente = promocionRepository.save(promocionExistente);
 
 
-
-            return savedPromocion;
+            return promocionExistente;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -358,10 +304,31 @@ public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> impl
     }
 
     @Transactional
-    public void darDeAlta(Long id) {
-        Promocion articulo = promocionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Promocion no encontrada"));
-        articulo.setFechaBaja(null);
-        promocionRepository.save(articulo);
+    public void darDeAlta(Long id) throws Exception{
+        try {
+            Promocion promocion = promocionRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Promocion no encontrada"));
+            promocion.setFechaBaja(null);
+
+            promocion.getImagenes().forEach(imagen -> {
+                var imagenExistente = imagenService.findById(imagen.getId());
+                imagenExistente.setFechaBaja(null);
+                imagenRepository.save(imagenExistente);
+            });
+
+            promocion.getPromocionesDetalle().forEach(detalle -> {
+                PromocionDetalle detalleExistente = null;
+                try {
+                    detalleExistente = detalleService.findById(detalle.getId());
+                } catch (Exception e) {
+                    throw new RuntimeException(e.getMessage());
+                }
+                detalleExistente.setFechaBaja(null);
+                detalleRepository.save(detalleExistente);
+            });
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
