@@ -20,4 +20,12 @@ public interface ImagenRepository extends JpaRepository<Imagen, Long> {
     @Transactional
     @Query("DELETE FROM Imagen i WHERE i.articuloManufacturado.id = :articuloId")
     void deleteByArticuloManufacturadoId(@Param("articuloId") Long articuloId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Imagen i WHERE i.promocion.id = :promocionId")
+    void deleteByPromocionId(@Param("promocionId") Long promocionId);
+
+     @Query("SELECT i FROM Imagen i WHERE i.id = :id AND i.fechaBaja IS NOT NULL")
+     Optional<Imagen> findByIdAndFechaBajaIsNotNull(@Param("id") Long id);
 }

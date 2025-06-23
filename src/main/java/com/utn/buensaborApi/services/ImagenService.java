@@ -127,6 +127,18 @@ public class ImagenService {
         imagenRepository.save(imagen);
     }
 
+    //Eliminado lógico
+    @Transactional
+    public void deletePromocion(Long id) throws Exception{
+        try {
+            Optional<Imagen> imagenOptional = imagenRepository.findByIdAndFechaBajaIsNotNull(id);
+            Imagen imagen = imagenOptional.get();
+            imagenRepository.save(imagen);
+        } catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
     //Obtener datos de la imagen
     public byte[] getImageData(String fileName) throws IOException {
         if (fileName == null || fileName.trim().isEmpty()) {

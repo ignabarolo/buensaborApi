@@ -27,6 +27,9 @@ dependencies {
 	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3'
 
+	// Manejo de fechas en formato json para Promociones
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+
 	// MySQL
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	runtimeOnly 'com.mysql:mysql-connector-j'
