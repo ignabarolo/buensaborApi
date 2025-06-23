@@ -121,6 +121,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         try {
             PedidoVenta entity = mapper.toEntity(pedidoVentadto);
 
+            // ASIGNO ESTADO DETERMINADO
+            entity.setEstado(Estado.PENDIENTE);
+
             // Establecer fecha alta
             LocalDateTime fechaAhora = LocalDateTime.now();
             entity.setFechaAlta(fechaAhora);
