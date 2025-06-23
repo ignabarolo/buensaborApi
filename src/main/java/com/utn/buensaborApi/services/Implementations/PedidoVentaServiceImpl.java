@@ -1,23 +1,17 @@
 package com.utn.buensaborApi.services.Implementations;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.utn.buensaborApi.Utils.ServicesUtils;
+import com.utn.buensaborApi.Utils.MailService;
 import com.utn.buensaborApi.enums.Estado;
-import com.utn.buensaborApi.enums.FormaPago;
 import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDetalleDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
-import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
-import com.utn.buensaborApi.models.Dtos.Pedido.SucursalDto;
+
 import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
 import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
-import com.utn.buensaborApi.services.ClienteService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
@@ -35,14 +29,9 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     @Autowired
     private PedidoVentaRepository pedidoVentaRepository;
 
-    @Autowired
-    private ServicesUtils servicesUtils;
 
     @Autowired
     private PedidoVentaMapper mapper;
-
-    @Autowired
-    private ClienteService clienteService;
 
     @Autowired
     private FacturaService facturaService;
@@ -62,8 +51,15 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     @Autowired
     private ArticuloManufacturadoRepository articuloManufacturadoRepository;
 
+
+    @Autowired
+    private PedidoVentaMapper pedidoVentaMapper;
+
     @Autowired
     private PromocionRepository promocionRepository;
+
+    @Autowired
+    private MailService mailService;
 
     public PedidoVentaServiceImpl(BaseRepository<PedidoVenta, Long> baseRepository) { super(baseRepository );
     }
@@ -358,12 +354,82 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     public PedidoVenta cambiarEstado(Long id, Estado nuevoEstado) {
         PedidoVenta pedido = baseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        // Guardar el estado anterior para verificar si es un cambio a ENTREGADO
+        Estado estadoAnterior = pedido.getEstado();
+
+        // Actualizar el estado
         pedido.setEstado(nuevoEstado);
-        return baseRepository.save(pedido);
+        PedidoVenta pedidoActualizado = baseRepository.save(pedido);
+
+        // Si el nuevo estado es ENTREGADO, enviar la factura por correo
+        if (nuevoEstado == Estado.ENTREGADO && nuevoEstado != estadoAnterior) {
+            try {
+                Cliente cliente = pedido.getCliente();
+                // Verificar que el cliente tenga email
+                if (cliente != null && cliente.getEmail() != null && !cliente.getEmail().isEmpty()) {
+                    // Obtener la factura asociada al pedido
+                    if (pedido.getFacturas() != null && !pedido.getFacturas().isEmpty()) {
+                        Factura factura = pedido.getFacturas().get(0); // Tomamos la primera factura
+
+                        // Enviar la factura por correo electrónico
+                        mailService.enviarFacturaEmail(factura);
+
+                        System.out.println("Factura enviada por correo a: " + cliente.getEmail());
+                    }
+                }
+            } catch (Exception e) {
+                // Registrar el error pero permitir que la operación continúe
+                System.err.println("Error al enviar la factura por correo: " + e.getMessage());
+                // No lanzamos la excepción para evitar que falle la actualización del estado
+            }
+        }
+
+        return pedidoActualizado;
     }
 
     // GET de PedidoVenta para DELIVERY
     public List<PedidoVenta> obtenerPedidosEnDelivery() {
         return pedidoVentaRepository.findByEstadoConCliente(Estado.EN_DELIVERY);
     }
+
+    // GET de PedidoVenta para COCINERO
+    public List<PedidoVentaDto> obtenerPedidosEnCocinero() {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        int cocineros = 3;
+
+        for (PedidoVenta pedido : pedidos) {
+            pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+        }
+
+        return pedidos.stream()
+                .map(pedidoVentaMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    // Agregar minutos desde COCINERO
+    public void agregarMinutosExtra(Long pedidoId, int minutosExtra) {
+        PedidoVenta pedido = pedidoVentaRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        int minutos = pedido.getMinutosExtra() != null ? pedido.getMinutosExtra() : 0;
+        pedido.setMinutosExtra(minutos + minutosExtra);
+
+        // Recalcular la hora estimada
+        int cocineros = 3; // o configurable
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.PREPARACION);
+        pedido.setHoraEstimadaEntrega(pedido.calcularHoraEstimadaEntrega(pedidos, cocineros));
+
+        pedidoVentaRepository.save(pedido);
+    }
+
+    public PedidoVenta marcarPedidoListo(Long id) {
+        PedidoVenta pedido = baseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+        if (pedido.getTipoEnvio() == TipoEnvio.DELIVERY) {
+            pedido.setEstado(Estado.EN_DELIVERY);  // Para delivery
+        } else {
+            pedido.setEstado(Estado.LISTO);        // Para otros tipos
+        }
+        return baseRepository.save(pedido);
+    }
+
 }

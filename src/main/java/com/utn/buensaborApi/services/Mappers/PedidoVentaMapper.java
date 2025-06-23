@@ -14,14 +14,14 @@ import org.mapstruct.SubclassMapping;
 @Mapper(componentModel = "spring", uses = {FacturaMapper.class})
 public interface PedidoVentaMapper {
 
-//    PedidoVenta toEntity(PedidoVentaDto dto);
-//
-//    PedidoVentaDto toDto(PedidoVenta entity);
-
-    @Mapping(source = "facturas", target = "factura")
+    @Mapping(source = "horaEstimadaEntrega", target = "horaEstimadaEntrega")
+    @Mapping(source = "minutosExtra", target = "minutosExtra")
+    @Mapping(source = "facturas", target = "facturas")
     PedidoVentaDto toDto(PedidoVenta entity);
 
-    @Mapping(source = "factura", target = "facturas")
+    @Mapping(source = "horaEstimadaEntrega", target = "horaEstimadaEntrega")
+    @Mapping(source = "minutosExtra", target = "minutosExtra")
+    @Mapping(source = "facturas", target = "facturas")
     PedidoVenta toEntity(PedidoVentaDto dto);
 //
 //    // ESTO ES LO CRUCIAL:
@@ -29,7 +29,7 @@ public interface PedidoVentaMapper {
 //    // y usa @SubclassMapping para indicar las subclases.
 //    @SubclassMapping(source = ArticuloManufacturadoDto.class, target = ArticuloManufacturado.class)
 //    @SubclassMapping(source = ArticuloInsumoDto.class, target = ArticuloInsumo.class)
-//    Articulo toArticulo(ArticuloManufacturadoDto dto); // Este método manejará el mapeo polimórfico
+//    Articulo toArticulo(ArticuloManufacturadoDto dto); // Este metodo manejará el mapeo polimórfico
 //
 //    // Y necesitas mapeos específicos para las subclases, ya que MapStruct
 //    // los usará cuando la discriminación de @SubclassMapping determine el tipo.
@@ -39,5 +39,5 @@ public interface PedidoVentaMapper {
 //    // Asegúrate de que, si tienes ArticuloManufacturadoDetalleDto,
 //    // este también esté mapeado si contiene ArticuloInsumoDto
 //    // (y si necesitas mapearlo a una entidad ArticuloManufacturadoDetalle)
-//    // PedidoVentaDetalle toPedidoVentaDetalle(PedidoVentaDetalleDto dto); // Si este método existe y maneja el ArticuloManufacturadoDto
+//    // PedidoVentaDetalle toPedidoVentaDetalle(PedidoVentaDetalleDto dto); // Si este metodo existe y maneja el ArticuloManufacturadoDto
 }

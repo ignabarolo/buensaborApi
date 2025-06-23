@@ -28,6 +28,10 @@ public class PedidoVentaDto extends BaseEntity {
     private Double totalCosto;
     private Double totalVenta;
 
+    private LocalTime horaEstimadaEntrega;
+
+    private Integer minutosExtra;
+
     private Cliente cliente;
 
     private DomicilioDto domicilio;
@@ -54,5 +58,5 @@ public class PedidoVentaDto extends BaseEntity {
         return 0D;
     }
 
-    private List<FacturaDto> factura;
+    private List<FacturaDto> facturas;
 }

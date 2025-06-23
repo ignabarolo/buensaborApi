@@ -273,4 +273,61 @@ public class PdfService {
 
         document.close();
     }
+
+    public byte[] generarNotaCreditoPdf(Factura factura) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc);
+
+        // Agregar encabezado con datos de la empresa
+        agregarEncabezadoEmpresa(document, factura.getSucursal());
+
+        // Encabezado especial para nota de crédito
+        Paragraph notaCreditoTitle = new Paragraph("NOTA DE CRÉDITO")
+                .setBold()
+                .setFontSize(18)
+                .setTextAlignment(TextAlignment.CENTER);
+        document.add(notaCreditoTitle);
+
+        // Mostrar número de comprobante de referencia (el positivo)
+        int nroFacturaOriginal = Math.abs(factura.getNroComprobante());
+        Paragraph referenciaFactura = new Paragraph("Referencia a factura número: " + nroFacturaOriginal)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER);
+        document.add(referenciaFactura);
+
+        document.add(new Paragraph(" "));
+
+        // Agregar información de la nota de crédito (sin título "FACTURA")
+        agregarInformacionNotaCredito(document, factura);
+
+        // Agregar datos del cliente
+        agregarDatosCliente(document, factura.getCliente());
+
+        // Agregar detalle del pedido
+        agregarDetallePedido(document, factura.getPedidoVenta());
+
+        // Agregar resumen y totales
+        agregarResumen(document, factura);
+
+        document.close();
+        return baos.toByteArray();
+    }
+
+    private void agregarInformacionNotaCredito(Document document, Factura factura) {
+        Table table = new Table(UnitValue.createPercentArray(new float[]{50, 50}));
+        table.setWidth(UnitValue.createPercentValue(100));
+
+        // Mostrar NC antes del número de comprobante
+        String nroComprobante = "NC" + Math.abs(factura.getNroComprobante());
+        Cell cell1 = new Cell().add(new Paragraph("Nº Comprobante: " + nroComprobante).setBold());
+        Cell cell2 = new Cell().add(new Paragraph("Fecha: " + factura.getFechaFacturacion().format(DATE_FORMATTER)).setBold());
+
+        table.addCell(cell1);
+        table.addCell(cell2);
+
+        document.add(table);
+        document.add(new Paragraph(" "));
+    }
 }
