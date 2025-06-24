@@ -64,7 +64,18 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
-
+    @GetMapping("/pedido/{id}")
+    public ResponseEntity<PedidoVentaDto> obtenerPedidoDtoPorId(@PathVariable Long id) {
+        try {
+            PedidoVentaDto pedidoDto = pedidoVentaServiceImpl.obtenerPedidoDtoPorId(id);
+            return ResponseEntity.ok(pedidoDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error al obtener pedido con ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @GetMapping("/pedidos/cliente/{idCliente}")
     public ResponseEntity<List<PedidoVentaDto>> pedidosPorCliente(@PathVariable Long idCliente) {
         return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorCliente(idCliente));

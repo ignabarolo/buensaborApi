@@ -96,6 +96,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         }
     }
 
+    public PedidoVentaDto obtenerPedidoDtoPorId(Long id) {
+        PedidoVenta pedido = pedidoVentaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el pedido con ID: " + id));
+        return mapper.toDto(pedido);
+    }
+
     public List<PedidoVentaDto> obtenerPedidosPorCliente(Long clienteId) {
         List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteId(clienteId);
         return pedidos.stream().map(mapper::toDto).toList();
