@@ -391,8 +391,11 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
     // GET de PedidoVenta para DELIVERY
-    public List<PedidoVenta> obtenerPedidosEnDelivery() {
-        return pedidoVentaRepository.findByEstadoConCliente(Estado.EN_DELIVERY);
+    public List<PedidoVentaDto> obtenerPedidosEnDelivery() {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.EN_DELIVERY);
+        return pedidos.stream()
+                .map(pedidoVentaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     // GET de PedidoVenta para COCINERO
