@@ -106,5 +106,27 @@ public class Auth0Service {
         .block();
     }
 }
+public void actualizarEmailYNombre(String userId, String nuevoEmail, String nuevoNombre) {
+    String token = obtenerToken();
+
+    JSONObject body = new JSONObject();
+    body.put("email", nuevoEmail);
+    body.put("name", nuevoNombre); // Nombre visible en Auth0
+    body.put("verify_email", true);
+
+    JSONObject userMetadata = new JSONObject();
+    userMetadata.put("nombre", nuevoNombre);
+    body.put("user_metadata", userMetadata); // Si usás metadata también
+
+    webClient.patch()
+            .uri(domain + "/api/v2/users/" + userId)
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(body.toString())
+            .retrieve()
+            .toBodilessEntity()
+            .block();
+}
+
 
 }

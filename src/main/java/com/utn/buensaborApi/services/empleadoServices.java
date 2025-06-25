@@ -68,59 +68,72 @@ public class empleadoServices {
         }
     }
 
-    public Empleado actualizarEmpleado(Long id, EmpleadoDTO dto) {
-        Empleado empleadoExistente = empleadoRepository.findById(id).orElse(null);
-        if (empleadoExistente != null) {
-            empleadoExistente.setNombre(dto.getNombre());
-            empleadoExistente.setApellido(dto.getApellido());
-            empleadoExistente.setTelefono(dto.getTelefono());
+   public Empleado actualizarEmpleado(Long id, EmpleadoDTO dto) {
+    Empleado empleadoExistente = empleadoRepository.findById(id).orElse(null);
+    if (empleadoExistente != null) {
+        empleadoExistente.setNombre(dto.getNombre());
+        empleadoExistente.setApellido(dto.getApellido());
+        empleadoExistente.setTelefono(dto.getTelefono());
+
+        // Solo si cambió el email
+        if (!empleadoExistente.getEmail().equals(dto.getEmail())) {
             empleadoExistente.setEmail(dto.getEmail());
 
-            // Actualizar rol en la entidad y en Auth0 si cambió
-            Rol rolAnterior = empleadoExistente.getRol();
-            Rol nuevoRol = dto.getRol();
+            // Actualizar email en Usuario
+            Usuario usuario = empleadoExistente.getUsuario();
+            usuario.setNombreUsuario(dto.getEmail());
+            usuarioRepository.save(usuario);
 
-            if (!rolAnterior.equals(nuevoRol)) {
-                empleadoExistente.setRol(nuevoRol);
-                String auth0Id = empleadoExistente.getUsuario().getAuth0id();
-                String nuevoRolId = auth0RolesMap.get(nuevoRol);
-
-                // Remover roles anteriores y asignar el nuevo
-                auth0Service.removerTodosLosRoles(auth0Id);
-                auth0Service.asignarRol(auth0Id, nuevoRolId);
-            }
-
-            // Actualizar domicilio (nuevo o existente)
-            Domicilio domicilio = empleadoExistente.getDomicilio();
-            if (domicilio == null) {
-                domicilio = new Domicilio();
-            }
-            domicilio.setCalle(dto.getDomicilio().getCalle());
-            domicilio.setNumero(dto.getDomicilio().getNumero());
-            domicilio.setCodigoPostal(dto.getDomicilio().getCodigoPostal());
-            domicilio.setLocalidad(
-                localidadRepository.findById(dto.getDomicilio().getIdLocalidad())
-                    .orElseThrow(() -> new RuntimeException("Localidad no encontrada"))
-            );
-            domicilio = domicilioRepository.save(domicilio);
-            empleadoExistente.setDomicilio(domicilio);
-
-            // Actualizar sucursal
-            empleadoExistente.setSucursal(
-                sucursalRepository.findById(dto.getSucursalId())
-                    .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"))
-            );
-
-            // Actualizar contraseña si viene en el DTO
-            if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-                String encodedPassword = passwordEncoder.encode(dto.getPassword());
-                empleadoExistente.setPassword(encodedPassword);
-            }
-
-            return empleadoRepository.save(empleadoExistente);
+            // Actualizar email en Auth0
+            String auth0Id = usuario.getAuth0id();
+            auth0Service.actualizarEmailYNombre(auth0Id, dto.getEmail(), dto.getNombre());
         }
-        return null;
+
+        // Actualizar rol si cambió
+        Rol rolAnterior = empleadoExistente.getRol();
+        Rol nuevoRol = dto.getRol();
+        if (!rolAnterior.equals(nuevoRol)) {
+            empleadoExistente.setRol(nuevoRol);
+            String auth0Id = empleadoExistente.getUsuario().getAuth0id();
+            String nuevoRolId = auth0RolesMap.get(nuevoRol);
+
+            auth0Service.removerTodosLosRoles(auth0Id);
+            auth0Service.asignarRol(auth0Id, nuevoRolId);
+        }
+
+        // Domicilio
+        Domicilio domicilio = empleadoExistente.getDomicilio();
+        if (domicilio == null) {
+            domicilio = new Domicilio();
+        }
+
+        domicilio.setCalle(dto.getDomicilio().getCalle());
+        domicilio.setNumero(dto.getDomicilio().getNumero());
+        domicilio.setCodigoPostal(dto.getDomicilio().getCodigoPostal());
+        domicilio.setLocalidad(
+            localidadRepository.findById(dto.getDomicilio().getIdLocalidad())
+                .orElseThrow(() -> new RuntimeException("Localidad no encontrada"))
+        );
+        domicilio = domicilioRepository.save(domicilio);
+        empleadoExistente.setDomicilio(domicilio);
+
+        // Sucursal
+        empleadoExistente.setSucursal(
+            sucursalRepository.findById(dto.getSucursalId())
+                .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"))
+        );
+
+        // Contraseña opcional
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            String encodedPassword = passwordEncoder.encode(dto.getPassword());
+            empleadoExistente.setPassword(encodedPassword);
+        }
+
+        return empleadoRepository.save(empleadoExistente);
     }
+    return null;
+}
+
 
    public Empleado crearEmpleadoConAuth0(EmpleadoDTO dto) {
     try {
