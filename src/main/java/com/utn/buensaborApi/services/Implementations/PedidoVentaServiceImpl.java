@@ -4,14 +4,18 @@ import com.utn.buensaborApi.Utils.MailService;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
+import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDetalleDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
 
+import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDetalleDto;
+import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
 import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
 import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
 import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,8 +102,22 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
     public PedidoVentaDto obtenerPedidoDtoPorId(Long id) {
         PedidoVenta pedido = pedidoVentaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No se encontró el pedido con ID: " + id));
-        return mapper.toDto(pedido);
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con ID: " + id));
+
+        PedidoVentaDto pedidoDto = mapper.toDto(pedido);
+
+        // Cargar detalles de promociones para cada detalle del pedido
+        if (pedidoDto.getPedidosVentaDetalle() != null) {
+            for (PedidoVentaDetalleDto detalle : pedidoDto.getPedidosVentaDetalle()) {
+                if (detalle.getPromocion() != null && detalle.getPromocion().getId() > 0) {
+                    // Buscar la promoción completa con sus detalles
+                    PromocionDto promocionCompleta = getPromocionCompleta(detalle.getPromocion().getId());
+                    detalle.setPromocion(promocionCompleta);
+                }
+            }
+        }
+
+        return pedidoDto;
     }
 
     public List<PedidoVentaDto> obtenerPedidosPorCliente(Long clienteId) {
@@ -442,6 +460,32 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
             pedido.setEstado(Estado.LISTO);        // Para otros tipos
         }
         return baseRepository.save(pedido);
+    }
+
+    private PromocionDto getPromocionCompleta(int promocionId) {
+        // Implementa la lógica para obtener la promoción con todos sus detalles
+        Promocion promocion = promocionRepository.findById((long) promocionId)
+                .orElseThrow(() -> new EntityNotFoundException("Promoción no encontrada con ID: " + promocionId));
+
+        // Convertir a DTO incluyendo los detalles
+        PromocionDto promocionDto = new PromocionDto();
+        promocionDto.setDenominacion(promocion.getDenominacion());
+        promocionDto.setDescripcion(promocion.getDescripcion());
+        promocionDto.setDescuento(promocion.getDescuento());
+
+        // Cargar los detalles de la promoción
+        List<PromocionDetalleDto> detallesDto = promocion.getPromocionesDetalle().stream()
+                .map(detalle -> {
+                    PromocionDetalleDto detalleDto = new PromocionDetalleDto();
+                    detalleDto.setCantidad(detalle.getCantidad());
+                    detalleDto.setArticulo(detalle.getArticulo());
+                    return detalleDto;
+                })
+                .collect(Collectors.toList());
+
+        promocionDto.setPromocionesDetalle(detallesDto);
+
+        return promocionDto;
     }
 
 }
