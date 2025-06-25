@@ -96,6 +96,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         }
     }
 
+    public PedidoVentaDto obtenerPedidoDtoPorId(Long id) {
+        PedidoVenta pedido = pedidoVentaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el pedido con ID: " + id));
+        return mapper.toDto(pedido);
+    }
+
     public List<PedidoVentaDto> obtenerPedidosPorCliente(Long clienteId) {
         List<PedidoVenta> pedidos = pedidoVentaRepository.findByClienteId(clienteId);
         return pedidos.stream().map(mapper::toDto).toList();
@@ -391,8 +397,11 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
     }
 
     // GET de PedidoVenta para DELIVERY
-    public List<PedidoVenta> obtenerPedidosEnDelivery() {
-        return pedidoVentaRepository.findByEstadoConCliente(Estado.EN_DELIVERY);
+    public List<PedidoVentaDto> obtenerPedidosEnDelivery() {
+        List<PedidoVenta> pedidos = pedidoVentaRepository.findByEstado(Estado.EN_DELIVERY);
+        return pedidos.stream()
+                .map(pedidoVentaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     // GET de PedidoVenta para COCINERO

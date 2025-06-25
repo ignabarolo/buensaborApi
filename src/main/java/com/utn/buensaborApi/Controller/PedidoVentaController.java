@@ -64,7 +64,18 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
                     .body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
-
+    @GetMapping("/pedido/{id}")
+    public ResponseEntity<PedidoVentaDto> obtenerPedidoDtoPorId(@PathVariable Long id) {
+        try {
+            PedidoVentaDto pedidoDto = pedidoVentaServiceImpl.obtenerPedidoDtoPorId(id);
+            return ResponseEntity.ok(pedidoDto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error al obtener pedido con ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @GetMapping("/pedidos/cliente/{idCliente}")
     public ResponseEntity<List<PedidoVentaDto>> pedidosPorCliente(@PathVariable Long idCliente) {
         return ResponseEntity.ok(pedidoVentaServiceImpl.listarPedidosDtoPorCliente(idCliente));
@@ -83,7 +94,7 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
 
     // GET PedidoVenta para DELIVERY
     @GetMapping("/delivery")
-    public ResponseEntity<List<PedidoVenta>> getPedidosEnDelivery() {
+    public ResponseEntity<List<PedidoVentaDto>> getPedidosEnDelivery() {
         return ResponseEntity.ok(pedidoVentaServiceImpl.obtenerPedidosEnDelivery());
     }
 
@@ -128,8 +139,16 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
     public ResponseEntity<?> cambiarEstado(
             @PathVariable Long id,
             @RequestBody Estado nuevoEstado) {
-        PedidoVenta pedidoActualizado = pedidoVentaServiceImpl.cambiarEstado(id, nuevoEstado);
-        return ResponseEntity.ok(pedidoActualizado);
+        logger.info("Cambiando estado del pedido ID: {} al estado: {}", id, nuevoEstado);
+        try {
+            PedidoVenta pedidoActualizado = pedidoVentaServiceImpl.cambiarEstado(id, nuevoEstado);
+            logger.info("Pedido ID: {} actualizado exitosamente al estado: {}", id, nuevoEstado);
+            return ResponseEntity.ok(pedidoActualizado);
+        } catch (Exception e) {
+            logger.error("Error al cambiar estado del pedido ID: {} al estado: {}. Error: {}", id, nuevoEstado, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 
     @PatchMapping("/{id}/minutos-extra")
