@@ -3,13 +3,16 @@ package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.Dtos.domicilioDTO;
 import com.utn.buensaborApi.Dtos.putClienteDTO;
+import com.utn.buensaborApi.corsConfiguration.Auth0Service;
 import com.utn.buensaborApi.models.Cliente;
 import com.utn.buensaborApi.models.Domicilio;
 import com.utn.buensaborApi.models.Localidad;
 import com.utn.buensaborApi.models.Dtos.Pedido.ClientePedidoDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.DomicilioDto;
 import com.utn.buensaborApi.models.Dtos.Pedido.LocalidadDto;
+import com.utn.buensaborApi.models.Usuario;
 import com.utn.buensaborApi.repositories.clienteRepository;
+import com.utn.buensaborApi.repositories.usuarioRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +22,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ClienteService {
+     @Autowired
+      private Auth0Service auth0Service;
+
+@Autowired
+private usuarioRepository usuarioRepository;
+
      @Autowired
      private clienteRepository clienteRepository;
      
@@ -47,7 +56,7 @@ public class ClienteService {
     }
 
 
-  public Cliente actualizar(Long id, putClienteDTO dto) {
+public Cliente actualizar(Long id, putClienteDTO dto) {
     Cliente clienteExistente = clienteRepository.findById(id).orElse(null);
     if (clienteExistente != null) {
         clienteExistente.setNombre(dto.getNombre());
@@ -55,6 +64,16 @@ public class ClienteService {
         clienteExistente.setTelefono(dto.getTelefono());
         clienteExistente.setEmail(dto.getEmail());
         clienteExistente.setFechaDeNacimiento(dto.getFechaDeNacimiento());
+
+        // 👉 ACTUALIZAR USUARIO Y AUTH0
+        Usuario usuario = clienteExistente.getUsuario();
+        if (usuario != null) {
+            usuario.setNombreUsuario(dto.getEmail());
+            usuarioRepository.save(usuario);
+
+            // Actualizar en Auth0 también
+            auth0Service.actualizarEmailYNombre(usuario.getAuth0id(), dto.getEmail(), dto.getNombre());
+        }
 
         // Domicilio
         domicilioDTO domicilioDto = dto.getDomicilio();
@@ -70,10 +89,16 @@ public class ClienteService {
 
         clienteExistente.setDomicilio(domicilio);
         clienteExistente.setFechaModificacion(LocalDateTime.now());
+
         return clienteRepository.save(clienteExistente);
     }
     return null;
 }
+public Cliente obtenerPorAuth0Id(String auth0Id) {
+    return clienteRepository.findByUsuario_Auth0id(auth0Id).orElse(null);
+}
+
+
     public Cliente obtenerPorEmail(String email) {
     return clienteRepository.findByEmail(email).orElse(null);
 }

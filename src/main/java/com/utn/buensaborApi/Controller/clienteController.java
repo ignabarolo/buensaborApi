@@ -35,6 +35,16 @@ public class clienteController {
     public ResponseEntity<List<Cliente>> listarTodosLosClientes() {
         return ResponseEntity.ok(clienteServices.listarTodos());
     }
+    @GetMapping("/auth0/{auth0Id}")
+public ResponseEntity<Cliente> obtenerPorAuth0Id(@PathVariable String auth0Id) {
+    Cliente cliente = clienteServices.obtenerPorAuth0Id(auth0Id);
+    if (cliente != null) {
+        return ResponseEntity.ok(cliente);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> obtenerClientePorId(@PathVariable Long id) {
