@@ -40,6 +40,17 @@ public class ArticuloManufacturadoController {
         }
     }
 
+    @GetMapping("/todos/activos")
+    public ResponseEntity<?> obtenerTodosActivos() {
+        try {
+            List<ArticuloManufacturadoDto> articulos = articuloManufacturadoService.obtenerTodosActivos();
+            return ResponseEntity.ok(articulos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/todos")
     public ResponseEntity<?> obtenerTodosIncluyendoDadosDeBaja() {
         try {

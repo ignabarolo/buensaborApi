@@ -221,23 +221,23 @@ public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> impl
             var promocion = mapper.toEntity(entity);
 
 
-//            if (savedPromocion.getPromocionesDetalle() != null) {
-//                savedPromocion.getPromocionesDetalle().forEach(detalle -> {
-//                    if (detalle.getPromocion() == null){
-//                        detalle.setPromocion(promocion);
-//                        detalle.setFechaModificacion(LocalDateTime.now());
-//                    }
-//                });
-//            }
-//
-//            if (savedPromocion.getPedidosVentaDetalle() != null) {
-//                savedPromocion.getPedidosVentaDetalle().forEach(pedidoVenta -> {
-//                    if (pedidoVenta.getPromocion() == null){
-//                        pedidoVenta.setPromocion(promocion);
-//                        pedidoVenta.setFechaModificacion(LocalDateTime.now());
-//                    }
-//                });
-//            }
+            if (promocion.getPromocionesDetalle() != null) {
+                promocion.getPromocionesDetalle().forEach(detalle -> {
+                    if (detalle.getPromocion() == null){
+                        detalle.setPromocion(promocion);
+                        detalle.setFechaModificacion(LocalDateTime.now());
+                    }
+                });
+            }
+
+            if (promocion.getPedidosVentaDetalle() != null) {
+                promocion.getPedidosVentaDetalle().forEach(pedidoVenta -> {
+                    if (pedidoVenta.getPromocion() == null){
+                        pedidoVenta.setPromocion(promocion);
+                        pedidoVenta.setFechaModificacion(LocalDateTime.now());
+                    }
+                });
+            }
 
             if (imagenes != null && !imagenes.isEmpty()) {
                 // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
