@@ -27,7 +27,6 @@ public class ArticuloManufacturadoService {
     private final ImagenService imagenService;
     private final ImagenRepository imagenRepository;
     private final ArticuloInsumoService articuloInsumoService;
-    private final CategoriaArticuloRepository categoriaArticuloRepository;
     private final SucursalEmpresaRepository sucursalEmpresaRepository;
 
     @Autowired
@@ -39,6 +38,12 @@ public class ArticuloManufacturadoService {
     @Transactional(readOnly = true)
     public List<ArticuloManufacturadoDto> obtenerTodosConDetalles() {
         List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAll();
+        return articulos.stream().map(this::convertirADto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArticuloManufacturadoDto> obtenerTodosActivos() {
+        List<ArticuloManufacturado> articulos = articuloManufacturadoRepository.findAllByFechaBajaIsNull();
         return articulos.stream().map(this::convertirADto).toList();
     }
 

@@ -37,6 +37,11 @@ public class ArticuloInsumoService {
             .toList();
     }
 
+    public List<ArticuloInsumoDto> listarTodosActivos() {
+        return articuloInsumoRepository.findByEsParaElaborarFalseAndFechaBajaIsNull().stream()
+            .map(mapper::toDto)
+            .toList();
+    }
 
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
         return articuloInsumoRepository.findByIdWithDetails(id)

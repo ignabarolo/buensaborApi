@@ -29,6 +29,16 @@ public class ArticuloInsumoController {
         }
     }
 
+    @GetMapping("/todos/activos")
+    public ResponseEntity<?> listarTodosLosArticulosInsumoActivos() {
+        try {
+            var insumos = articuloInsumoService.listarTodosActivos();
+            return ResponseEntity.ok(insumos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> mostrarArticuloInsumoPorId(@PathVariable Long id) {
         try {

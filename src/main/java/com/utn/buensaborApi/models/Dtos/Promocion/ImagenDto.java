@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class ImagenDto extends BaseEntity {
     private Long id;
-    private String denominacion;
+    private String nombre;
 }
