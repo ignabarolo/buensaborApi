@@ -106,7 +106,8 @@ public class ArticuloInsumoService {
                     stock.setFechaAlta(LocalDateTime.now());
                 }
                 stock.setArticuloInsumo(articuloInsumo);
-                sucursalInsumoRepository.save(stock);
+                stock.setSucursal(sucursalEmpresaRepository.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1")));                sucursalInsumoRepository.save(stock);
             });
         }
         return articuloInsumoRepository.save(articuloInsumo);
