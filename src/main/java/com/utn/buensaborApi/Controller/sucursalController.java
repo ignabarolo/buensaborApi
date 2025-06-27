@@ -2,6 +2,7 @@ package com.utn.buensaborApi.Controller;
 
 
 
+import com.utn.buensaborApi.models.Dtos.Sucursal.SucursalDto;
 import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.services.sucursalServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,15 @@ public class sucursalController {
     private sucursalServices sucursalServices;
 
     @GetMapping
-    public ResponseEntity<List<SucursalEmpresa>> listarTodasLasSucursales() {
-        return ResponseEntity.ok(sucursalServices.listarTodos());
+    public ResponseEntity<List<SucursalDto>> listarTodasLasSucursales() {
+        return ResponseEntity.ok(sucursalServices.listarTodosDto());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SucursalEmpresa> obtenerSucursalPorId(@PathVariable Long id) {
-        SucursalEmpresa sucursal = sucursalServices.obtenerPorId(id);
-        if (sucursal != null) {
-            return ResponseEntity.ok(sucursal);
+    public ResponseEntity<SucursalDto> obtenerSucursalPorId(@PathVariable Long id) {
+        SucursalDto sucursalDto = sucursalServices.obtenerDtoPorId(id);
+        if (sucursalDto != null) {
+            return ResponseEntity.ok(sucursalDto);
         } else {
             return ResponseEntity.notFound().build();
         }
