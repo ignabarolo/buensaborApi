@@ -31,7 +31,8 @@ public class CategoriaArticuloController {
     @GetMapping("/menu/abm/{sucursalId}")
     public ResponseEntity<?> listarCategoriasMenuConBajas(@PathVariable Long sucursalId) {
         try {
-            return ResponseEntity.ok(categoriaService.obtenerCategoriasMenuConBajas(sucursalId));
+            var res = categoriaService.obtenerCategoriasMenuConBajas(sucursalId);
+            return ResponseEntity.ok(res);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -67,7 +68,7 @@ public class CategoriaArticuloController {
         }
     }
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<?> crearCategoria(@RequestBody CategoriaArticuloDto dto) {
         try {
             // Validar datos mínimos
@@ -110,7 +111,7 @@ public class CategoriaArticuloController {
                         .body("Ya existe una categoría activa con esa denominación en esta sucursal.");
             }
 
-            CategoriaArticulo nuevaCategoria = categoriaService.guardarCategoria(categoria);
+            CategoriaArticulo nuevaCategoria = categoriaService.guardarCategoria(categoria, dto.getCategoriaInsumo());
             System.out.println("Categoria guardada con id: " + nuevaCategoria.getId());
 
             System.out.println("=== crearCategoria - Fin ===");

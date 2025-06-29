@@ -70,5 +70,4 @@ public interface CategoriaArticuloRepository extends JpaRepository<CategoriaArti
 
     @Query("SELECT c FROM CategoriaArticulo c WHERE c.denominacion = 'Menu' AND c.sucursal.id = :sucursalId AND c.fechaBaja IS NULL")
     Optional<CategoriaArticulo> findMenuPadreBySucursal(@Param("sucursalId") Long sucursalId);
-
 }

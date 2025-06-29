@@ -52,7 +52,7 @@ public class CategoriaArticuloService {
         return categoriaRepository.findAllInsumosCategoriesWithDetails(sucursalId);
     }
 
-    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria) {
+    public CategoriaArticulo guardarCategoria(CategoriaArticulo categoria, boolean esCategoriaInsumo) {
         if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
             throw new RuntimeException("Sucursal es obligatoria");
         }
@@ -88,7 +88,14 @@ public class CategoriaArticuloService {
         if (existe) {
             throw new RuntimeException("Ya existe una categoría activa con esa denominación.");
         }
+
+        if (!esCategoriaInsumo){
+            var categoriaMenu = categoriaRepository.findMenuPadreBySucursal(1L).get();
+            categoria.setCategoriaPadre(categoriaMenu);
+        }
+
         categoria.setFechaAlta(LocalDateTime.now());
+        categoria.setFechaModificacion(LocalDateTime.now());
         return categoriaRepository.save(categoria);
     }
 

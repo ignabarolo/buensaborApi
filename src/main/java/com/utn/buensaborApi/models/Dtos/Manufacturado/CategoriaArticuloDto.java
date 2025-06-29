@@ -16,4 +16,9 @@ public class CategoriaArticuloDto {
     private Long categoriaPadreId;
     private Long sucursalId;
     private LocalDateTime fechaBaja;
+    private boolean CategoriaInsumo;
+
+    public boolean getCategoriaInsumo() {
+        return CategoriaInsumo;
+    }
 }
