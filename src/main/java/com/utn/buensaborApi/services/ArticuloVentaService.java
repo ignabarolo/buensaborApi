@@ -100,6 +100,7 @@ public class ArticuloVentaService {
             dto.setId(promocion.getId());
             dto.setTipo("PROMOCION");
             dto.setDenominacion(promocion.getDenominacion());
+            dto.setDescripcion(promocion.getDescripcion());
             dto.setPrecioVenta(promocion.getPrecioVenta());
             int stockDisponible = promocion.obtenerStockDisponiblePorSucursal(idSucursal);
             dto.setStockDisponible(stockDisponible);
