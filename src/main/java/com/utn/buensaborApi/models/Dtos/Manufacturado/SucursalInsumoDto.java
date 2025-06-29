@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class SucursalInsumoDto extends BaseEntity {
-    private Long sucursalId;
+//    private Long sucursalId;
     private ArticuloInsumoSimpleDto articuloInsumo;
     private Double stockActual;
     private Double stockMinimo;
