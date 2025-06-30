@@ -11,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface ArticuloInsumoRepository extends JpaRepository<ArticuloInsumo, Long> {
+    @Query("SELECT ai FROM ArticuloInsumo ai WHERE ai.id = :id AND ai.fechaBaja IS NULL")
+    ArticuloInsumo findByIdAndFechaBajaIsNull(@Param("id") Long id);
 
     @Query("SELECT DISTINCT a FROM ArticuloInsumo a " +
             "LEFT JOIN FETCH a.stockPorSucursal s " +

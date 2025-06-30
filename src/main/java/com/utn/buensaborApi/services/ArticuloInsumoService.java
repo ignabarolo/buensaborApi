@@ -1,14 +1,8 @@
 package com.utn.buensaborApi.services;
 
-import com.utn.buensaborApi.models.ArticuloInsumo;
-import com.utn.buensaborApi.models.ArticuloManufacturado;
+import com.utn.buensaborApi.models.*;
 import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoDto;
-import com.utn.buensaborApi.models.SucursalEmpresa;
-import com.utn.buensaborApi.models.SucursalInsumo;
-import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
-import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
-import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
-import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
+import com.utn.buensaborApi.repositories.*;
 import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +23,9 @@ public class ArticuloInsumoService {
     private final ArticuloInsumoRepository articuloInsumoRepository;
     private final ArticuloManufacturadoRepository articuloManufacturadoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
+    private final ArticuloManufacturadoDetalleRepository articuloManufacturadoDetalleRepository;
+    private final PromocionRepository promocionRepository;
+    private final  PromocionDetalleRepository promocionDetalleRepository;
 
     @Autowired
     private final ArticuloInsumoMapper mapper;
@@ -94,9 +93,13 @@ public class ArticuloInsumoService {
 
     @Transactional
     public ArticuloInsumo actualizarArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
-        if (!articuloInsumoRepository.existsById(articuloInsumo.getId())) {
+        ArticuloInsumo articuloExistente = articuloInsumoRepository.findByIdAndFechaBajaIsNull(articuloInsumo.getId());
+
+        if (articuloExistente == null) {
             throw new RuntimeException("Artículo Insumo no encontrado con ID: " + articuloInsumo.getId());
         }
+        // Guardar el precio anterior para comparación
+        Double precioAnterior = articuloExistente.getPrecioCompra();
 
         articuloInsumo.setFechaModificacion(LocalDateTime.now());
         
@@ -111,18 +114,23 @@ public class ArticuloInsumoService {
                 stock.setArticuloInsumo(articuloInsumo);
                 stock.setSucursal(sucursalEmpresaRepository.findById(1L)
                         .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1")));                sucursalInsumoRepository.save(stock);
+                sucursalInsumoRepository.save(stock);
+
             });
         }
-        List<ArticuloManufacturado> manufacturadosAfectados = articuloManufacturadoRepository.findByArticuloInsumoId(articuloInsumo.getId());
-        for (ArticuloManufacturado am : manufacturadosAfectados) {
-            am.costoCalculado();
-            am.precioCalculado();
-            System.out.println("Recalculando precios para manufacturado ID: " + am.getId() +
-                    " - Nuevo costo: " + am.getPrecioCosto() +
-                    ", Nuevo precio: " + am.getPrecioVenta());
-            articuloManufacturadoRepository.save(am);
+        // Recalcular precio de venta si es necesario
+        articuloInsumo.precioCalculado();
+
+        // Guardar el artículo actualizado
+        ArticuloInsumo articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
+
+        // Si el precio de compra cambió, actualizar todos los artículos manufacturados que usan este insumo
+        if (precioAnterior != null && articuloInsumo.getPrecioCompra() != null &&
+                !precioAnterior.equals(articuloInsumo.getPrecioCompra())) {
+            actualizarPreciosArticulosManufacturados(articuloActualizado);
         }
-        return articuloInsumoRepository.save(articuloInsumo);
+
+        return articuloActualizado;
     }
 
     @Transactional
@@ -160,5 +168,82 @@ public class ArticuloInsumoService {
         insumo.setFechaBaja(null);
         articuloInsumoRepository.save(insumo);
     }
+    @Transactional
+    public ArticuloInsumo actualizarPrecioCompra(Long id, Double nuevoPrecioCompra) {
+        ArticuloInsumo articuloInsumo = articuloInsumoRepository.findByIdAndFechaBajaIsNull(id);
 
+        if (articuloInsumo == null) {
+            throw new RuntimeException("Artículo insumo no encontrado");
+        }
+
+        // Guardar el precio anterior para comparación
+        Double precioAnterior = articuloInsumo.getPrecioCompra();
+
+        // Actualizar precio de compra
+        articuloInsumo.setPrecioCompra(nuevoPrecioCompra);
+
+        // Calcular nuevo precio de venta
+        articuloInsumo.precioCalculado();
+
+        // Guardar el artículo actualizado
+        articuloInsumo = articuloInsumoRepository.save(articuloInsumo);
+
+        // Si el precio cambió, actualizar todos los artículos manufacturados que usan este insumo
+        if (!precioAnterior.equals(nuevoPrecioCompra)) {
+            actualizarPreciosArticulosManufacturados(articuloInsumo);
+        }
+
+        return articuloInsumo;
+    }
+
+    private void actualizarPreciosArticulosManufacturados(ArticuloInsumo insumo) {
+        // Buscar todos los detalles que utilizan este insumo
+        List<ArticuloManufacturadoDetalle> detalles = articuloManufacturadoDetalleRepository.findByArticuloInsumo(insumo);
+
+        // Conjunto para evitar procesar el mismo artículo manufacturado varias veces
+        Set<ArticuloManufacturado> articulosActualizados = new HashSet<>();
+
+        for (ArticuloManufacturadoDetalle detalle : detalles) {
+            ArticuloManufacturado manufacturado = detalle.getArticuloManufacturado();
+
+            // Evitar procesar el mismo artículo varias veces
+            if (manufacturado != null && !articulosActualizados.contains(manufacturado)) {
+                articulosActualizados.add(manufacturado);
+
+                // Recalcular el costo
+                manufacturado.costoCalculado();
+
+                // Recalcular el precio de venta
+                manufacturado.precioCalculado();
+
+                // Guardar los cambios
+                articuloManufacturadoRepository.save(manufacturado);
+
+                // Actualizar promociones que incluyen este artículo manufacturado
+                actualizarPreciosPromociones(manufacturado);
+            }
+        }
+
+        // Actualizar promociones que incluyen directamente este artículo insumo
+        actualizarPreciosPromociones(insumo);
+    }
+
+    private void actualizarPreciosPromociones(Articulo articulo) {
+        List<PromocionDetalle> promocionesDetalle = promocionDetalleRepository.findByArticulo(articulo);
+
+        // Conjunto para evitar procesar la misma promoción varias veces
+        Set<Promocion> promocionesActualizadas = new HashSet<>();
+
+        for (PromocionDetalle detalle : promocionesDetalle) {
+            Promocion promocion = detalle.getPromocion();
+
+            // Evitar procesar la misma promoción varias veces
+            if (promocion != null && !promocionesActualizadas.contains(promocion)) {
+                promocionesActualizadas.add(promocion);
+
+                // La promoción ya tiene método para calcular su precio, así que solo necesitamos guardarla
+                promocionRepository.save(promocion);
+            }
+        }
+    }
 }
