@@ -1,10 +1,12 @@
 package com.utn.buensaborApi.services;
 
 import com.utn.buensaborApi.models.ArticuloInsumo;
+import com.utn.buensaborApi.models.ArticuloManufacturado;
 import com.utn.buensaborApi.models.Dtos.Insumo.ArticuloInsumoDto;
 import com.utn.buensaborApi.models.SucursalEmpresa;
 import com.utn.buensaborApi.models.SucursalInsumo;
 import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
+import com.utn.buensaborApi.repositories.ArticuloManufacturadoRepository;
 import com.utn.buensaborApi.repositories.SucursalEmpresaRepository;
 import com.utn.buensaborApi.repositories.SucursalInsumoRepository;
 import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
@@ -23,6 +25,7 @@ import java.util.List;
 public class ArticuloInsumoService {
 
     private final ArticuloInsumoRepository articuloInsumoRepository;
+    private final ArticuloManufacturadoRepository articuloManufacturadoRepository;
     private final SucursalInsumoRepository sucursalInsumoRepository;
 
     @Autowired
@@ -109,6 +112,15 @@ public class ArticuloInsumoService {
                 stock.setSucursal(sucursalEmpresaRepository.findById(1L)
                         .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1")));                sucursalInsumoRepository.save(stock);
             });
+        }
+        List<ArticuloManufacturado> manufacturadosAfectados = articuloManufacturadoRepository.findByArticuloInsumoId(articuloInsumo.getId());
+        for (ArticuloManufacturado am : manufacturadosAfectados) {
+            am.costoCalculado();
+            am.precioCalculado();
+            System.out.println("Recalculando precios para manufacturado ID: " + am.getId() +
+                    " - Nuevo costo: " + am.getPrecioCosto() +
+                    ", Nuevo precio: " + am.getPrecioVenta());
+            articuloManufacturadoRepository.save(am);
         }
         return articuloInsumoRepository.save(articuloInsumo);
     }
