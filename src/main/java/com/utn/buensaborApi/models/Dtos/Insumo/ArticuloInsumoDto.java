@@ -20,6 +20,7 @@ public class ArticuloInsumoDto extends BaseEntity {
     private Boolean esParaElaborar;
     private Double precioCompra;
     private BigDecimal precioVenta;
+    private Double margenGanancia;
     private CategoriaArticuloDto categoria;
     private List<SucursalInsumoDto> stockPorSucursal;
 }
