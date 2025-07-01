@@ -176,31 +176,32 @@ public class ArticuloInsumoService {
             actualizarPreciosArticulosManufacturados(articuloInsumo);
         }
 
-        if (imagenes != null && !imagenes.isEmpty()) {
-            // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
-            articuloInsumo.getImagenes().clear();
+        // Primero guarda el artículo para tener la entidad actualizada
+        ArticuloInsumo articuloGuardado = articuloInsumoRepository.save(articuloInsumo);
 
-            List<Imagen> imagenesGuardadas = new ArrayList<>();
+        if (imagenes != null && !imagenes.isEmpty()) {
+            // Guardamos cada imagen explícitamente
             for (MultipartFile imagen : imagenes) {
                 try {
-                    Imagen imagenGuardada = imagenService.uploadImage(imagen);
-                    imagenGuardada.setArticuloInsumo(articuloInsumo);
-                    imagenGuardada.setFechaAlta(LocalDateTime.now());
-                    imagenGuardada.setFechaModificacion(LocalDateTime.now());
-                    imagenesGuardadas.add(imagenGuardada);
+                    Imagen nuevaImagen = imagenService.uploadImage(imagen);
+                    nuevaImagen.setArticuloInsumo(articuloGuardado);
+                    nuevaImagen.setFechaAlta(LocalDateTime.now());
+                    nuevaImagen.setFechaModificacion(LocalDateTime.now());
                 } catch (IOException e) {
                     System.err.println("Error al procesar imagen en actualización: " + e.getMessage());
                     throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
                 }
             }
-            articuloInsumo.getImagenes().addAll(imagenesGuardadas);
+
+            // Refrescar el artículo para obtener las imágenes actualizadas
+            articuloGuardado = articuloInsumoRepository.findById(articuloGuardado.getId()).orElse(articuloGuardado);
         } else {
-            List<Imagen> auxImg = articuloExistente.getImagenes();
-            articuloInsumo.setImagenes(auxImg);
+            // Mantener las imágenes existentes
+            articuloGuardado.setImagenes(articuloExistente.getImagenes());
+            articuloGuardado = articuloInsumoRepository.save(articuloGuardado);
         }
 
-        var articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
-        return articuloActualizado;
+        return articuloGuardado;
     }
 
     @Transactional

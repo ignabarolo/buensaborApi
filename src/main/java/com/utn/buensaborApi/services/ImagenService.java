@@ -82,7 +82,7 @@ public class ImagenService {
 
     //Actualizar imagen existente
     @Transactional
-    public Imagen updateImage(Long id, MultipartFile file) throws IOException {
+    public Imagen updateImageExistente(Long id, MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("El archivo no puede estar vacío");
         }

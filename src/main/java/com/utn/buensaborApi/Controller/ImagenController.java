@@ -57,7 +57,7 @@ public class ImagenController {
     @PutMapping("/{id}")
     public ResponseEntity<Imagen> updateImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {
-            Imagen imagen = imagenService.updateImage(id, file);
+            Imagen imagen = imagenService.updateImageExistente(id, file);
             return ResponseEntity.ok(imagen);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
