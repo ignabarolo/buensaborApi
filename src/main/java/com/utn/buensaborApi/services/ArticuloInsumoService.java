@@ -80,6 +80,7 @@ public class ArticuloInsumoService {
                 .orElseThrow(() -> new RuntimeException("Sucursal 1 no encontrada"));
 
         articuloInsumo.setSucursal(sucursal);
+        articuloInsumo.precioCalculado();
 
         // Guardar primero el ArticuloInsumo
         ArticuloInsumo savedArticulo = articuloInsumoRepository.save(articuloInsumo);
@@ -145,9 +146,6 @@ public class ArticuloInsumoService {
         }
         // Recalcular precio de venta si es necesario
         articuloInsumo.precioCalculado();
-
-        // Guardar el artículo actualizado
-//        ArticuloInsumo articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
 
         // Si el precio de compra cambió, actualizar todos los artículos manufacturados que usan este insumo
         if (precioAnterior != null && articuloInsumo.getPrecioCompra() != null &&
