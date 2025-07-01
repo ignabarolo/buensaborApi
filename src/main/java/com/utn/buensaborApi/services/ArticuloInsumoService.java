@@ -9,9 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +35,9 @@ public class ArticuloInsumoService {
 
     @Autowired
     private SucursalEmpresaRepository sucursalEmpresaRepository;
+
+    @Autowired
+    private ImagenService imagenService;
 
     public List<ArticuloInsumoDto> listarTodosConDetalle() {
         return articuloInsumoRepository.findAllWithDetails().stream()
@@ -67,7 +73,7 @@ public class ArticuloInsumoService {
 
     //Crear Insumo
     @Transactional
-    public ArticuloInsumo crearArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
+    public ArticuloInsumo crearArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo, List<MultipartFile> imagenes) {
         articuloInsumo.setFechaAlta(LocalDateTime.now());
 
         SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
@@ -87,13 +93,32 @@ public class ArticuloInsumoService {
                 sucursalInsumoRepository.save(stock);
             }
         }
+
+        if (imagenes != null && !imagenes.isEmpty()) {
+            List<Imagen> imagenesGuardadas = new ArrayList<>();
+            for (MultipartFile imagen : imagenes) {
+                try {
+                    Imagen imagenGuardada = imagenService.uploadImage(imagen);
+                    imagenGuardada.setArticuloInsumo(savedArticulo);
+                    imagenGuardada.setFechaAlta(LocalDateTime.now());
+                    imagenGuardada.setFechaModificacion(LocalDateTime.now());
+                    imagenesGuardadas.add(imagenGuardada);
+                } catch (IOException e) {
+                    System.err.println("Error al procesar imagen en actualización: " + e.getMessage());
+                    throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+                }
+            }
+            savedArticulo.setImagenes(imagenesGuardadas);
+            savedArticulo = articuloInsumoRepository.save(savedArticulo);
+        }
+
         return savedArticulo;
     }
 
 
     @Transactional
-    public ArticuloInsumo actualizarArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo) {
-        ArticuloInsumo articuloExistente = articuloInsumoRepository.findByIdAndFechaBajaIsNull(articuloInsumo.getId());
+    public ArticuloInsumo actualizarArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo, List<MultipartFile> imagenes) {
+        ArticuloInsumo articuloExistente = articuloInsumoRepository.findById(articuloInsumo.getId()).get();
 
         if (articuloExistente == null) {
             throw new RuntimeException("Artículo Insumo no encontrado con ID: " + articuloInsumo.getId());
@@ -111,7 +136,7 @@ public class ArticuloInsumoService {
                 } else {
                     stock.setFechaAlta(LocalDateTime.now());
                 }
-                stock.setArticuloInsumo(articuloInsumo);
+                stock.setArticuloInsumo(articuloExistente);
                 stock.setSucursal(sucursalEmpresaRepository.findById(1L)
                         .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1")));                sucursalInsumoRepository.save(stock);
                 sucursalInsumoRepository.save(stock);
@@ -122,14 +147,39 @@ public class ArticuloInsumoService {
         articuloInsumo.precioCalculado();
 
         // Guardar el artículo actualizado
-        ArticuloInsumo articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
+//        ArticuloInsumo articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
 
         // Si el precio de compra cambió, actualizar todos los artículos manufacturados que usan este insumo
         if (precioAnterior != null && articuloInsumo.getPrecioCompra() != null &&
                 !precioAnterior.equals(articuloInsumo.getPrecioCompra())) {
-            actualizarPreciosArticulosManufacturados(articuloActualizado);
+            actualizarPreciosArticulosManufacturados(articuloInsumo);
         }
 
+        if (imagenes != null && !imagenes.isEmpty()) {
+            // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
+            articuloInsumo.getImagenes().clear();
+
+            List<Imagen> imagenesGuardadas = new ArrayList<>();
+            for (MultipartFile imagen : imagenes) {
+                try {
+                    Imagen imagenGuardada = imagenService.uploadImage(imagen);
+                    imagenGuardada.setArticuloInsumo(articuloInsumo);
+                    imagenGuardada.setFechaAlta(LocalDateTime.now());
+                    imagenGuardada.setFechaModificacion(LocalDateTime.now());
+                    imagenesGuardadas.add(imagenGuardada);
+                } catch (IOException e) {
+                    System.err.println("Error al procesar imagen en actualización: " + e.getMessage());
+                    throw new RuntimeException("Error al procesar la imagen: " + e.getMessage());
+                }
+            }
+            articuloInsumo.getImagenes().addAll(imagenesGuardadas);
+        }
+        else {
+            List<Imagen> auxImg = articuloExistente.getImagenes();
+            articuloInsumo.setImagenes(auxImg);
+        }
+
+        var articuloActualizado = articuloInsumoRepository.save(articuloInsumo);
         return articuloActualizado;
     }
 

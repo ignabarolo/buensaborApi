@@ -1,13 +1,21 @@
 package com.utn.buensaborApi.Controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.utn.buensaborApi.models.ArticuloInsumo;
+import com.utn.buensaborApi.models.ArticuloManufacturado;
+import com.utn.buensaborApi.models.CategoriaArticulo;
 import com.utn.buensaborApi.repositories.ArticuloInsumoRepository;
 import com.utn.buensaborApi.services.ArticuloInsumoService;
 import com.utn.buensaborApi.services.Mappers.ArticuloInsumoMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/articuloInsumo")
@@ -66,21 +74,44 @@ public class ArticuloInsumoController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> crearArticuloInsumo(@RequestBody ArticuloInsumo articuloInsumo) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> crearArticuloInsumo(
+            @RequestPart("insumo") String articuloInsumoJson,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
-            return ResponseEntity.ok(articuloInsumoService.crearArticuloInsumoConSucursalInsumo(articuloInsumo));
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            if (articuloInsumoJson == null || articuloInsumoJson.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("El JSON del artículo no puede estar vacío.");
+            }
+
+            var articuloInsumo = objectMapper.readValue(articuloInsumoJson, ArticuloInsumo.class);
+            return ResponseEntity.ok(articuloInsumoService.crearArticuloInsumoConSucursalInsumo(articuloInsumo, imagenes));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> modificarArticuloInsumo(@PathVariable Long id, 
-                                                    @RequestBody ArticuloInsumo articuloInsumo) {
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> modificarArticuloInsumo(
+            @PathVariable Long id,
+            @RequestPart("insumo") String articuloInsumoJson,
+            @RequestPart(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+
+            if (articuloInsumoJson == null || articuloInsumoJson.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body("El JSON del artículo no puede estar vacío.");
+            }
+
+            var articuloInsumo = objectMapper.readValue(articuloInsumoJson, ArticuloInsumo.class);
             articuloInsumo.setId(id);
-            return ResponseEntity.ok(articuloInsumoService.actualizarArticuloInsumoConSucursalInsumo(articuloInsumo));
+
+            return ResponseEntity.ok(articuloInsumoService.actualizarArticuloInsumoConSucursalInsumo(articuloInsumo, imagenes));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -119,9 +150,8 @@ public class ArticuloInsumoController {
     @GetMapping("/todos")
     public ResponseEntity<?> listarTodos() {
         try {
-            return ResponseEntity.ok(
-                    articuloInsumoService.listarTodosIncluyendoBajas()
-            );
+            var articulosInsumo = articuloInsumoService.listarTodosIncluyendoBajas();
+            return ResponseEntity.ok(articulosInsumo);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

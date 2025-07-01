@@ -4,6 +4,8 @@ import com.utn.buensaborApi.models.BaseEntity;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.CategoriaArticuloDto;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.SucursalInsumoDto;
 import com.utn.buensaborApi.models.Dtos.Manufacturado.UnidadMedidaDto;
+import com.utn.buensaborApi.models.Dtos.Promocion.ImagenDto;
+import com.utn.buensaborApi.models.Imagen;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +25,5 @@ public class ArticuloInsumoDto extends BaseEntity {
     private Double margenGanancia;
     private CategoriaArticuloDto categoria;
     private List<SucursalInsumoDto> stockPorSucursal;
+    private List<ImagenDto> imagenes;
 }
