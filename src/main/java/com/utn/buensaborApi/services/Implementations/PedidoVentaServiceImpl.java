@@ -527,7 +527,7 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                                             // Calcular la cantidad total: cantidad del insumo en el artículo manufacturado *
                                             // cantidad del artículo manufacturado en la promoción * cantidad de la promoción en el pedido
                                             double cantidadInsumo = manuDetalle.getCantidad() * promoDetalle.getCantidad() * detalle.getCantidad();
-                                            aumentarStockInsumo(insumo.getId(), idSucursal, (int) Math.ceil(cantidadInsumo));
+                                            //aumentarStockInsumo(insumo.getId(), idSucursal, (int) Math.ceil(cantidadInsumo));
                                         }
                                     }
                                 }
