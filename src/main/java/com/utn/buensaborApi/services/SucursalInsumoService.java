@@ -96,5 +96,19 @@ public class SucursalInsumoService {
         sucursalInsumoRepository.save(sucursalInsumo);
         return true;
     }
+    @Transactional
+    public SucursalInsumo actualizarStockActual(Long articuloInsumoId, Long sucursalId, Double nuevoStockActual) {
+        if (nuevoStockActual < 0) {
+            throw new IllegalArgumentException("El stock actual no puede ser negativo");
+        }
+
+        SucursalInsumo sucursalInsumo = sucursalInsumoRepository.findBySucursalIdAndArticuloInsumoIdAndFechaBajaIsNull(sucursalId, articuloInsumoId)
+                .orElseThrow(() -> new RuntimeException("No se encontró registro de stock para el artículo " + articuloInsumoId + " en la sucursal " + sucursalId));
+
+        sucursalInsumo.setStockActual(nuevoStockActual);
+        sucursalInsumo.setFechaModificacion(LocalDateTime.now());
+
+        return sucursalInsumoRepository.save(sucursalInsumo);
+    }
 
 }

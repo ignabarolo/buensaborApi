@@ -14,10 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +26,7 @@ public class ArticuloInsumoService {
     private final ArticuloManufacturadoDetalleRepository articuloManufacturadoDetalleRepository;
     private final PromocionRepository promocionRepository;
     private final  PromocionDetalleRepository promocionDetalleRepository;
+    private final ImagenService imagenService;
 
     @Autowired
     private final ArticuloInsumoMapper mapper;
@@ -36,19 +34,22 @@ public class ArticuloInsumoService {
     @Autowired
     private SucursalEmpresaRepository sucursalEmpresaRepository;
 
-    @Autowired
-    private ImagenService imagenService;
-
     public List<ArticuloInsumoDto> listarTodosConDetalle() {
         return articuloInsumoRepository.findAllWithDetails().stream()
-            .map(mapper::toDto)
-            .toList();
+                .map(entity -> {
+                    ArticuloInsumoDto dto = mapper.toDto(entity);
+                    asignarUltimaImagen(entity, dto);
+                    return dto;
+                })
+                .toList();
     }
+
+
 
     public List<ArticuloInsumoDto> listarTodosActivos() {
         return articuloInsumoRepository.findByEsParaElaborarFalseAndFechaBajaIsNull().stream()
-            .map(mapper::toDto)
-            .toList();
+                .map(mapper::toDto)
+                .toList();
     }
 
     public ArticuloInsumo buscarPorIdConDetalle(Long id) {
@@ -57,7 +58,12 @@ public class ArticuloInsumoService {
     }
 
     public ArticuloInsumoDto buscarPorIdConDetalleSecond(Long id) {
-        return articuloInsumoRepository.findByIdWithDetails(id).map(mapper::toDto)
+        return articuloInsumoRepository.findByIdWithDetails(id)
+                .map(entity -> {
+                    ArticuloInsumoDto dto = mapper.toDto(entity);
+                    asignarUltimaImagen(entity, dto);
+                    return dto;
+                })
                 .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + id));
     }
 
@@ -119,31 +125,48 @@ public class ArticuloInsumoService {
 
     @Transactional
     public ArticuloInsumo actualizarArticuloInsumoConSucursalInsumo(ArticuloInsumo articuloInsumo, List<MultipartFile> imagenes) {
-        ArticuloInsumo articuloExistente = articuloInsumoRepository.findById(articuloInsumo.getId()).get();
+        ArticuloInsumo articuloExistente = articuloInsumoRepository.findById(articuloInsumo.getId())
+                .orElseThrow(() -> new RuntimeException("Artículo Insumo no encontrado con ID: " + articuloInsumo.getId()));
 
-        if (articuloExistente == null) {
-            throw new RuntimeException("Artículo Insumo no encontrado con ID: " + articuloInsumo.getId());
-        }
         // Guardar el precio anterior para comparación
         Double precioAnterior = articuloExistente.getPrecioCompra();
 
+        // Crear un mapa de los stocks actuales por sucursal
+        Map<Long, Double> stockActualPorSucursal = new HashMap<>();
+        if (articuloExistente.getStockPorSucursal() != null) {
+            for (SucursalInsumo stockExistente : articuloExistente.getStockPorSucursal()) {
+                if (stockExistente.getSucursal() != null) {
+                    stockActualPorSucursal.put(stockExistente.getSucursal().getId(), stockExistente.getStockActual());
+                }
+            }
+        }
+
         articuloInsumo.setFechaModificacion(LocalDateTime.now());
-        
-        // Actualizar SucursalInsumo asociados
+
+        // Actualizar SucursalInsumo asociados manteniendo el stock actual
         if (articuloInsumo.getStockPorSucursal() != null) {
-            articuloInsumo.getStockPorSucursal().forEach(stock -> {
+            for (SucursalInsumo stock : articuloInsumo.getStockPorSucursal()) {
                 if (stock.getId() != null) {
                     stock.setFechaModificacion(LocalDateTime.now());
                 } else {
                     stock.setFechaAlta(LocalDateTime.now());
                 }
-                stock.setArticuloInsumo(articuloExistente);
-                stock.setSucursal(sucursalEmpresaRepository.findById(1L)
-                        .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1")));                sucursalInsumoRepository.save(stock);
-                sucursalInsumoRepository.save(stock);
 
-            });
+                stock.setArticuloInsumo(articuloExistente);
+
+                SucursalEmpresa sucursal = sucursalEmpresaRepository.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("Sucursal no encontrada con ID: 1"));
+                stock.setSucursal(sucursal);
+
+                // Mantener el stock actual si existe
+                if (sucursal != null && stockActualPorSucursal.containsKey(sucursal.getId())) {
+                    stock.setStockActual(stockActualPorSucursal.get(sucursal.getId()));
+                }
+
+                sucursalInsumoRepository.save(stock);
+            }
         }
+
         // Recalcular precio de venta si es necesario
         articuloInsumo.precioCalculado();
 
@@ -171,8 +194,7 @@ public class ArticuloInsumoService {
                 }
             }
             articuloInsumo.getImagenes().addAll(imagenesGuardadas);
-        }
-        else {
+        } else {
             List<Imagen> auxImg = articuloExistente.getImagenes();
             articuloInsumo.setImagenes(auxImg);
         }
@@ -289,9 +311,17 @@ public class ArticuloInsumoService {
             if (promocion != null && !promocionesActualizadas.contains(promocion)) {
                 promocionesActualizadas.add(promocion);
 
-                // La promoción ya tiene método para calcular su precio, así que solo necesitamos guardarla
+                // La promoción ya tiene metodo para calcular su precio, así que solo necesitamos guardarla
                 promocionRepository.save(promocion);
             }
+        }
+    }
+    // Metodo auxiliar para asignar la última imagen
+    private void asignarUltimaImagen(ArticuloInsumo entity, ArticuloInsumoDto dto) {
+        if (entity.getImagenes() != null && !entity.getImagenes().isEmpty()) {
+            entity.getImagenes().stream()
+                    .max(Comparator.comparing(Imagen::getId))
+                    .ifPresent(ultimaImagen -> dto.setImagen(ultimaImagen.getNombre()));
         }
     }
 }

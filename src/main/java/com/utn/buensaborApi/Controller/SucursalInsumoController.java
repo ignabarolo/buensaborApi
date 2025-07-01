@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/sucursalInsumos")
 @RequiredArgsConstructor
@@ -77,6 +79,25 @@ public class SucursalInsumoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+    @PatchMapping("/stock/{articuloId}/{sucursalId}")
+    public ResponseEntity<?> actualizarStockActual(
+            @PathVariable Long articuloId,
+            @PathVariable Long sucursalId,
+            @RequestBody Map<String, Double> stockData) {
+        try {
+            Double nuevoStock = stockData.get("stockActual");
+            if (nuevoStock == null) {
+                return ResponseEntity.badRequest().body("El valor de stockActual es requerido");
+            }
+
+            SucursalInsumo actualizado = sucursalInsumoService.actualizarStockActual(articuloId, sucursalId, nuevoStock);
+            // Devolvemos solo el stock actualizado
+            Map<String, Double> respuesta = Map.of("stockActual", actualizado.getStockActual());
+            return ResponseEntity.ok(respuesta);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

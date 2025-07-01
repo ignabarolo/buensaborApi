@@ -15,4 +15,7 @@ public interface SucursalInsumoRepository extends JpaRepository<SucursalInsumo, 
     List<SucursalInsumo> findByArticuloInsumoIdAndFechaBajaIsNull(Long idArticuloInsumo);
     @Query("SELECT si FROM SucursalInsumo si JOIN FETCH si.articuloInsumo WHERE si.sucursal.id = :idSucursal AND si.fechaBaja IS NULL")
     List<SucursalInsumo> findBySucursalIdAndFechaBajaIsNullWithArticuloInsumo(@Param("idSucursal") Long idSucursal);
+    @Query("SELECT si.stockActual FROM SucursalInsumo si WHERE si.articuloInsumo.id = :articuloInsumoId AND si.sucursal.id = :sucursalId")
+    Optional<Double> findStockActualByArticuloAndSucursal(@Param("articuloInsumoId") Long articuloInsumoId, @Param("sucursalId") Long sucursalId);
+    Optional<SucursalInsumo> findBySucursalIdAndArticuloInsumoIdAndFechaBajaIsNull(Long sucursalId, Long articuloInsumoId);
 }
