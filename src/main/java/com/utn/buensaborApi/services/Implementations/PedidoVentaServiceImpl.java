@@ -386,6 +386,12 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
 
         // Actualizar el estado
         pedido.setEstado(nuevoEstado);
+
+        // Si el nuevo estado es CANCELADO, restaurar el stock de insumos
+        if (nuevoEstado == Estado.CANCELADO && nuevoEstado != estadoAnterior) {
+            restaurarStockInsumos(pedido);
+        }
+
         PedidoVenta pedidoActualizado = baseRepository.save(pedido);
 
         // Si el nuevo estado es ENTREGADO, enviar la factura por correo
@@ -410,6 +416,8 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
                 // No lanzamos la excepción para evitar que falle la actualización del estado
             }
         }
+
+        //
 
         return pedidoActualizado;
     }
@@ -488,4 +496,65 @@ public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long> 
         return promocionDto;
     }
 
+    private void restaurarStockInsumos(PedidoVenta pedido) {
+        Long idSucursal = pedido.getSucursal() != null ? pedido.getSucursal().getId() : 1L;
+
+        if (pedido.getPedidosVentaDetalle() != null) {
+            for (PedidoVentaDetalle detalle : pedido.getPedidosVentaDetalle()) {
+                // Procesar artículos insumo directos
+                if (detalle.getArticulo() != null && detalle.getArticulo() instanceof ArticuloInsumo) {
+                    ArticuloInsumo insumo = (ArticuloInsumo) detalle.getArticulo();
+                    aumentarStockInsumo(insumo.getId(), idSucursal, detalle.getCantidad());
+                }
+
+                // Procesar promociones que contienen insumos
+                if (detalle.getPromocion() != null) {
+                    Promocion promocion = detalle.getPromocion();
+                    if (promocion.getPromocionesDetalle() != null) {
+                        for (PromocionDetalle promoDetalle : promocion.getPromocionesDetalle()) {
+                            if (promoDetalle.getArticulo() instanceof ArticuloInsumo) {
+                                ArticuloInsumo insumo = (ArticuloInsumo) promoDetalle.getArticulo();
+                                // Multiplicar la cantidad del insumo en la promo por la cantidad de promociones en el pedido
+                                int cantidadTotal = promoDetalle.getCantidad() * detalle.getCantidad();
+                                aumentarStockInsumo(insumo.getId(), idSucursal, cantidadTotal);
+                            } else if (promoDetalle.getArticulo() instanceof ArticuloManufacturado) {
+                                // Si la promoción tiene artículos manufacturados, debemos obtener los insumos de estos
+                                ArticuloManufacturado manufacturado = (ArticuloManufacturado) promoDetalle.getArticulo();
+                                if (manufacturado.getDetalles() != null) {
+                                    for (ArticuloManufacturadoDetalle manuDetalle : manufacturado.getDetalles()) {
+                                        if (manuDetalle.getArticuloInsumo() != null) {
+                                            ArticuloInsumo insumo = manuDetalle.getArticuloInsumo();
+                                            // Calcular la cantidad total: cantidad del insumo en el artículo manufacturado *
+                                            // cantidad del artículo manufacturado en la promoción * cantidad de la promoción en el pedido
+                                            double cantidadInsumo = manuDetalle.getCantidad() * promoDetalle.getCantidad() * detalle.getCantidad();
+                                            aumentarStockInsumo(insumo.getId(), idSucursal, (int) Math.ceil(cantidadInsumo));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void aumentarStockInsumo(Long insumoId, Long sucursalId, int cantidad) {
+        ArticuloInsumo insumo = articuloInsumoRepository.findById(insumoId)
+                .orElseThrow(() -> new RuntimeException("Insumo no encontrado con ID: " + insumoId));
+
+        // Buscar el registro SucursalInsumo correspondiente
+        Optional<SucursalInsumo> sucursalInsumoOpt = insumo.getStockPorSucursal().stream()
+                .filter(si -> si.getSucursal().getId().equals(sucursalId))
+                .findFirst();
+
+        if (sucursalInsumoOpt.isPresent()) {
+            SucursalInsumo sucursalInsumo = sucursalInsumoOpt.get();
+            // Aumentar el stock actual
+            sucursalInsumo.setStockActual(sucursalInsumo.getStockActual() + cantidad);
+            // No es necesario guardar explícitamente ya que el pedido se guardará después
+        } else {
+            System.err.println("No se encontró registro de SucursalInsumo para insumo ID " + insumoId + " y sucursal ID " + sucursalId);
+        }
+    }
 }
