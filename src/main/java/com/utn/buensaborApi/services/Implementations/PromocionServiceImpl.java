@@ -1,11 +1,12 @@
 package com.utn.buensaborApi.services.Implementations;
 
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.models.Dtos.Promocion.PromocionDto;
+import com.utn.buensaborApi.dtos.Promocion.PromocionDto;
 import com.utn.buensaborApi.repositories.*;
-import com.utn.buensaborApi.services.ImagenService;
+import com.utn.buensaborApi.repositories.base.BaseRepository;
+import com.utn.buensaborApi.services.Implementations.base.BaseServiceImpl;
 import com.utn.buensaborApi.services.Interfaces.PromocionService;
-import com.utn.buensaborApi.services.Mappers.PromocionMapper;
+import com.utn.buensaborApi.mappers.PromocionMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PromocionServiceImpl extends BaseServiceImpl <Promocion, Long> implements PromocionService {
+public class PromocionServiceImpl extends BaseServiceImpl<Promocion, Long> implements PromocionService {
 
     @Autowired
     private PromocionRepository promocionRepository;

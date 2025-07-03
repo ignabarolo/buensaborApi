@@ -5,33 +5,29 @@ import com.utn.buensaborApi.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.utn.buensaborApi.enums.*;
 
 
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class DataInitializerServices {
 
-    private final clienteRepository clienteRepository;
-    private final paisRepository paisRepository;
-    private final provinciaRepository provinciaRepository;
-    private final localidadRepository localidadRepository;
-    private final empresaRepository empresaRepository;
+    private final ClienteRepository clienteRepository;
+    private final PaisRepository paisRepository;
+    private final ProvinciaRepository provinciaRepository;
+    private final LocalidadRepository localidadRepository;
+    private final EmpresaRepository empresaRepository;
     private final SucursalEmpresaRepository sucursalRepository;
-    private final domicilioRepository domicilioRepository;
+    private final DomicilioRepository domicilioRepository;
     private final CategoriaArticuloRepository categoriaRepository;
     private final ArticuloInsumoRepository articuloInsumoRepository;
     private final UnidadMedidaRepository unidadMedidaRepository;
     private final ArticuloManufacturadoRepository articuloManufacturadoRepository;
     private final ArticuloManufacturadoDetalleRepository articuloManufacturadoDetalleRepository;
     private final SucursalInsumoRepository SucursalInsumoRepository;
-    private final usuarioRepository usuarioRepository;
-    private final empleadoRepository empleadoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final EmpleadoRepository empleadoRepository;
     private final PromocionRepository promocionRepository;
     private final PromocionDetalleRepository promocionDetalleRepository;
     private final PedidoVentaRepository pedidoVentaRepository;

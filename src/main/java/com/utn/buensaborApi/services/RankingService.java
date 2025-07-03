@@ -1,9 +1,9 @@
 package com.utn.buensaborApi.services;
 
-import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioMensualDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
+import com.utn.buensaborApi.dtos.Ranking.ClienteRankingDto;
+import com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioDto;
+import com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioMensualDto;
+import com.utn.buensaborApi.dtos.Ranking.ProductoRankingDto;
 import com.utn.buensaborApi.repositories.PedidoVentaRepository;
 import org.springframework.stereotype.Service;
 

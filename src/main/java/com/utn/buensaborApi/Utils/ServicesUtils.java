@@ -37,16 +37,4 @@ public class ServicesUtils {
             throw new Exception(e.getMessage());
         }
     }
-
-//    public PedidoVentaDetalle generatePedidoVentaDetalle(PedidoVentaDetalle pedidoVentaDetalle) throws Exception{
-//        try {
-//            if (pedidoVentaDetalle.getPromocion() != null){
-//                pedidoVentaDetalleRepository.save(pedidoVentaDetalle);
-//            }
-//
-//            return pedidoVentaDetalle;
-//        } catch (Exception e) {
-//            throw new Exception(e.getMessage());
-//        }
-//    }
 }

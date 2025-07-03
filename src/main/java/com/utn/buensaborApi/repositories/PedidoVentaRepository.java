@@ -1,18 +1,19 @@
 package com.utn.buensaborApi.repositories;
 
 import com.utn.buensaborApi.enums.Estado;
-import com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.ProductoRankingDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto;
-import com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioMensualDto;
+import com.utn.buensaborApi.dtos.Ranking.ClienteRankingDto;
+import com.utn.buensaborApi.dtos.Ranking.ProductoRankingDto;
+import com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioDto;
+import com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioMensualDto;
 import com.utn.buensaborApi.models.PedidoVenta;
+import com.utn.buensaborApi.repositories.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Long>{
+public interface PedidoVentaRepository  extends BaseRepository<PedidoVenta, Long> {
 
     List<PedidoVenta> findByClienteId(Long clienteId);
 
@@ -55,7 +56,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
                                                                  @Param("fechaFin") LocalDate fechaFin);
 
     // Ranking por cliente
-    @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.ClienteRankingDto(" +
+    @Query("SELECT new com.utn.buensaborApi.dtos.Ranking.ClienteRankingDto(" +
             "c.id, CONCAT(c.nombre, ' ', c.apellido), COUNT(pv), SUM(pv.totalVenta)) " +
             "FROM PedidoVenta pv " +
             "JOIN pv.cliente c " +
@@ -72,7 +73,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
             @Param("orden") String orden);
 
     // Estadísticas totales de ventas
-    @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioDto(" +
+    @Query("SELECT new com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioDto(" +
             "SUM(pv.totalVenta), SUM(pv.totalCosto)) " +
             "FROM PedidoVenta pv " +
             "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +
@@ -83,7 +84,7 @@ public interface PedidoVentaRepository  extends BaseRepository <PedidoVenta, Lon
             @Param("fechaFin") LocalDate fechaFin);
 
     // Estadísticas ventas mensuales
-    @Query("SELECT new com.utn.buensaborApi.models.Dtos.Ranking.EstadoMonetarioMensualDto(" +
+    @Query("SELECT new com.utn.buensaborApi.dtos.Ranking.EstadoMonetarioMensualDto(" +
             "YEAR(pv.fechaPedido), MONTH(pv.fechaPedido), SUM(pv.totalVenta), SUM(pv.totalCosto)) " +
             "FROM PedidoVenta pv " +
             "WHERE pv.fechaPedido BETWEEN :fechaInicio AND :fechaFin " +

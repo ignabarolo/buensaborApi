@@ -2,6 +2,7 @@
 package com.utn.buensaborApi.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utn.buensaborApi.enums.Rol;
+import com.utn.buensaborApi.models.base.BaseEntity;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;

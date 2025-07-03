@@ -1,20 +1,21 @@
 package com.utn.buensaborApi.services.Implementations;
 
-import com.utn.buensaborApi.Utils.MailService;
+import com.utn.buensaborApi.repositories.base.BaseRepository;
+import com.utn.buensaborApi.services.Implementations.base.BaseServiceImpl;
+import com.utn.buensaborApi.services.MailService;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.enums.TipoEnvio;
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDetalleDto;
-import com.utn.buensaborApi.models.Dtos.Pedido.PedidoVentaDto;
+import com.utn.buensaborApi.dtos.Pedido.PedidoVentaDetalleDto;
+import com.utn.buensaborApi.dtos.Pedido.PedidoVentaDto;
 
-import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDetalleDto;
-import com.utn.buensaborApi.models.Dtos.Pedido.PromocionDto;
+import com.utn.buensaborApi.dtos.Pedido.PromocionDetalleDto;
+import com.utn.buensaborApi.dtos.Pedido.PromocionDto;
 import com.utn.buensaborApi.repositories.*;
-import com.utn.buensaborApi.services.DomicilioServices;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
 import com.utn.buensaborApi.services.Interfaces.PedidoVentaService;
-import com.utn.buensaborApi.services.Mappers.DomicilioMapper;
-import com.utn.buensaborApi.services.Mappers.PedidoVentaMapper;
+import com.utn.buensaborApi.mappers.DomicilioMapper;
+import com.utn.buensaborApi.mappers.PedidoVentaMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class PedidoVentaServiceImpl extends BaseServiceImpl <PedidoVenta, Long>  implements PedidoVentaService {
+public class PedidoVentaServiceImpl extends BaseServiceImpl<PedidoVenta, Long> implements PedidoVentaService {
 
     @Autowired
     private PedidoVentaRepository pedidoVentaRepository;

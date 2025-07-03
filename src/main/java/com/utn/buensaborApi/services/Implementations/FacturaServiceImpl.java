@@ -1,13 +1,13 @@
 package com.utn.buensaborApi.services.Implementations;
 
-import com.utn.buensaborApi.Utils.MailService;
-import com.utn.buensaborApi.Utils.PdfService;
+import com.utn.buensaborApi.services.Implementations.base.BaseServiceImpl;
+import com.utn.buensaborApi.services.MailService;
+import com.utn.buensaborApi.services.PdfService;
 import com.utn.buensaborApi.enums.Estado;
 import com.utn.buensaborApi.models.*;
-import com.utn.buensaborApi.repositories.BaseRepository;
+import com.utn.buensaborApi.repositories.base.BaseRepository;
 import com.utn.buensaborApi.repositories.FacturaRepository;
 import com.utn.buensaborApi.services.Interfaces.FacturaService;
-import com.utn.buensaborApi.Utils.MailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-public class FacturaServiceImpl extends BaseServiceImpl <Factura, Long>  implements FacturaService {
+public class FacturaServiceImpl extends BaseServiceImpl<Factura, Long> implements FacturaService {
 
     @Autowired
     private FacturaRepository facturaRepository;
