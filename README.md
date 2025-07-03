@@ -21,7 +21,7 @@ API RESTful desarrollada en Java que permite gestionar:
 - **Framework principal:** Spring Boot
 - **ORM:** Hibernate
 - **Base de datos:** MySQL
-- **Autenticación:** Auth0 (implementación de autenticación segura basada en OAuth 2.0 y OpenID Connect)
+- **Autenticación:** Auth0 (implementación de autenticación segura basada en OAuth )
 - **Documentación API:** Swagger / OpenAPI
 - **Gestión de dependencias:** Gradle
 
