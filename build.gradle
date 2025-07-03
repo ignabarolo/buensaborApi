@@ -24,14 +24,55 @@ repositories {
 }
 
 dependencies {
-	// implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// runtimeOnly 'com.mysql:mysql-connector-j'
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3'
+
+	// Manejo de fechas en formato json para Promociones
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+
+	// MySQL
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// WebFlux para usar WebClient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// JSON (org.json.JSONObject)
+	implementation 'org.json:json:20240303'
+
+	// Lombok
+	implementation 'org.projectlombok:lombok:1.18.26'
 	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok'
+
+	// MapStruct
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'com.nimbusds:nimbus-jose-jwt'
+
+	// MercadoPago
+	implementation("com.mercadopago:sdk-java:2.1.24")
+
+	//Excel
+	implementation("org.apache.poi:poi-ooxml:5.2.3")
+
+	//Pdf
+	implementation("com.itextpdf:itext7-core:7.2.5")
+
+	//Email
+	implementation ("org.springframework.boot:spring-boot-starter-mail")
 }
 
 tasks.named('test') {
