@@ -66,7 +66,6 @@ public class ArticuloManufacturadoService {
         ArticuloManufacturado articuloEntity = articuloOptional.orElseThrow(() ->
                 new EntityNotFoundException("Artículo Manufacturado no encontrado con ID: " + id));
 
-        // Filtrar los detalles con fechaBaja == null
         articuloEntity.setDetalles(
                 articuloEntity.getDetalles().stream()
                         .filter(detalle -> detalle.getFechaBaja() == null)
@@ -94,7 +93,6 @@ public class ArticuloManufacturadoService {
     @Transactional
     public ArticuloManufacturado crear(ArticuloManufacturado articuloManufacturado, CategoriaArticulo categoria,List<MultipartFile> imagenes) {
         try {
-            //Guardar el articulo manufacturado inicialmente sin detalles ni imágenes
             articuloManufacturado.setFechaAlta(LocalDateTime.now());
             ArticuloManufacturado savedArticulo = articuloManufacturadoRepository.save(articuloManufacturado);
 
@@ -134,7 +132,6 @@ public class ArticuloManufacturadoService {
                     .orElseThrow(() -> new EntityNotFoundException("Sucursal con ID 1 no encontrada"));
             articuloManufacturado.setSucursal(sucursal);
 
-            // Guardar inmediatamente después de asignar la categoría
             savedArticulo = articuloManufacturadoRepository.save(savedArticulo);
 
 
@@ -171,7 +168,6 @@ public class ArticuloManufacturadoService {
     @Transactional
     public ArticuloManufacturado actualizar(Long id, ArticuloManufacturado articuloManufacturado, CategoriaArticulo categoriaArticulo, List<MultipartFile> nuevasImagenes) {
         try {
-            // Buscar el artículo existente
             ArticuloManufacturado articuloExistente = articuloManufacturadoRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Artículo manufacturado no encontrado"));
 
@@ -197,7 +193,6 @@ public class ArticuloManufacturadoService {
                 articuloExistente.setCategoria(categoriaArticulo);
             }
 
-            // Eliminar los detalles antiguos
             detalleService.eliminarDetallesLogico(articuloExistente.getId());
 
             // Manejar los detalles
@@ -205,7 +200,6 @@ public class ArticuloManufacturadoService {
                 List<ArticuloManufacturadoDetalle> detallesExistentes = articuloExistente.getDetalles();
                 List<ArticuloManufacturadoDetalle> detallesIngresados = articuloManufacturado.getDetalles();
 
-                // Crear listas para nuevos detalles y detalles a eliminar
                 List<ArticuloManufacturadoDetalle> nuevosDetalles = new ArrayList<>();
                 List<ArticuloManufacturadoDetalle> detallesAEliminar = new ArrayList<>(detallesExistentes);
 
@@ -227,7 +221,6 @@ public class ArticuloManufacturadoService {
                         }
                     }
 
-                    // Si no se encontró, es un nuevo detalle
                     if (!encontrado) {
                         detalleIngresado.setArticuloManufacturado(articuloExistente);
                         detalleIngresado.setFechaAlta(LocalDateTime.now());
@@ -235,29 +228,24 @@ public class ArticuloManufacturadoService {
                     }
                 }
 
-                // Guardar nuevos detalles
                 if (!nuevosDetalles.isEmpty()) {
                     detalleService.guardarDetalles(articuloExistente, nuevosDetalles);
                 }
 
-                // Eliminar detalles que no están en los ingresados
                 if (!detallesAEliminar.isEmpty()) {
                     for (ArticuloManufacturadoDetalle detalleAEliminar : detallesAEliminar) {
                         detalleService.eliminarDetallesLogico(detalleAEliminar.getId());
                     }
                 }
 
-                // Actualizar la lista de detalles en el artículo existente
                 articuloExistente.setDetalles(detalleService.buscarDetallesPorArticuloId(articuloExistente.getId()));
 
-                // Recalcular costos y precios
                 articuloExistente.costoCalculado();
                 articuloExistente.precioCalculado();
             }
 
             // Procesar nuevas imágenes si las hay
             if (nuevasImagenes != null && !nuevasImagenes.isEmpty()) {
-                // Limpiar la lista de imágenes para que Hibernate elimine las huérfanas
                 articuloExistente.getImagenes().clear();
 
                 List<Imagen> imagenesGuardadas = new ArrayList<>();
@@ -274,8 +262,6 @@ public class ArticuloManufacturadoService {
                 articuloExistente.getImagenes().addAll(imagenesGuardadas);
             }
 
-
-            // Guardar artículo actualizado con
             return articuloManufacturadoRepository.save(articuloExistente);
 
         } catch (Exception e) {
@@ -292,20 +278,17 @@ public class ArticuloManufacturadoService {
                 .orElseThrow(() -> new EntityNotFoundException
                         ("Artículo Manufacturado no encontrado con ID: " + id));
 
-        // Dar de baja el artículo manufacturado
         articuloManufacturado.setFechaBaja(LocalDateTime.now());
         articuloManufacturadoRepository.save(articuloManufacturado);
-
-        // Dar de baja las imágenes asociadas
         if (articuloManufacturado.getImagenes() != null && !articuloManufacturado.getImagenes().isEmpty()) {
             for (Imagen imagen : articuloManufacturado.getImagenes()) {
                     imagenService.delete(imagen.getId());
             }
         }
 
-        // Dar de baja los detalles
         detalleService.eliminarDetallesLogico(id);
     }
+
     private ArticuloManufacturadoDto convertirADto(ArticuloManufacturado articulo) {
         ArticuloManufacturadoDto dto = new ArticuloManufacturadoDto();
         dto.setId(articulo.getId());
@@ -319,7 +302,6 @@ public class ArticuloManufacturadoService {
                 .map(this::convertirDetalleADto)
                 .toList());
 
-        // Asignar imágenes
         if (articulo.getImagenes() != null && !articulo.getImagenes().isEmpty()) {
             List<ImagenDto> imagenesInfo = articulo.getImagenes().stream()
                     .map(imagen -> new ImagenDto(imagen.getId(), imagen.getNombre()))
@@ -329,7 +311,6 @@ public class ArticuloManufacturadoService {
             dto.setImagenes(null);
         }
 
-        // Validar y asignar CategoriaArticulo
         if (articulo.getCategoria() != null) {
             CategoriaArticuloDto categoriaDto = new CategoriaArticuloDto();
             categoriaDto.setId(articulo.getCategoria().getId());

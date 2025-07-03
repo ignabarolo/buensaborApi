@@ -40,13 +40,11 @@ public class MercadoPagoService {
         Factura factura = facturaRepository.findById(facturaId)
                 .orElseThrow(() -> new IllegalArgumentException("Factura no encontrada: " + facturaId));
 
-        // Validar monto
         Double total = factura.getTotalVenta();
         if (total == null || total <= 0) {
             throw new IllegalArgumentException("El total de la factura debe ser mayor a cero.");
         }
 
-        // Crear items para MercadoPago (ajusta según tu modelo de detalle)
         PreferenceItemRequest item = PreferenceItemRequest.builder()
                 .title("Pago de Factura #" + factura.getId())
                 .quantity(1)
@@ -54,8 +52,6 @@ public class MercadoPagoService {
                 .currencyId("ARS")
                 .build();
 
-
-        // URLs de retorno
         String successUrl = appendFacturaId(mercadoPagoConfig.getSuccessUrl(), facturaId);
         String failureUrl = appendFacturaId(mercadoPagoConfig.getFailureUrl(), facturaId);
         String pendingUrl = appendFacturaId(mercadoPagoConfig.getPendingUrl(), facturaId);
@@ -75,7 +71,6 @@ public class MercadoPagoService {
         PreferenceClient client = new PreferenceClient();
         Preference preference = client.create(preferenceRequest);
 
-        // Guardar datos de MercadoPago en la base
         DatoMercadoPago dato = new DatoMercadoPago();
         dato.setDate_created(LocalDate.now());
         dato.setStatus("pending");

@@ -44,15 +44,11 @@ public class ArticuloVentaService {
     }
 
     public List<ArticuloVentaDto> obtenerArticulosParaVentaPorSucursal(Long idSucursal) {
-        // Verificar que la sucursal existe
         boolean sucursalExiste = sucursalEmpresaRepository.existsById(idSucursal);
         if (!sucursalExiste) {
             throw new IllegalArgumentException("La sucursal con ID " + idSucursal + " no existe");
         }
-
         List<ArticuloVentaDto> resultado = new ArrayList<>();
-
-        // Obtener insumos para venta (paraElaborar = false)
         List<ArticuloInsumo> insumos = articuloInsumoRepository.findByEsParaElaborarFalseAndFechaBajaIsNull();
         insumos.forEach(insumo -> {
             ArticuloVentaDto dto = new ArticuloVentaDto();
@@ -64,7 +60,6 @@ public class ArticuloVentaService {
             dto.setStockDisponible(insumo.obtenerStockEnSucursal(idSucursal));
             dto.setDisponible(insumo.obtenerEstado());
 
-            // Establecer URL de imagen si existe
             if (insumo.getImagenes() != null && !insumo.getImagenes().isEmpty()) {
                 dto.setImagenUrl(insumo.getImagenes().iterator().next().getNombre());
             }
@@ -72,7 +67,6 @@ public class ArticuloVentaService {
             resultado.add(dto);
         });
 
-        // Obtener artículos manufacturados
         List<ArticuloManufacturado> manufacturados = articuloManufacturadoRepository.findAllByFechaBajaIsNull();
         manufacturados.forEach(manufacturado -> {
             ArticuloVentaDto dto = new ArticuloVentaDto();
@@ -85,7 +79,6 @@ public class ArticuloVentaService {
             dto.setStockDisponible(manufacturado.stockCalculadoPorSucursal(idSucursal));
             dto.setDisponible(manufacturado.obtenerEstado());
 
-            // Establecer URL de imagen si existe
             if (manufacturado.getImagenes() != null && !manufacturado.getImagenes().isEmpty()) {
                 dto.setImagenUrl(manufacturado.getImagenes().iterator().next().getNombre());
             }
@@ -93,7 +86,6 @@ public class ArticuloVentaService {
             resultado.add(dto);
         });
 
-        // Obtener promociones activas
         List<Promocion> promociones = promocionRepository.findActivePromotions(LocalDate.now());
         promociones.forEach(promocion -> {
             ArticuloVentaDto dto = new ArticuloVentaDto();
@@ -106,7 +98,6 @@ public class ArticuloVentaService {
             dto.setStockDisponible(stockDisponible);
             dto.setDisponible(promocion.obtenerDisponible(idSucursal));
 
-            // Establecer URL de imagen si existe
             if (promocion.getImagenes() != null && !promocion.getImagenes().isEmpty()) {
                 dto.setImagenUrl(promocion.getImagenes().iterator().next().getNombre());
             }

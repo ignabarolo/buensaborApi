@@ -91,9 +91,7 @@ public class SucursalInsumoController {
             if (nuevoStock == null) {
                 return ResponseEntity.badRequest().body("El valor de stockActual es requerido");
             }
-
             SucursalInsumo actualizado = sucursalInsumoService.actualizarStockActual(articuloId, sucursalId, nuevoStock);
-            // Devolvemos solo el stock actualizado
             Map<String, Double> respuesta = Map.of("stockActual", actualizado.getStockActual());
             return ResponseEntity.ok(respuesta);
         } catch (Exception e) {

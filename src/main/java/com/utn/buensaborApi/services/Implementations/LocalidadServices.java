@@ -26,23 +26,24 @@ public class LocalidadServices {
      public Localidad obtenerPorId (Long id) {
          return localidadRepository.findById(id).orElse(null);
      }
-  public void eliminar(long id){
-    Localidad localidad = localidadRepository.findById(id).orElse(null);
-    if (localidad != null) {
-        localidad.setFechaBaja(LocalDateTime.now());
-        localidadRepository.save(localidad);
-    }
-}
+
+     public void eliminar(long id){
+        Localidad localidad = localidadRepository.findById(id).orElse(null);
+        if (localidad != null) {
+            localidad.setFechaBaja(LocalDateTime.now());
+            localidadRepository.save(localidad);
+        }
+     }
 
      public Localidad actualizar(Long id, Localidad localidadActualizada) {
-    Localidad existente = localidadRepository.findById(id).orElse(null);
-    if (existente != null) {
-        existente.setNombre(localidadActualizada.getNombre());
-        existente.setProvincia(localidadActualizada.getProvincia());
-        existente.setFechaModificacion(LocalDateTime.now());
-        return localidadRepository.save(existente);
-    }
-    return null;
-}
+        Localidad existente = localidadRepository.findById(id).orElse(null);
+        if (existente != null) {
+            existente.setNombre(localidadActualizada.getNombre());
+            existente.setProvincia(localidadActualizada.getProvincia());
+            existente.setFechaModificacion(LocalDateTime.now());
+            return localidadRepository.save(existente);
+        }
+        return null;
+     }
 
 }

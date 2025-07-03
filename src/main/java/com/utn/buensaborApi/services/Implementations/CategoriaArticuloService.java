@@ -52,8 +52,6 @@ public class CategoriaArticuloService {
         if (categoria.getSucursal() == null || categoria.getSucursal().getId() == null) {
             throw new RuntimeException("Sucursal es obligatoria");
         }
-
-        // Si se envió un padre válido, se busca y asigna. Si no, se deja como null.
         if (categoria.getCategoriaPadre() != null && categoria.getCategoriaPadre().getId() != null) {
             CategoriaArticulo padre = categoriaRepository.findById(categoria.getCategoriaPadre().getId())
                     .orElseThrow(() -> new RuntimeException("Categoría padre no encontrada con ID: " + categoria.getCategoriaPadre().getId()));

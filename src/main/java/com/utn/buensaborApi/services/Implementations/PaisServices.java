@@ -28,13 +28,13 @@ public class PaisServices {
          return paisRepository.findById(id).orElse(null);
      }
      
-      public void eliminar(long id){
+     public void eliminar(long id){
         Pais pais = paisRepository.findById(id).orElse(null);
         if (pais != null) {
             pais.setFechaBaja(LocalDateTime.now());
             paisRepository.save(pais);
         }
-    }
+     }
 
     public Pais actualizar(Long id, Pais paisDetalles) {
         Optional<Pais> paisOptional = paisRepository.findById(id);

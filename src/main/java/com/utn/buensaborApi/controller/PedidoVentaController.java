@@ -39,21 +39,19 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
     @GetMapping("/mis-pedidos")
     public ResponseEntity<?> obtenerPedidosDelCliente(@AuthenticationPrincipal Jwt jwt) {
         try {
-            // 1. Obtener el email desde el JWT
+
             String email = jwt.getClaimAsString("email");
             if (email == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"error\": \"No se encontró el email en el token.\"}");
             }
 
-            // 2. Buscar el cliente por email
             Cliente cliente = clienteService.obtenerPorEmail(email);
             if (cliente == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
             }
 
-            // 3. Obtener pedidos del cliente
             List<PedidoVentaDto> pedidos = servicio.obtenerPedidosPorCliente(cliente.getId());
 
             return ResponseEntity.ok(pedidos);
@@ -107,25 +105,19 @@ public class PedidoVentaController extends BaseControllerImpl<PedidoVenta, Pedid
     @PostMapping("/Create")
     public ResponseEntity<?> save(@RequestBody PedidoVentaDto dto, @AuthenticationPrincipal Jwt jwt) {
         try {
-
-            // 1. Obtener el email desde el JWT
             String email = jwt.getClaimAsString("email");
             if (email == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"error\": \"No se encontró el email en el token.\"}");
             }
 
-            // 2. Buscar el cliente por email
             Cliente cliente = clienteService.obtenerPorEmail(email);
             if (cliente == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("{\"error\": \"No se encontró un cliente con ese email.\"}");
             }
 
-            // 3. Asignar el ID del cliente al pedido
             dto.setCliente(cliente);
-
-            // 4. Guardar el pedido
             logger.info(" pedido : {}", dto);
             return ResponseEntity.status(HttpStatus.OK).body(servicio.saveDto(dto));
         } catch (Exception e) {

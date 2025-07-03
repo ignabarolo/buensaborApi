@@ -1,10 +1,7 @@
 
 package com.utn.buensaborApi.models;
 
-/**
- *
- * @author Enzo
- */
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utn.buensaborApi.models.base.BaseEntity;
 import jakarta.persistence.*;

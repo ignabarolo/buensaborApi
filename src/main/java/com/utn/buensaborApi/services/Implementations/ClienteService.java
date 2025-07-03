@@ -55,47 +55,46 @@ private UsuarioRepository usuarioRepository;
     }
 
 
-public Cliente actualizar(Long id, putClienteDTO dto) {
-    Cliente clienteExistente = clienteRepository.findById(id).orElse(null);
-    if (clienteExistente != null) {
-        clienteExistente.setNombre(dto.getNombre());
-        clienteExistente.setApellido(dto.getApellido());
-        clienteExistente.setTelefono(dto.getTelefono());
-        clienteExistente.setEmail(dto.getEmail());
-        clienteExistente.setFechaDeNacimiento(dto.getFechaDeNacimiento());
+    public Cliente actualizar(Long id, putClienteDTO dto) {
+            Cliente clienteExistente = clienteRepository.findById(id).orElse(null);
+            if (clienteExistente != null) {
+                clienteExistente.setNombre(dto.getNombre());
+                clienteExistente.setApellido(dto.getApellido());
+                clienteExistente.setTelefono(dto.getTelefono());
+                clienteExistente.setEmail(dto.getEmail());
+                clienteExistente.setFechaDeNacimiento(dto.getFechaDeNacimiento());
 
-        // 👉 ACTUALIZAR USUARIO Y AUTH0
-        Usuario usuario = clienteExistente.getUsuario();
-        if (usuario != null) {
-            usuario.setNombreUsuario(dto.getEmail());
-            usuarioRepository.save(usuario);
+                Usuario usuario = clienteExistente.getUsuario();
+                if (usuario != null) {
+                    usuario.setNombreUsuario(dto.getEmail());
+                    usuarioRepository.save(usuario);
 
-            // Actualizar en Auth0 también
-            auth0Service.actualizarEmailYNombre(usuario.getAuth0id(), dto.getEmail(), dto.getNombre());
-        }
+                    auth0Service.actualizarEmailYNombre(usuario.getAuth0id(), dto.getEmail(), dto.getNombre());
+                }
 
-        // Domicilio
-        domicilioDTO domicilioDto = dto.getDomicilio();
-        Domicilio domicilio = clienteExistente.getDomicilio() != null ? clienteExistente.getDomicilio() : new Domicilio();
-        domicilio.setCalle(domicilioDto.getCalle());
-        domicilio.setNumero(domicilioDto.getNumero());
-        domicilio.setCodigoPostal(domicilioDto.getCodigoPostal());
+                domicilioDTO domicilioDto = dto.getDomicilio();
+                Domicilio domicilio = clienteExistente.getDomicilio() != null ? clienteExistente.getDomicilio() : new Domicilio();
+                domicilio.setCalle(domicilioDto.getCalle());
+                domicilio.setNumero(domicilioDto.getNumero());
+                domicilio.setCodigoPostal(domicilioDto.getCodigoPostal());
 
-        Localidad localidad = localidadServices.obtenerPorId(domicilioDto.getIdLocalidad());
-        if (localidad != null) {
-            domicilio.setLocalidad(localidad);
-        }
+                Localidad localidad = localidadServices.obtenerPorId(domicilioDto.getIdLocalidad());
+                if (localidad != null) {
+                    domicilio.setLocalidad(localidad);
+                }
 
-        clienteExistente.setDomicilio(domicilio);
-        clienteExistente.setFechaModificacion(LocalDateTime.now());
+                clienteExistente.setDomicilio(domicilio);
+                clienteExistente.setFechaModificacion(LocalDateTime.now());
 
-        return clienteRepository.save(clienteExistente);
+                return clienteRepository.save(clienteExistente);
+            }
+            return null;
     }
-    return null;
-}
-public Cliente obtenerPorAuth0Id(String auth0Id) {
-    return clienteRepository.findByUsuario_Auth0id(auth0Id).orElse(null);
-}
+
+
+    public Cliente obtenerPorAuth0Id(String auth0Id) {
+        return clienteRepository.findByUsuario_Auth0id(auth0Id).orElse(null);
+    }
 
 
     public Cliente obtenerPorEmail(String email) {

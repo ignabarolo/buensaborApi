@@ -54,27 +54,17 @@ public class ImagenService {
     @Transactional
     public Imagen uploadImage(MultipartFile file) throws IOException {
         init();
-        // Validar que el archivo no sea nulo
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("El archivo no puede estar vacío");
         }
         String originalFileName = file.getOriginalFilename();
-        // Validar la extensión del archivo
         if (originalFileName == null || isInValidImageExtension(originalFileName)) {
             throw new IllegalArgumentException("Formato de archivo no válido");
         }
-
-        // Generar nombre único para el archivo
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         String newFileName = UUID.randomUUID() + fileExtension;
-
-        // Crear la ruta completa
         Path filePath = Paths.get(uploadDir, newFileName);
-
-        // Guardar el archivo en el sistema de archivos
         Files.copy(file.getInputStream(), filePath);
-
-        // Crear y guardar la entidad Imagen
         Imagen imagen = new Imagen();
         imagen.setNombre(newFileName);
         return imagenRepository.save(imagen);
@@ -92,12 +82,10 @@ public class ImagenService {
             throw new RuntimeException("Imagen no encontrada o dada de baja");
         }
 
-        // Eliminar el archivo antiguo
         Imagen imagenAnterior = imagenExistente.get();
         imagenAnterior.setFechaBaja(LocalDateTime.now());
         imagenRepository.save(imagenAnterior);
 
-        // Crear nuevo registro de imagen
         String originalFileName = file.getOriginalFilename();
         if (originalFileName == null || isInValidImageExtension(originalFileName)) {
             throw new IllegalArgumentException("Formato de archivo no válido");
@@ -110,7 +98,6 @@ public class ImagenService {
         Files.createDirectories(newFilePath.getParent());
         Files.copy(file.getInputStream(), newFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Crear y guardar nueva imagen
         Imagen nuevaImagen = new Imagen();
         nuevaImagen.setNombre(newFileName);
         return imagenRepository.save(nuevaImagen);

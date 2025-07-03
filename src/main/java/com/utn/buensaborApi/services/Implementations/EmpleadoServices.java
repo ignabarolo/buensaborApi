@@ -74,22 +74,17 @@ public class EmpleadoServices {
         empleadoExistente.setNombre(dto.getNombre());
         empleadoExistente.setApellido(dto.getApellido());
         empleadoExistente.setTelefono(dto.getTelefono());
-
-        // Solo si cambió el email
         if (!empleadoExistente.getEmail().equals(dto.getEmail())) {
             empleadoExistente.setEmail(dto.getEmail());
 
-            // Actualizar email en Usuario
             Usuario usuario = empleadoExistente.getUsuario();
             usuario.setNombreUsuario(dto.getEmail());
             usuarioRepository.save(usuario);
 
-            // Actualizar email en Auth0
             String auth0Id = usuario.getAuth0id();
             auth0Service.actualizarEmailYNombre(auth0Id, dto.getEmail(), dto.getNombre());
         }
 
-        // Actualizar rol si cambió
         Rol rolAnterior = empleadoExistente.getRol();
         Rol nuevoRol = dto.getRol();
         if (!rolAnterior.equals(nuevoRol)) {
@@ -101,7 +96,6 @@ public class EmpleadoServices {
             auth0Service.asignarRol(auth0Id, nuevoRolId);
         }
 
-        // Domicilio
         Domicilio domicilio = empleadoExistente.getDomicilio();
         if (domicilio == null) {
             domicilio = new Domicilio();
@@ -117,13 +111,11 @@ public class EmpleadoServices {
         domicilio = domicilioRepository.save(domicilio);
         empleadoExistente.setDomicilio(domicilio);
 
-        // Sucursal
         empleadoExistente.setSucursal(
             sucursalRepository.findById(dto.getSucursalId())
                 .orElseThrow(() -> new RuntimeException("Sucursal no encontrada"))
         );
 
-        // Contraseña opcional
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             String encodedPassword = passwordEncoder.encode(dto.getPassword());
             empleadoExistente.setPassword(encodedPassword);

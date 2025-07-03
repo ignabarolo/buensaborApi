@@ -56,14 +56,12 @@ public class ArticuloManufacturadoDetalleService {
         // Actualizar o crear nuevos detalles
         for (ArticuloManufacturadoDetalle nuevoDetalle : nuevosDetalles) {
             if (nuevoDetalle.getId() != null) {
-                // Buscar el detalle existente
                 ArticuloManufacturadoDetalle detalleExistente = detallesExistentes.stream()
                         .filter(detalle -> detalle.getId().equals(nuevoDetalle.getId()))
                         .findFirst()
                         .orElse(null);
 
                 if (detalleExistente != null) {
-                    // Comparar y actualizar solo si hay cambios
                     if (!detalleExistente.getCantidad().equals(nuevoDetalle.getCantidad()) ||
                             !detalleExistente.getArticuloInsumo().getId().equals(nuevoDetalle.getArticuloInsumo().getId())) {
                         detalleExistente.setCantidad(nuevoDetalle.getCantidad());
@@ -73,14 +71,12 @@ public class ArticuloManufacturadoDetalleService {
                     }
                 }
             } else {
-                // Crear nuevo detalle
                 nuevoDetalle.setArticuloManufacturado(articuloManufacturado);
                 nuevoDetalle.setFechaAlta(LocalDateTime.now());
                 detalleRepository.save(nuevoDetalle);
             }
         }
 
-        // Retornar la lista actualizada de detalles
         return detalleRepository.findByArticuloManufacturadoId(articuloManufacturado.getId());
     }
 
@@ -97,7 +93,6 @@ public class ArticuloManufacturadoDetalleService {
         }
     }
 
-    //Buscar detalles de un articulo manufacturado por id
     public List<ArticuloManufacturadoDetalle> buscarDetallesPorArticuloId(Long articuloId) {
         return detalleRepository.findByArticuloManufacturadoId(articuloId);
     }
